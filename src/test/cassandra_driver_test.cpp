@@ -13,7 +13,6 @@
 int main(int argc, char *argv[])
 {
 	CassandraDBDriver* database = (CassandraDBDriver*)CassandraDBDriver::getDatabaseDriverObject();
-	database->openConnection();
 	database->selectKeySpace("pweb");
 	boost::shared_future <cql::cql_future_result_t> results = database->executeQuery("select * from users");
 
