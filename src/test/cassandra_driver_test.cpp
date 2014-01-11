@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "cassandra_db.h"
+#include "../database/cassandra_db.h"
+#include "../interfaces/database_driver.h"
 
 /**
  * Schema:
@@ -11,9 +12,8 @@
 
 int main(int argc, char *argv[])
 {
-	CassandraDBDriver *database = new CassandraDBDriver();
+	CassandraDBDriver* database = (CassandraDBDriver*)CassandraDBDriver::getDatabaseDriverObject();
 	database->openConnection();
-
 	database->selectKeySpace("pweb");
 	boost::shared_future <cql::cql_future_result_t> results = database->executeQuery("select * from users");
 
