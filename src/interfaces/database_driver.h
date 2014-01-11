@@ -9,7 +9,6 @@
 #define DATABASE_DRIVER_H_
 
 #include <string>
-#include <boost/shared_ptr.hpp>
 
 using namespace std;
 

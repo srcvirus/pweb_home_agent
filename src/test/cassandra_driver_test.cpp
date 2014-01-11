@@ -37,6 +37,11 @@ int main(int argc, char *argv[])
 		rowIndex++;
 	}
 
+	nRows = (*(results.get().result)).row_count();
+	rows = (*(results.get().result));
+
+	printf("%d rows returned in second query", nRows);
+
 	delete database;
 	return 0;
 }

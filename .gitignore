@@ -1,5 +1,8 @@
 .cproject
 .project
-Debug
-Release
+Debug/*
+Release/*
+bin/*
+obj/*
+
 
