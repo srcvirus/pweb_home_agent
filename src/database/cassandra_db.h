@@ -49,8 +49,8 @@ protected:
 
 public:
 
-	static unsigned short int	DEFAULT_DB_PORT;
-	static string				DEFAULT_DB_SERVER;
+	static unsigned short int DEFAULT_DB_PORT;
+	static string DEFAULT_DB_SERVER;
 
 	/* Virtual functions inherited from the abstract class */
 	virtual int	openConnection();

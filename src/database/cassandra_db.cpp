@@ -1,8 +1,8 @@
 #include "cassandra_db.h"
 
-short unsigned int	CassandraDBDriver::DEFAULT_DB_PORT 		= 9042;
-string				CassandraDBDriver::DEFAULT_DB_SERVER 	= "127.0.0.1";
-bool 				CassandraDBDriver::instanceExists 		= false;
+short unsigned int	CassandraDBDriver::DEFAULT_DB_PORT 	= 9042;
+string CassandraDBDriver::DEFAULT_DB_SERVER = "127.0.0.1";
+bool CassandraDBDriver::instanceExists = false;
 
 IDatabaseDriver < boost::shared_future <cql::cql_future_result_t> >*	CassandraDBDriver::databaseDriverObject = NULL;
 
