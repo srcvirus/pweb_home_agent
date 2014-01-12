@@ -11,12 +11,14 @@ HomeAgentIndex* HomeAgentIndexCassandraController::getHomeAgentIndex(const strin
 {
 	HomeAgentIndex* retObject;
 	string queryString = "select * from home_agent_index where name = '" + name + "';";
-	boost::shared_future <cql::cql_future_result_t> results = databaseDriver->executeQuery(queryString);
 
-	cql::cql_result_t& rows = (*(results.get().result));
+	boost::shared_future <cql::cql_future_result_t> results = databaseDriver->executeQuery(queryString);
+	cql::cql_result_t& rows = *(results.get().result);
 
 	string haName, haIp;
 	int haPort;
+
+	rows.next();
 
 	rows.get_string(HomeAgentIndex::COL_NAME, haName);
 	rows.get_string(HomeAgentIndex::COL_IP, haIp);

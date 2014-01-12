@@ -9,6 +9,7 @@
 #define HOME_AGENT_INDEX_H_
 
 #include <string>
+#include <stdio.h>
 
 using namespace std;
 
@@ -16,7 +17,7 @@ class HomeAgentIndex
 {
 	string name;
 	string ip;
-	string port;
+	int port;
 
 public:
 
@@ -25,7 +26,7 @@ public:
 	static const string COL_PORT;
 
 	HomeAgentIndex(){;}
-	HomeAgentIndex(string name, string ip, string port):name(name), ip(ip), port(port){;}
+	HomeAgentIndex(string name, string ip, int port):name(name), ip(ip), port(port){;}
 
 	const string& getIp() const
 	{
@@ -47,19 +48,26 @@ public:
 		this->name = name;
 	}
 
-	const string& getPort() const
+	int getPort() const
 	{
 		return port;
 	}
 
-	void setPort(const string& port)
+	void setPort(int port)
 	{
 		this->port = port;
 	}
-};
 
-const string HomeAgentIndex::COL_NAME = "name";
-const string HomeAgentIndex::COL_IP = "ip";
-const string HomeAgentIndex::COL_PORT = "port";
+	void print()
+	{
+		printf("{\n");
+		printf("\t%s : %s\n", HomeAgentIndex::COL_NAME.c_str(), this->name.c_str());
+		printf("\t%s : %s\n", HomeAgentIndex::COL_IP.c_str(), this->ip.c_str());
+		printf("\t%s : %d\n", HomeAgentIndex::COL_PORT.c_str(), this->port);
+		printf("}\n");
+	}
+
+
+};
 
 #endif /* HOME_AGENT_INDEX_H_ */
