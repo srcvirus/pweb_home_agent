@@ -35,7 +35,7 @@ int timeval_subtract (struct timeval *result, struct timeval *x,struct timeval  
   return x->tv_sec < y->tv_sec;
 }
 
-void *make_query(void* args)
+void *run_query(void* args)
 {
 	CassandraDBDriver* dbDriver = (CassandraDBDriver*)args;
 	string key_set[] = {"mypc0", "mypc1", "mypc2"};
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 	database->selectKeySpace("pweb");
 
 	long nCpuThreads = sysconf(_SC_NPROCESSORS_ONLN);
-	printf("# of CPUS = %ld\n", nCpuThreads);
+	printf("# of CPU threads = %ld\n", nCpuThreads);
 
 	pthread_t queryThread[N_THREADS];
 	pthread_attr_t threadAttr;
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 		CPU_SET(i % nCpuThreads, &cpuSet);
 		pthread_attr_setaffinity_np(&threadAttr, sizeof(cpu_set_t), &cpuSet);
 
-		pthread_create(&queryThread[i], &threadAttr, make_query, database);
+		pthread_create(&queryThread[i], &threadAttr, run_query, database);
 		if(i == 0)
 			gettimeofday(&start, NULL);
 
