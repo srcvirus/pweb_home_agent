@@ -33,3 +33,5 @@ git clone https://github.com/datastax/cpp-driver.git
 cd cpp-driver
 cmake . && make && make cql_demo && make cql_test && make test && make install
 ```
+More details along with example usage of libcql can be found in its github page:
+https://github.com/datastax/cpp-driver 
