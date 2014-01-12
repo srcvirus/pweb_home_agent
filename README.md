@@ -8,17 +8,17 @@ The home agent software uses cassandra (1.2+) as underlying
 indexing storage. Details about cassandra (1.2+) installation can
 be found at:
 
-	http://www.datastax.com/documentation/cassandra/1.2/webhelp/index.html#cassandra/install/installDeb_t.html
+http://www.datastax.com/documentation/cassandra/1.2/webhelp/index.html#cassandra/install/installDeb_t.html
 
 The home agent software depends on the following libraries:
 
-1. boost_system
-2. boost_thread
-3. ssl
-4. crypto
-5. cql
+1. libboost_system-dev
+2. libboost_thread-dev
+3. libssl-dev
+4. libcrypto++-dev
+5. libcql
 
-On a Ubuntu/Debian system all these libraries except cql can be installed from the
+On a Ubuntu/Debian system all these libraries (except cql) can be installed from the
 command line by running:
 
 ```
