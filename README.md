@@ -17,16 +17,21 @@ The home agent software depends on the following libraries:
 3. libboost_filesystem1.53-dev
 4. libboost_program-options-dev
 5. libboost_test-dev
-6. libssl-dev
-7. libcrypto++-dev
-8. libcql
+6. libboost_log
+7. libboost_log_setup
+8. libssl-dev
+9. libssh2-1-dev
+10. libcrypto++-dev
+11. libcql
  
 
 On a Ubuntu/Debian system all these libraries (except cql) can be installed from the
 command line by running:
+(instead of installing all the boost librarires, installing only the listed ones would
+work as well)
 
 ```
-sudo apt-get install libboost-system-dev libboost-thread-dev libboost-filesystem1.53-dev  libssl-dev libcrypto++-dev libboost-test-dev libboost-program-options-dev
+sudo apt-get install libboost1.54-dev-all libssl-dev libssh2-1-dev libcrypto++-dev
 ```
 
 To install libcql download the Datastax C++ driver from github by running:
