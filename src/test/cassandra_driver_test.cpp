@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <boost/asio.hpp>
+
 #include "../database/cassandra_db.h"
 #include "../interfaces/database_driver.h"
 #include "../controllers/home_agent_index_cassandra_controller.h"
@@ -8,11 +10,16 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define N_THREADS 9
+#define N_THREADS 3
 #define N_KEYS 3
 #define N_REPS 500
 
 timeval start, end, elapsed;
+
+boost::asio::io_service ioService;
+boost::asio::ip::udp::endpoint remoteEndpoint;
+boost::array <char, 1024> buffer;
+boost::asio::ip::udp::socket udpListenSocket(ioService, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 1053));
 
 int timeval_subtract (struct timeval *result, struct timeval *x,struct timeval  *y)
 {
@@ -97,6 +104,29 @@ void test_protocol_helper()
 
 	delete[] buf;
 }
+void startReceive();
+
+void udp_request_handler(boost::array <char, 1024>& buffer, std::size_t bytesReceived)
+{
+	char *buf = buffer.elems;
+
+	printf("Received %lu bytes\n", bytesReceived);
+	for(int i = 0; i < bytesReceived; i++) printf(" %c ", buf[i]);
+	putchar('\n');
+	startReceive();
+}
+
+void boost_udp_test(unsigned short portNo)
+{
+	pthread_t threadPool[N_THREADS];
+	startReceive();
+}
+
+void startReceive()
+{
+	udpListenSocket.async_receive_from(boost::asio::buffer(buffer), remoteEndpoint, boost::bind(&udp_request_handler, buffer, boost::asio::placeholders::bytes_transferred()));
+	ioService.run();
+}
 
 void test_cassandradb_driver()
 {
@@ -146,6 +176,6 @@ int main(int argc, char *argv[])
 {
 	test_cassandradb_driver();
 	test_protocol_helper();
-
+	boost_udp_test(1053);
 	return 0;
 }
