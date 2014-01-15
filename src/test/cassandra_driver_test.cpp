@@ -1,16 +1,25 @@
 #include <stdio.h>
+#include <boost/asio.hpp>
+
 #include "../database/cassandra_db.h"
 #include "../interfaces/database_driver.h"
 #include "../controllers/home_agent_index_cassandra_controller.h"
 #include "../models/home_agent_index.h"
+#include "../protocol/protocol_helper.h"
+
 #include <pthread.h>
 #include <unistd.h>
 
-#define N_THREADS 9
+#define N_THREADS 3
 #define N_KEYS 3
-#define N_REPS 1000
+#define N_REPS 500
 
 timeval start, end, elapsed;
+
+boost::asio::io_service ioService;
+boost::asio::ip::udp::endpoint remoteEndpoint;
+boost::array <char, 1024> buffer;
+boost::asio::ip::udp::socket udpListenSocket(ioService, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 1053));
 
 int timeval_subtract (struct timeval *result, struct timeval *x,struct timeval  *y)
 {
@@ -54,8 +63,74 @@ void *run_query(void* args)
 	delete haIndexController;
 }
 
-int main(int argc, char *argv[])
+void test_protocol_helper()
 {
+	printf("Testing protocol helpers\n");
+
+	char *buf = new char[100];
+
+	int testInt = 122021, testIntRead = 0;
+	long testLong = 1236532L, testLongRead = 0;
+	char testChar = 'a', testCharRead = 0;
+	double testDouble = 654.2342, testDoubleRead = 0.0;
+
+	string testString = "test string", testStringRead;
+
+	long offset = 0;
+	offset = ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, offset, testInt);
+	offset = ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, offset, testLong);
+	offset = ProtocolHelper::placeStringIntoByteBuffer(buf, offset, testString);
+	offset = ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, offset, testDouble);
+	offset = ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, offset, testChar);
+
+
+	offset = 0;
+	offset = ProtocolHelper::extractAtomicDataFromByteBuffer(buf, offset, &testIntRead);
+	offset = ProtocolHelper::extractAtomicDataFromByteBuffer(buf, offset, &testLongRead);
+	offset = ProtocolHelper::extractStringFromByteBuffer(buf, offset, testStringRead);
+	offset = ProtocolHelper::extractAtomicDataFromByteBuffer(buf, offset, &testDoubleRead);
+	offset = ProtocolHelper::extractAtomicDataFromByteBuffer(buf, offset, &testCharRead);
+
+	printf("Testing Atomic Data serialization/deserialization:\n");
+	{
+		printf("\tTest 0 [type: int]:\t"); if(testInt - testIntRead == 0) printf("passed\n"); else printf("not passed; original = %d, read = %d\n", testInt, testIntRead);
+		printf("\tTest 1 [type: long]:\t"); if(testLong - testLongRead == 0) printf("passed\n"); else printf("not passed; original = %ld, read = %ld\n", testLong, testLongRead);
+		printf("\tTest 2 [type: char]:\t"); if(testChar - testCharRead == 0) printf("passed\n"); else printf("not passed; original = %c, read = %c\n", testChar, testCharRead);
+		printf("\tTest 3 [type: double]:\t"); if(fabs(testDouble - testDoubleRead) < 1e-7 ) printf("passed\n"); else printf("not passed; original = %lf, read = %lf\n", testDouble, testDoubleRead);
+	}
+
+	printf("Testing String serialization/desrialization:\n");
+	printf("\tTest 4 [type: string]:\t"); if(testString == testStringRead) printf("passed\n"); else printf("not passed; original = %s, read = %s\n", testString.c_str(), testStringRead.c_str());
+
+	delete[] buf;
+}
+void startReceive();
+
+void udp_request_handler(boost::array <char, 1024>& buffer, std::size_t bytesReceived)
+{
+	char *buf = buffer.elems;
+
+	printf("Received %lu bytes\n", bytesReceived);
+	for(int i = 0; i < bytesReceived; i++) printf(" %c ", buf[i]);
+	putchar('\n');
+	startReceive();
+}
+
+void boost_udp_test(unsigned short portNo)
+{
+	pthread_t threadPool[N_THREADS];
+	startReceive();
+}
+
+void startReceive()
+{
+	udpListenSocket.async_receive_from(boost::asio::buffer(buffer), remoteEndpoint, boost::bind(&udp_request_handler, buffer, boost::asio::placeholders::bytes_transferred()));
+	ioService.run();
+}
+
+void test_cassandradb_driver()
+{
+	printf("Testing Cassandra Database Driver\n");
 	CassandraDBDriver* database = (CassandraDBDriver*)CassandraDBDriver::getDatabaseDriverObject();
 	database->selectKeySpace("pweb");
 
@@ -96,5 +171,11 @@ int main(int argc, char *argv[])
 	printf("Performed %d queries in %ld:%ld [%.3lf seconds]\n", N_THREADS * N_REPS * N_KEYS, elapsed.tv_sec, elapsed.tv_usec, elapsedTime);
 
 	delete database;
+}
+int main(int argc, char *argv[])
+{
+	test_cassandradb_driver();
+	test_protocol_helper();
+	boost_udp_test(1053);
 	return 0;
 }
