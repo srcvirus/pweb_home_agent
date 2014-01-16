@@ -6,6 +6,7 @@
 #include "../controllers/home_agent_index_cassandra_controller.h"
 #include "../models/home_agent_index.h"
 #include "../protocol/protocol_helper.h"
+#include "../server/home_agent_server.h"
 
 #include <pthread.h>
 #include <unistd.h>
@@ -16,10 +17,11 @@
 
 timeval start, end, elapsed;
 
-boost::asio::io_service ioService;
+/*boost::asio::io_service ioService;
 boost::asio::ip::udp::endpoint remoteEndpoint;
 boost::array <char, 1024> buffer;
-boost::asio::ip::udp::socket udpListenSocket(ioService, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 1153));
+boost::asio::ip::udp::socket udpListenSocket(ioService, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 1150));
+*/
 
 int timeval_subtract (struct timeval *result, struct timeval *x,struct timeval  *y)
 {
@@ -46,8 +48,6 @@ int timeval_subtract (struct timeval *result, struct timeval *x,struct timeval  
 
 void *run_query(void* args)
 {
-	printf("Starting Query Sequence\n");
-
 	CassandraDBDriver* dbDriver = (CassandraDBDriver*)args;
 	string key_set[] = {"mypc0", "mypc1", "mypc2"};
 
@@ -108,23 +108,23 @@ void test_protocol_helper()
 }
 void startReceive();
 
-void udp_request_handler(boost::array <char, 1024>& buffer, std::size_t bytesReceived)
+/*void udp_request_handler(boost::array <char, 1024>& buffer, std::size_t bytesReceived)
 {
 	char *buf = buffer.elems;
 
-	printf("Received %lu bytes\n", bytesReceived);
+	printf("[Thread %u] Received %lu bytes\n", (unsigned int)pthread_self(), bytesReceived);
 	for(int i = 0; i < bytesReceived; i++) printf(" %c ", buf[i]);
 	putchar('\n');
 	startReceive();
 }
-
+*/
 void* io_service_thread(void* args)
 {
 	boost::asio::io_service* ioService = (boost::asio::io_service*)args;
 	ioService->run();
 }
 
-void boost_udp_test(unsigned short portNo)
+/*void boost_udp_test(unsigned short portNo)
 {
 	printf("Performing multi threaded boost asio socket test\n");
 	pthread_t threadPool[2];
@@ -137,12 +137,18 @@ void boost_udp_test(unsigned short portNo)
 
 	pthread_join(threadPool[0], NULL);
 	pthread_join(threadPool[1], NULL);
+}*/
+
+void home_agent_server_test()
+{
+	printf("Testing home agent server\n");
+	HomeAgentServer haServer(11053, 4, 0x03);
 }
 
-void startReceive()
+/*void startReceive()
 {
 	udpListenSocket.async_receive_from(boost::asio::buffer(buffer), remoteEndpoint, boost::bind(&udp_request_handler, buffer, boost::asio::placeholders::bytes_transferred()));
-}
+}*/
 
 void test_cassandradb_driver()
 {
@@ -191,8 +197,9 @@ void test_cassandradb_driver()
 }
 int main(int argc, char *argv[])
 {
-	test_cassandradb_driver();
+	//test_cassandradb_driver();
 	//test_protocol_helper();
-	//boost_udp_test(1053);
+	home_agent_server_test();
+	//boost_udp_test(1153);
 	return 0;
 }
