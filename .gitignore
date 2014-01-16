@@ -4,5 +4,6 @@ Debug/*
 Release/*
 bin/*
 obj/*
+*.o
 
 
