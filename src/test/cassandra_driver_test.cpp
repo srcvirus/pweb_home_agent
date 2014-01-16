@@ -10,7 +10,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define N_THREADS 3
+#define N_THREADS 8
 #define N_KEYS 3
 #define N_REPS 500
 
@@ -19,7 +19,7 @@ timeval start, end, elapsed;
 boost::asio::io_service ioService;
 boost::asio::ip::udp::endpoint remoteEndpoint;
 boost::array <char, 1024> buffer;
-boost::asio::ip::udp::socket udpListenSocket(ioService, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 1053));
+boost::asio::ip::udp::socket udpListenSocket(ioService, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 1153));
 
 int timeval_subtract (struct timeval *result, struct timeval *x,struct timeval  *y)
 {
@@ -46,6 +46,8 @@ int timeval_subtract (struct timeval *result, struct timeval *x,struct timeval  
 
 void *run_query(void* args)
 {
+	printf("Starting Query Sequence\n");
+
 	CassandraDBDriver* dbDriver = (CassandraDBDriver*)args;
 	string key_set[] = {"mypc0", "mypc1", "mypc2"};
 
@@ -116,16 +118,30 @@ void udp_request_handler(boost::array <char, 1024>& buffer, std::size_t bytesRec
 	startReceive();
 }
 
+void* io_service_thread(void* args)
+{
+	boost::asio::io_service* ioService = (boost::asio::io_service*)args;
+	ioService->run();
+}
+
 void boost_udp_test(unsigned short portNo)
 {
-	pthread_t threadPool[N_THREADS];
+	printf("Performing multi threaded boost asio socket test\n");
+	pthread_t threadPool[2];
+	boost::asio::io_service::work work(ioService);
+
+	pthread_create(&threadPool[0], NULL, io_service_thread, &ioService);
+	pthread_create(&threadPool[1], NULL, io_service_thread, &ioService);
+
 	startReceive();
+
+	pthread_join(threadPool[0], NULL);
+	pthread_join(threadPool[1], NULL);
 }
 
 void startReceive()
 {
 	udpListenSocket.async_receive_from(boost::asio::buffer(buffer), remoteEndpoint, boost::bind(&udp_request_handler, buffer, boost::asio::placeholders::bytes_transferred()));
-	ioService.run();
 }
 
 void test_cassandradb_driver()
@@ -151,6 +167,7 @@ void test_cassandradb_driver()
 		CPU_SET(i % nCpuThreads, &cpuSet);
 		pthread_attr_setaffinity_np(&threadAttr, sizeof(cpu_set_t), &cpuSet);
 
+		printf("Creating Thread %d\n", i);
 		pthread_create(&queryThread[i], &threadAttr, run_query, database);
 		if(i == 0)
 			gettimeofday(&start, NULL);
@@ -175,7 +192,7 @@ void test_cassandradb_driver()
 int main(int argc, char *argv[])
 {
 	test_cassandradb_driver();
-	test_protocol_helper();
-	boost_udp_test(1053);
+	//test_protocol_helper();
+	//boost_udp_test(1053);
 	return 0;
 }
