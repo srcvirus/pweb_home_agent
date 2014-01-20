@@ -41,7 +41,7 @@ protected:
 public:
 
 	virtual int openConnection() = 0;
-	virtual QueryResultSetType executeQuery(string queryString) = 0;
+	virtual QueryResultSetType executeQuery(string queryString = "") = 0;
 	virtual void closeConnection() = 0;
 
 	virtual ~IDatabaseDriver(){;}

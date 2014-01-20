@@ -13,7 +13,9 @@ HomeAgentIndex* HomeAgentIndexCassandraController::getHomeAgentIndex(const strin
 	string queryString = "select * from home_agent_index where name = '" + name + "';";
 
 	boost::shared_future <cql::cql_future_result_t> results = databaseDriver->executeQuery(queryString);
-	cql::cql_result_t& rows = *(results.get().result);
+
+	cql::cql_result_t& rows = *(results.get().result); //databaseDriver->executeQuery(queryString);
+
 
 	string haName, haIp;
 	int haPort;

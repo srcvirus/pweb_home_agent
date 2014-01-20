@@ -50,14 +50,18 @@ int CassandraDBDriver::selectKeySpace(string keyspace)
 
 //template <class T>
 boost::shared_future <cql::cql_future_result_t>
+//cql::cql_result_t&
 CassandraDBDriver::executeQuery(string queryString)
 {
 	if(!this->connected)
 		this->openConnection();
 
+	printf("Executing query %s\n", queryString.c_str());
 	boost::shared_ptr <cql::cql_query_t> cqlQuery( new cql::cql_query_t(queryString, cql::CQL_CONSISTENCY_ONE) );
 	boost::shared_future <cql::cql_future_result_t> cqlResult = this->cqlSession->query(cqlQuery);
 	cqlResult.wait();
+
+//	return *cqlResult.get().result;
 	return cqlResult;
 }
 
