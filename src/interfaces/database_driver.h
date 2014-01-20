@@ -9,6 +9,7 @@
 #define DATABASE_DRIVER_H_
 
 #include <string>
+#include <pthread.h>
 
 using namespace std;
 
@@ -17,17 +18,19 @@ class IDatabaseDriver
 {
 protected:
 
+	pthread_mutex_t dbLock;
+
 	string dbServerHostName;
 	unsigned short int dbServerPort;
 	bool connected;
 
-	IDatabaseDriver();
+	IDatabaseDriver(){pthread_mutex_init(&dbLock, NULL);}
 	IDatabaseDriver(const string& dbServerHostName,	unsigned short int dbServerPort) :
 			dbServerHostName(dbServerHostName),
 			dbServerPort(dbServerPort),
 			connected(false)
 	{
-		;
+		pthread_mutex_init(&dbLock, NULL);
 	}
 
 	IDatabaseDriver(const char* dbServerHostName, unsigned short int dbServerPort) :
@@ -35,13 +38,13 @@ protected:
 			dbServerPort(dbServerPort),
 			connected(false)
 	{
-		;
+		pthread_mutex_init(&dbLock, NULL);
 	}
 
 public:
 
 	virtual int openConnection() = 0;
-	virtual QueryResultSetType executeQuery(string queryString = "") = 0;
+	virtual QueryResultSetType executeQuery(const string& queryString = "") = 0;
 	virtual void closeConnection() = 0;
 
 	virtual ~IDatabaseDriver(){;}

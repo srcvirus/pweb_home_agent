@@ -8,16 +8,19 @@
 #include "../protocol/protocol_helper.h"
 #include "../server/home_agent_server.h"
 
-#include <rocksdb/db.h>
 
 #include <pthread.h>
 #include <unistd.h>
+
+//#include <rocksdb/db.h>
+#include <leveldb/db.h>
 
 #define N_THREADS 4
 #define N_KEYS 3
 #define N_REPS 500
 
 timeval start, end, elapsed;
+boost::shared_ptr <CassandraDBDriver> database;
 
 /*boost::asio::io_service ioService;
 boost::asio::ip::udp::endpoint remoteEndpoint;
@@ -50,21 +53,20 @@ int timeval_subtract (struct timeval *result, struct timeval *x,struct timeval  
 
 void *run_query(void* args)
 {
-	CassandraDBDriver* dbDriver = (CassandraDBDriver*)args;
+	boost::shared_ptr <CassandraDBDriver> dbDriver = *((boost::shared_ptr <CassandraDBDriver>*)args);
 	string key_set[] = {"mypc0", "mypc1", "mypc2"};
 
-	HomeAgentIndexCassandraController* haIndexController = new HomeAgentIndexCassandraController(dbDriver);
-	HomeAgentIndex* haIndexObj;
+	HomeAgentIndexCassandraController haIndexController(dbDriver);
 
 	for(int j = 0; j < N_REPS; j++)
+	{
 		for(int i = 0; i < N_KEYS; i++)
 		{
-			haIndexObj = haIndexController->getHomeAgentIndex(key_set[i]);
-//			haIndexObj->print();
-			delete haIndexObj;
+			boost::shared_ptr <HomeAgentIndex> haIndexObj = haIndexController.getHomeAgentIndex(key_set[i]);
+			//haIndexObj->printShort();
 		}
-
-	delete haIndexController;
+	}
+	printf("Finished query execution\n");
 }
 
 void test_protocol_helper()
@@ -155,34 +157,37 @@ void home_agent_server_test()
 void test_cassandradb_driver()
 {
 	printf("Testing Cassandra Database Driver\n");
-	CassandraDBDriver* database = (CassandraDBDriver*)CassandraDBDriver::getDatabaseDriverObject();
-	database->selectKeySpace("pweb");
+	cql::cql_initialize();
+	database = boost::dynamic_pointer_cast<CassandraDBDriver>(CassandraDBDriver::getDatabaseDriverObject());
+	database->openConnection();
 
 	long nCpuThreads = sysconf(_SC_NPROCESSORS_ONLN);
 	printf("# of CPU threads = %ld\n", nCpuThreads);
 
 	pthread_t queryThread[N_THREADS];
-	pthread_attr_t threadAttr;
 	cpu_set_t cpuSet;
 
-	pthread_attr_init(&threadAttr);
-
 	timeval start, end, elapsed;
+
+	pthread_attr_t threadAttr;
 
 	for(int i = 0; i < N_THREADS; i++)
 	{
 		CPU_ZERO(&cpuSet);
 		CPU_SET(i % nCpuThreads, &cpuSet);
+
+		pthread_attr_init(&threadAttr);
+
 		pthread_attr_setaffinity_np(&threadAttr, sizeof(cpu_set_t), &cpuSet);
 
-		printf("Creating Thread %d\n", i);
-		pthread_create(&queryThread[i], &threadAttr, run_query, database);
+		printf("Creating Thread %d on %ld CPU\n", i, i % nCpuThreads);
+		pthread_create(&queryThread[i], &threadAttr, run_query, &database);
 		if(i == 0)
 			gettimeofday(&start, NULL);
 
 		CPU_ZERO(&cpuSet);
-		pthread_attr_getaffinity_np(&threadAttr, sizeof(cpu_set_t), &cpuSet);
-		for(int k = 0; k < nCpuThreads; k++) if(CPU_ISSET(k, &cpuSet)) printf("Thread %d assigned to CPU = %d\n", i, k);
+		//pthread_attr_getaffinity_np(&threadAttr, sizeof(cpu_set_t), &cpuSet);
+		//for(int k = 0; k < nCpuThreads; k++) if(CPU_ISSET(k, &cpuSet)) printf("Thread %d assigned to CPU = %d\n", i, k);
 	}
 
 	for(int i = 0; i < N_THREADS; i++)
@@ -193,34 +198,76 @@ void test_cassandradb_driver()
 	timeval_subtract(&elapsed, &end, &start);
 	double elapsedTime = elapsed.tv_sec + ((double)elapsed.tv_usec / 1000000.0);
 
-	printf("Performed %d queries in %.3lf seconds\n", N_THREADS * N_REPS * N_KEYS, elapsedTime);
-
-	delete database;
+	printf("[Cassandra Test]\tPerformed %d queries in %.3lf seconds\n", N_THREADS * N_REPS * N_KEYS, elapsedTime);
+	//delete database;
+	cql::cql_terminate();
 }
 
-/*void rocks_db_test()
+void *level_db_query(void* args)
 {
-	puts("Testing rocks db");
+	leveldb::DB* database = (leveldb::DB*)args;
+	string keySet[N_KEYS] = {"key0", "key1", "key3"};
+	string value;
 
-	const string dbStoragePath = "/home/sr2chowd/UW/pweb_home_agent/storage/rocksdb_storage/home_agent.db";
+	for(int i = 0; i < N_REPS; i++)
+		for(int j = 0; j < N_KEYS; j++)
+			database->Get(leveldb::ReadOptions(), keySet[j], &value);
 
-	rocksdb::DB* rocksDBDatabase;
-	rocksdb::Options dbOptions;
+}
+
+void level_db_test()
+{
+	puts("Testing level db");
+	const string dbStoragePath = "/home/sr2chowd/UW/pweb_home_agent/storage/leveldb_storage/home_agent.db";
+
+	leveldb::DB* levelDBDatabase;
+	leveldb::Options dbOptions;
 
 	dbOptions.create_if_missing = true;
-	rocksdb::Status status = rocksdb::DB::Open(dbOptions, dbStoragePath, &rocksDBDatabase);
+	leveldb::Status status = leveldb::DB::Open(dbOptions, dbStoragePath, &levelDBDatabase);
 
-	string key = "key0";
-	string value = "value0";
+	string keySet[N_KEYS] = {"key0", "key1", "key3"};
 
-	string getKey, getValue;
+	for(int i = 0; i < N_KEYS; i++) levelDBDatabase->Put(leveldb::WriteOptions(), keySet[i], keySet[i]);
 
-	rocksDBDatabase->Put(rocksdb::WriteOptions(), key, value);
-	rocksDBDatabase->Get(rocksdb::ReadOptions(), "key0", &getValue);
+	long nCpuThreads = sysconf(_SC_NPROCESSORS_ONLN);
+	printf("# of CPU threads = %ld\n", nCpuThreads);
 
-	puts(getValue.c_str());
-	delete rocksDBDatabase;
-}*/
+	pthread_t queryThread[N_THREADS];
+	cpu_set_t cpuSet;
+
+	timeval start, end, elapsed;
+
+	for(int i = 0; i < N_THREADS; i++)
+	{
+		CPU_ZERO(&cpuSet);
+		CPU_SET(i % nCpuThreads, &cpuSet);
+
+		pthread_attr_t* threadAttr = new pthread_attr_t;
+		pthread_attr_init(threadAttr);
+		pthread_attr_setaffinity_np(threadAttr, sizeof(cpu_set_t), &cpuSet);
+		printf("Creating Thread %d on %ld CPU\n", i, i % nCpuThreads);
+		pthread_create(&queryThread[i], threadAttr, level_db_query, levelDBDatabase);
+
+		if(i == 0)
+			gettimeofday(&start, NULL);
+
+		CPU_ZERO(&cpuSet);
+		//pthread_attr_getaffinity_np(&threadAttr, sizeof(cpu_set_t), &cpuSet);
+		//for(int k = 0; k < nCpuThreads; k++) if(CPU_ISSET(k, &cpuSet)) printf("Thread %d assigned to CPU = %d\n", i, k);
+	}
+
+	for(int i = 0; i < N_THREADS; i++)
+		pthread_join(queryThread[i], NULL);
+
+	gettimeofday(&end, NULL);
+
+	timeval_subtract(&elapsed, &end, &start);
+	double elapsedTime = elapsed.tv_sec + ((double)elapsed.tv_usec / 1000000.0);
+
+	printf("[LevelDB test]\tPerformed %d queries in %.3lf seconds\n", N_THREADS * N_REPS * N_KEYS, elapsedTime);
+	delete levelDBDatabase;
+}
 
 int main(int argc, char *argv[])
 {
@@ -228,6 +275,6 @@ int main(int argc, char *argv[])
 	//test_protocol_helper();
 	//home_agent_server_test();
 	//boost_udp_test(1153);
-	//rocks_db_test();
+	level_db_test();
 	return 0;
 }

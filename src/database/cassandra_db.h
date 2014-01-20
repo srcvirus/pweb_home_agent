@@ -45,7 +45,7 @@ protected:
 	 * Member variables to implement Singleton pattern
 	 */
 	static bool	instanceExists;
-	static IDatabaseDriver < boost::shared_future <cql::cql_future_result_t> >* databaseDriverObject;
+	static boost::shared_ptr < IDatabaseDriver < boost::shared_future <cql::cql_future_result_t> > > databaseDriverObject;
 
 public:
 
@@ -54,18 +54,18 @@ public:
 
 	/* Virtual functions inherited from the abstract class */
 	virtual int	openConnection();
-	virtual boost::shared_future <cql::cql_future_result_t>	executeQuery(string queryString);
+	virtual boost::shared_future <cql::cql_future_result_t>	executeQuery(const string& queryString);
 	virtual void closeConnection();
 
 	/**
 	 * The following functions make sure that CassandraDBDriver is a Singleton class
 	 */
-	static IDatabaseDriver < boost::shared_future <cql::cql_future_result_t> >* getDatabaseDriverObject();
-	static IDatabaseDriver < boost::shared_future <cql::cql_future_result_t> >* getDatabaseDriverObject(const string& dbServerHostName, unsigned short int dbServerPort);
-	static IDatabaseDriver < boost::shared_future <cql::cql_future_result_t> >* getDatabaseDriverObject(const char* dbServerHostName, unsigned short int dbServerPort);
+	static boost::shared_ptr < IDatabaseDriver < boost::shared_future <cql::cql_future_result_t> > > getDatabaseDriverObject();
+	static boost::shared_ptr < IDatabaseDriver < boost::shared_future <cql::cql_future_result_t> > > getDatabaseDriverObject(const string& dbServerHostName, unsigned short int dbServerPort);
+	static boost::shared_ptr < IDatabaseDriver < boost::shared_future <cql::cql_future_result_t> > > getDatabaseDriverObject(const char* dbServerHostName, unsigned short int dbServerPort);
 
 	/* Cassandra specific: selects keyspace for further database operation */
-	int	selectKeySpace(string keyspace);
+	int	selectKeySpace(const string& keyspace);
 	virtual ~CassandraDBDriver();
 };
 
