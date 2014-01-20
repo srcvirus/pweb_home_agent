@@ -13,7 +13,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define N_THREADS 8
+#define N_THREADS 4
 #define N_KEYS 3
 #define N_REPS 500
 
@@ -193,7 +193,7 @@ void test_cassandradb_driver()
 	timeval_subtract(&elapsed, &end, &start);
 	double elapsedTime = elapsed.tv_sec + ((double)elapsed.tv_usec / 1000000.0);
 
-	printf("Performed %d queries in %ld:%ld [%.3lf seconds]\n", N_THREADS * N_REPS * N_KEYS, elapsed.tv_sec, elapsed.tv_usec, elapsedTime);
+	printf("Performed %d queries in %.3lf seconds\n", N_THREADS * N_REPS * N_KEYS, elapsedTime);
 
 	delete database;
 }
