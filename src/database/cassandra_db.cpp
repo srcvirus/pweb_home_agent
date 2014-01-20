@@ -26,6 +26,7 @@ CassandraDBDriver::CassandraDBDriver(const char* dbServerHost, unsigned short in
 
 int CassandraDBDriver::openConnection()
 {
+	cql::cql_initialize();
 	cqlBuilder = cql::cql_cluster_t::builder();
 	cqlBuilder->add_contact_point(boost::asio::ip::address::from_string(this->dbServerHostName), (unsigned short int)this->dbServerPort);
 	cqlCluster = cqlBuilder->build();
@@ -56,7 +57,6 @@ CassandraDBDriver::executeQuery(string queryString)
 	if(!this->connected)
 		this->openConnection();
 
-	printf("Executing query %s\n", queryString.c_str());
 	boost::shared_ptr <cql::cql_query_t> cqlQuery( new cql::cql_query_t(queryString, cql::CQL_CONSISTENCY_ONE) );
 	boost::shared_future <cql::cql_future_result_t> cqlResult = this->cqlSession->query(cqlQuery);
 	cqlResult.wait();
@@ -67,9 +67,10 @@ CassandraDBDriver::executeQuery(string queryString)
 
 void CassandraDBDriver::closeConnection()
 {
-	this->cqlSession->close();
-	this->cqlCluster->shutdown();
+	if(this->cqlSession) this->cqlSession->close();
+	if(this->cqlCluster) this->cqlCluster->shutdown();
 	this->connected = false;
+	cql::cql_terminate();
 }
 
 CassandraDBDriver::~CassandraDBDriver()
