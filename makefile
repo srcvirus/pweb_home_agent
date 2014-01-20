@@ -19,7 +19,7 @@ io_service_pool.o:		src/communication/io_service_pool.cpp
 				g++ -Wall -c -g src/communication/io_service_pool.cpp -o obj/io_service_pool.o
 
 pweb_home_agent_test.o:		src/test/pweb_home_agent_test.cpp
-				g++ -Wall -c -g src/test/pweb_home_agent_test.cpp -I./include -o obj/pweb_home_agent_test.o
+				g++ -Wall -c -g src/test/pweb_home_agent_test.cpp -o obj/pweb_home_agent_test.o
 
 clean:
 			rm -rf obj/*

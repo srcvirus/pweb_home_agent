@@ -15,9 +15,9 @@
 //#include <rocksdb/db.h>
 #include <leveldb/db.h>
 
-#define N_THREADS 4
+#define N_THREADS 8
 #define N_KEYS 3
-#define N_REPS 500
+#define N_REPS 1000
 
 timeval start, end, elapsed;
 boost::shared_ptr <CassandraDBDriver> database;
