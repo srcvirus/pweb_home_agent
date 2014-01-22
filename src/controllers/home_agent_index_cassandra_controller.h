@@ -11,16 +11,19 @@
 #include "../database/cassandra_db.h"
 #include "../models/home_agent_index.h"
 
+#include <boost/shared_ptr.hpp>
+
 class HomeAgentIndexCassandraController
 {
-	CassandraDBDriver* databaseDriver;
+	boost::shared_ptr <CassandraDBDriver> databaseDriver;
 
 public:
 
-	HomeAgentIndexCassandraController():databaseDriver(NULL){;}
-	HomeAgentIndexCassandraController(CassandraDBDriver* databaseDriver):databaseDriver(databaseDriver){;}
+	HomeAgentIndexCassandraController():databaseDriver(boost::shared_ptr <CassandraDBDriver>()){;}
+	HomeAgentIndexCassandraController(boost::shared_ptr <CassandraDBDriver>& databaseDriver):databaseDriver(databaseDriver){;}
 
-	HomeAgentIndex* getHomeAgentIndex(const string& name);
+	boost::shared_ptr <HomeAgentIndex> getHomeAgentIndex(const string& name);
+	~HomeAgentIndexCassandraController(){;}
 };
 
 

@@ -7,15 +7,23 @@
 
 #include "home_agent_index_cassandra_controller.h"
 
-HomeAgentIndex* HomeAgentIndexCassandraController::getHomeAgentIndex(const string& name)
+boost::shared_ptr <HomeAgentIndex> HomeAgentIndexCassandraController::getHomeAgentIndex(const string& name)
 {
-	HomeAgentIndex* retObject;
-	string queryString = "select * from home_agent_index where name = '" + name + "';";
+	string queryString = "select * from " + HomeAgentIndex::TABLE_NAME +  " where name = '" + name + "';";
+	boost::shared_ptr <HomeAgentIndex> retObject;
 
 	boost::shared_future <cql::cql_future_result_t> results = databaseDriver->executeQuery(queryString);
 
+	if(results.get().error.is_err())
+	{
+		printf("[ERROR]\t%s\n", results.get().error.message.c_str());
+		return retObject;
+	}
+
 	cql::cql_result_t& rows = *(results.get().result); //databaseDriver->executeQuery(queryString);
 
+	if(rows.row_count() <= 0)
+		return retObject;
 
 	string haName, haIp;
 	int haPort;
@@ -26,9 +34,6 @@ HomeAgentIndex* HomeAgentIndexCassandraController::getHomeAgentIndex(const strin
 	rows.get_string(HomeAgentIndex::COL_IP, haIp);
 	rows.get_int(HomeAgentIndex::COL_PORT, haPort);
 
-	retObject = new HomeAgentIndex(haName, haIp, haPort);
+	retObject = boost::shared_ptr <HomeAgentIndex> (new HomeAgentIndex(haName, haIp, haPort));
 	return retObject;
 }
-
-
-

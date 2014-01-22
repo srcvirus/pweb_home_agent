@@ -24,6 +24,7 @@ public:
 	static const string COL_NAME;
 	static const string COL_IP;
 	static const string COL_PORT;
+	static const string TABLE_NAME;
 
 	HomeAgentIndex(){;}
 	HomeAgentIndex(string name, string ip, int port):name(name), ip(ip), port(port){;}
@@ -65,6 +66,13 @@ public:
 		printf("\t%s : %s\n", HomeAgentIndex::COL_IP.c_str(), this->ip.c_str());
 		printf("\t%s : %d\n", HomeAgentIndex::COL_PORT.c_str(), this->port);
 		printf("}\n");
+	}
+
+	void printShort()
+	{
+		printf("{%s : %s, %s : %s, %s : %d}\n", HomeAgentIndex::COL_NAME.c_str(), this->name.c_str(),
+												HomeAgentIndex::COL_IP.c_str(), this->ip.c_str(),
+												HomeAgentIndex::COL_PORT.c_str(), this->port);
 	}
 
 
