@@ -8,6 +8,9 @@
 #include "home_agent_server.h"
 #include <boost/bind.hpp>
 
+#include "../protocol/datastructure/dns_query_header.h"
+#include "../protocol/dns_message_handler.h"
+
 void HomeAgentServer::startServer()
 {
 	boost::asio::ip::udp::endpoint remoteEndPoint;
@@ -17,12 +20,9 @@ void HomeAgentServer::startServer()
 			boost::bind(&HomeAgentServer::handleUDPDataReceive, this, remoteEndPoint, this->receiveBuffer, boost::asio::placeholders::bytes_transferred()));
 }
 
-void HomeAgentServer::handleUDPDataReceive(boost::asio::ip::udp::endpoint& remoteEndPoint, boost::array <char, HomeAgentServer::MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived)
+void HomeAgentServer::handleUDPDataReceive(boost::asio::ip::udp::endpoint& remoteEndPoint, boost::array <char, MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived)
 {
-	std::string receiveAddress = remoteEndPoint.address().to_v4().to_string();
-	unsigned short receivePort = remoteEndPoint.port();
-	printf("Received %lu bytes from %s:%u\n", bytesReceived, receiveAddress.c_str(), receivePort);
-	printf("Received %lu bytes\n", bytesReceived);
+	this->ioServicePool.getIOService().post(boost::bind(DNSMessageHandler::handleDNSQuery, buffer, bytesReceived));
 	this->startServer();
 }
 

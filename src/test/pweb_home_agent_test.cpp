@@ -271,10 +271,10 @@ void level_db_test()
 
 int main(int argc, char *argv[])
 {
-	test_cassandradb_driver();
+	//test_cassandradb_driver();
 	//test_protocol_helper();
-	//home_agent_server_test();
+	home_agent_server_test();
 	//boost_udp_test(1153);
-	level_db_test();
+	//level_db_test();
 	return 0;
 }

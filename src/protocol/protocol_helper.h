@@ -8,6 +8,13 @@
 #ifndef PROTOCOL_HELPER_H_
 #define PROTOCOL_HELPER_H_
 
+#include <string>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+using namespace std;
+
 class ProtocolHelper
 {
 public:
@@ -75,6 +82,21 @@ public:
 		//read the string data
 		strData = std::string(buf + offset, 0, strLength);
 		return offset + sizeof(char) * strLength;
+	}
+
+	static void setBit(char *buf, long offset, int bit)
+	{
+		*(buf + offset) |= (1 << bit);
+	}
+
+	static void resetBit(char *buf, long offset, int bit)
+	{
+		*(buf + offset) &= ~(1 << bit);
+	}
+
+	static bool getBit(char *buf, long offset, int bit)
+	{
+		return ((*(buf + offset)) & (1 << bit)) ? true : false;
 	}
 };
 
