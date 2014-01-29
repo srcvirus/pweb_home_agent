@@ -134,6 +134,7 @@ class DNSQueryHeader
 	static size_t const HEADER_LENGTH = 12;
 	char *buf;
 	unsigned short flag;
+	bool bufferAllocated;
 public:
 
 	DNSQueryHeader(char* _buf)
@@ -141,6 +142,22 @@ public:
 		clear();
 		buf = _buf;
 		readFlags();
+		bufferAllocated = false;
+	}
+
+	void allocateBuffer()
+	{
+		this->buf = new char[DNSQueryHeader::HEADER_LENGTH];
+		bufferAllocated = true;
+	}
+
+	void deallocateBuffer()
+	{
+		if(bufferAllocated)
+		{
+			delete[] this->buf;
+			bufferAllocated = false;
+		}
 	}
 
 	void readFlags()
@@ -271,7 +288,7 @@ public:
 		long byteOffset = 1;
 		int bitOffset = 7;
 		char* ptr = (char*)&flag;
-		ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+		return ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
 	}
 
 	void setRA( bool const ra )
@@ -398,6 +415,11 @@ public:
 			printf("\tQuery count: 0x%x\n", this->getQDCount());
 		}
 		printf("}\n");
+	}
+
+	~DNSQueryHeader()
+	{
+		this->deallocateBuffer();
 	}
 };
 

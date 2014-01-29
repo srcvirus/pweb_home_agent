@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lssl -lcrypto -lpthread -lcql -lboost_system -lboost_thread
+LIBS := -lboost_system -lssl -lcrypto -lleveldb -lpthread -lcql -lboost_thread
 

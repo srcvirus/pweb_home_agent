@@ -17,7 +17,7 @@ class DNSQuestion
 	QueryClass qClass;
 
 public:
-	const std::string& getName() const
+	std::string& getName()
 	{
 		return name;
 	}
@@ -27,7 +27,7 @@ public:
 		this->name = name;
 	}
 
-	QueryClass getClass() const
+	QueryClass getClass()
 	{
 		return qClass;
 	}
@@ -37,7 +37,7 @@ public:
 		qClass = clazz;
 	}
 
-	QueryType getType() const
+	QueryType getType()
 	{
 		return qType;
 	}
@@ -45,6 +45,17 @@ public:
 	void setType(QueryType type)
 	{
 		qType = type;
+	}
+
+	void print()
+	{
+		printf("{\n");
+		{
+			printf("\tname: %s\n", this->name.c_str());
+			printf("\tquery_type: %d\n", this->qType);
+			printf("\tquery_class: %d\n", this->qClass);
+		}
+		printf("}\n");
 	}
 };
 

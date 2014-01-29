@@ -8,7 +8,15 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include src/subdir.mk
+-include src/test/subdir.mk
+-include src/server/subdir.mk
+-include src/protocol/subdir.mk
+-include src/models/subdir.mk
+-include src/interfaces/subdir.mk
+-include src/database/subdir.mk
+-include src/controllers/subdir.mk
+-include src/communication/subdir.mk
+-include obj/subdir.mk
 -include subdir.mk
 -include objects.mk
 

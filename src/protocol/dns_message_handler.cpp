@@ -5,15 +5,18 @@
  *      Author: sr2chowd
  */
 
+#include "datastructure/dns_query.h"
 #include "datastructure/dns_query_header.h"
 #include "dns_message_handler.h"
+
 #include <boost/array.hpp>
 
-void DNSMessageHandler::handleDNSQuery(boost::array <char, MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived)
+void DNSMessageHandler::handleDNSQuery(boost::array <char, 65536>& buffer, size_t bytesReceived)
 {
 	printf("Received %lu bytes\n", bytesReceived);
 	int byteOffset = 0;
-	DNSQueryHeader qrHeader(buffer.c_array());
+//	DNSQueryHeader qrHeader(buffer.c_array());
+	DNSQuery dnsQuery(buffer.c_array());
 	byteOffset += DNSQueryHeader::getDNSHeaderLength();
 
 	int curByte = 0;
@@ -26,7 +29,6 @@ void DNSMessageHandler::handleDNSQuery(boost::array <char, MAX_UDP_BUFFER_SIZE>&
 		}
 		putchar('\n');
 	}
-	qrHeader.print();
 }
 
 

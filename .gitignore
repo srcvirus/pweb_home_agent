@@ -6,5 +6,9 @@ Release/*
 bin/*
 obj/*
 *.o
+Debug
+Release
+bin
+obj
 
 

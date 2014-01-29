@@ -44,9 +44,9 @@ public:
 	static int placeStringIntoByteBuffer(char *buf, int offset, const std::string& value)
 	{
 		//copy the length of the string
-		size_t strLength = value.length();
-		memcpy(buf + offset, &strLength, sizeof(size_t));
-		offset += sizeof(size_t);
+		unsigned char strLength = (unsigned char)value.length();
+		memcpy(buf + offset, &strLength, sizeof(strLength));
+		offset += sizeof(strLength);
 
 		//now copy the string data
 		memcpy(buf + offset, value.c_str(), strLength * sizeof(char));
@@ -75,9 +75,9 @@ public:
 	static long extractStringFromByteBuffer(char *buf, long offset, std::string& strData)
 	{
 		//read the length of the string first;
-		size_t strLength;
-		memcpy(&strLength, buf + offset, sizeof(size_t));
-		offset += sizeof(size_t);
+		unsigned char strLength;
+		memcpy(&strLength, buf + offset, sizeof(strLength));
+		offset += sizeof(strLength);
 
 		//read the string data
 		strData = std::string(buf + offset, 0, strLength);
