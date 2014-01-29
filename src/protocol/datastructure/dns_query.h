@@ -16,6 +16,11 @@
 
 using namespace std;
 
+/**
+ * Explanation of DNS Message
+ * http://www.zytrax.com/books/dns/ch15/
+ */
+
 class DNSQuery
 {
 	DNSQueryHeader header;
