@@ -14,7 +14,7 @@ class DNSMessageHandler
 {
 public:
 
-	static void handleDNSQuery(boost::array <char, 65536>& buffer, size_t bytesReceived);
+	void handleDNSQuery(boost::array <char, 65536>& buffer, size_t bytesReceived);
 };
 
 

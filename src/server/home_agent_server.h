@@ -25,7 +25,8 @@ class HomeAgentServer
 	IOServicePool ioServicePool;
 
 	boost::asio::ip::udp::socket localUDPListenSocket;
-	// DNSMessageHandler object
+	DNSMessageHandler dnsHandler;
+
 public:
 
 	HomeAgentServer(unsigned short serverListenPort, size_t nIOThreads, unsigned long cpuPinMask = 0x0):
@@ -35,13 +36,14 @@ public:
 				boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), serverListenPort))
 	{
 		printf("Initializing home agent server\n");
+
 		boost::asio::io_service& listeningService = localUDPListenSocket.get_io_service();
-		listeningService.post(boost::bind(&HomeAgentServer::startServer, this));
+		listeningService.post(boost::bind(&HomeAgentServer::runServer, this));
 
 		this->ioServicePool.startServices();
 	}
 
-	void startServer();
+	void runServer();
 	void handleUDPDataReceive(boost::asio::ip::udp::endpoint& remoteEndPoint, boost::array <char, MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived);
 
 

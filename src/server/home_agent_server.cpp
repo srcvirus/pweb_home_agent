@@ -11,7 +11,7 @@
 #include "../protocol/datastructure/dns_query_header.h"
 #include "../protocol/dns_message_handler.h"
 
-void HomeAgentServer::startServer()
+void HomeAgentServer::runServer()
 {
 	boost::asio::ip::udp::endpoint remoteEndPoint;
 	printf("Starting asynchronous receive on UDP port %u, from thread 0x%x, this = %p\n", this->serverListenPort, (unsigned int)pthread_self(), this);
@@ -23,7 +23,7 @@ void HomeAgentServer::startServer()
 void HomeAgentServer::handleUDPDataReceive(boost::asio::ip::udp::endpoint& remoteEndPoint, boost::array <char, MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived)
 {
 	this->ioServicePool.getIOService().post(boost::bind(DNSMessageHandler::handleDNSQuery, buffer, bytesReceived));
-	this->startServer();
+	this->runServer();
 }
 
 
