@@ -6,6 +6,9 @@
  */
 
 #include "home_agent_index_cassandra_controller.h"
+#include <sstream>
+
+using namespace std;
 
 boost::shared_ptr <HomeAgentIndex> HomeAgentIndexCassandraController::getHomeAgentIndex(const string& name)
 {
@@ -36,4 +39,25 @@ boost::shared_ptr <HomeAgentIndex> HomeAgentIndexCassandraController::getHomeAge
 
 	retObject = boost::shared_ptr <HomeAgentIndex> (new HomeAgentIndex(haName, haIp, haPort));
 	return retObject;
+}
+
+int HomeAgentIndexCassandraController::addHomeAgentIndex(boost::shared_ptr <HomeAgentIndex>& haIndex)
+{
+	std::string strPort;
+	std::ostringstream ss(strPort);
+	ss << haIndex->getPort();
+
+	string queryString = "insert into " + HomeAgentIndex::TABLE_NAME + " (" +
+								HomeAgentIndex::COL_NAME + "," +
+								HomeAgentIndex::COL_IP + "," +
+								HomeAgentIndex::COL_PORT + ") values " + "(" +
+								haIndex->getName() + ", " + haIndex->getIp() + "," + strPort + ");";
+
+	boost::shared_future <cql::cql_future_result_t> results = databaseDriver->executeQuery(queryString);
+	if(results.get().error.is_err())
+	{
+		printf("[ERROR]\t%s\n", results.get().error.message.c_str());
+		results.get().error.code;
+	}
+	return 0;
 }

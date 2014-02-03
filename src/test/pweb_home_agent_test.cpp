@@ -146,7 +146,8 @@ void* io_service_thread(void* args)
 void home_agent_server_test()
 {
 	printf("Testing home agent server\n");
-	HomeAgentServer haServer(11053, 4, 0x03);
+	//const std::string& homeAgentAlias, unsigned short serverListenPort, size_t nIOThreads, unsigned long cpuPinMask = 0x0
+	HomeAgentServer haServer("mypc0", 11053, 4, 0x03);
 }
 
 /*void startReceive()

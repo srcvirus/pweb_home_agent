@@ -13,7 +13,7 @@
 #include <netinet/in.h>
 #include "../protocol_helper.h"
 #include "typedefs.h"
-
+#include "../../../global.h"
 
 /*
 DNS Header format (source: http://tools.ietf.org/html/rfc1035)
@@ -131,7 +131,6 @@ ARCOUNT         an unsigned 16 bit integer specifying the number of
 
 class DNSQueryHeader
 {
-	static size_t const HEADER_LENGTH = 12;
 	char *buf;
 	unsigned short flag;
 	bool bufferAllocated;
@@ -147,7 +146,7 @@ public:
 
 	void allocateBuffer()
 	{
-		this->buf = new char[DNSQueryHeader::HEADER_LENGTH];
+		this->buf = new char[DNS_HEADER_LENGTH];
 		bufferAllocated = true;
 	}
 
@@ -160,6 +159,13 @@ public:
 		}
 	}
 
+	void setBuffer(char* buffer)
+	{
+		clear();
+		this->buf = buf;
+		readFlags();
+		bufferAllocated = false;
+	}
 	void readFlags()
 	{
 		long byteOffset = 2;
@@ -401,7 +407,7 @@ public:
 
 	static size_t getDNSHeaderLength()
 	{
-		return DNSQueryHeader::HEADER_LENGTH;
+		return DNS_HEADER_LENGTH;
 	}
 
 	void print()

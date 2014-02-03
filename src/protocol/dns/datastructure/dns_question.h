@@ -13,6 +13,8 @@
 class DNSQuestion
 {
 	std::string name;
+	vector <std::string> labels;
+
 	QueryType qType;
 	QueryClass qClass;
 
@@ -27,6 +29,15 @@ public:
 		this->name = name;
 	}
 
+	vector <std::string>& getLabels()
+	{
+		return this->labels;
+	}
+
+	void setLabels(const vector <std::string>& labels)
+	{
+		this->labels = labels;
+	}
 	QueryClass getClass()
 	{
 		return qClass;
@@ -45,6 +56,20 @@ public:
 	void setType(QueryType type)
 	{
 		qType = type;
+	}
+
+	size_t getSize()
+	{
+		size_t size = 0;
+
+		//size of all the labels + 1 byte for each of their length
+		for(int i = 0; i < labels.size(); i++)
+			size += (labels[i].length() + 1);
+
+		// query type and query class are of type unsigned short
+		size += 2 * sizeof(unsigned short);
+
+		return size;
 	}
 
 	void print()

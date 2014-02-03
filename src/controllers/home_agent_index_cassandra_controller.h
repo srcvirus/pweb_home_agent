@@ -23,6 +23,7 @@ public:
 	HomeAgentIndexCassandraController(boost::shared_ptr <CassandraDBDriver>& databaseDriver):databaseDriver(databaseDriver){;}
 
 	boost::shared_ptr <HomeAgentIndex> getHomeAgentIndex(const string& name);
+	int addHomeAgentIndex(boost::shared_ptr <HomeAgentIndex>& haIndex);
 	~HomeAgentIndexCassandraController(){;}
 };
 

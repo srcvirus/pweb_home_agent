@@ -16,6 +16,7 @@ RM := rm -rf
 -include src/database/subdir.mk
 -include src/controllers/subdir.mk
 -include src/communication/subdir.mk
+-include src/subdir.mk
 -include obj/subdir.mk
 -include subdir.mk
 -include objects.mk

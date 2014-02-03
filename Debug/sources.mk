@@ -32,4 +32,6 @@ src/database \
 src/controllers \
 src/communication \
 obj \
+. \
+src \
 

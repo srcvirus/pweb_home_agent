@@ -8,45 +8,64 @@
 #ifndef HOMEAGENTSERVER_H_
 #define HOMEAGENTSERVER_H_
 
-#include "../communication/io_service_pool.h"
+/* Boost Headers */
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 #include <boost/bind.hpp>
 
-#define MAX_UDP_BUFFER_SIZE 65536
+#include "../global.h"
+
+#include "../communication/io_service_pool.h"
+#include "../protocol/dns_message_handler.h"
+#include "../database/cassandra_db.h"
+#include "../controllers/home_agent_index_cassandra_controller.h"
+#include "../models/home_agent_index.h"
+#include "udp_connection.h"
 
 class HomeAgentServer
 {
-	boost::array <char, MAX_UDP_BUFFER_SIZE> receiveBuffer;
-
-	std::string hostName;
-	unsigned short int serverListenPort;
-
+	std::string hostName, ip, homeAgentAlias;
+	boost::shared_ptr <CassandraDBDriver> database;
 	IOServicePool ioServicePool;
-
-	boost::asio::ip::udp::socket localUDPListenSocket;
-	DNSMessageHandler dnsHandler;
+	UDPConnection udpConnection;
 
 public:
 
-	HomeAgentServer(unsigned short serverListenPort, size_t nIOThreads, unsigned long cpuPinMask = 0x0):
-		serverListenPort(serverListenPort),
+	HomeAgentServer(const std::string& homeAgentAlias, unsigned short serverListenPort, size_t nIOThreads, unsigned long cpuPinMask = 0x0):
 		ioServicePool(nIOThreads, cpuPinMask),
-		localUDPListenSocket(this->ioServicePool.getPinnedIOService(),
-				boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), serverListenPort))
+		udpConnection(&this->ioServicePool, serverListenPort)
 	{
 		printf("Initializing home agent server\n");
+		this->homeAgentAlias = homeAgentAlias;
 
-		boost::asio::io_service& listeningService = localUDPListenSocket.get_io_service();
-		listeningService.post(boost::bind(&HomeAgentServer::runServer, this));
+		/* Initialize the database driver */
+		database = boost::dynamic_pointer_cast<CassandraDBDriver>(CassandraDBDriver::getDatabaseDriverObject());
+		database->openConnection();
 
+		/* Add the home agent alias to Cassandra database */
+		HomeAgentIndexCassandraController haIndexController(database);
+		this->ip = this->udpConnection.getLocalEndpoint().address().to_string();
+		boost::shared_ptr <HomeAgentIndex> haIndex (new HomeAgentIndex(this->homeAgentAlias, this->ip, serverListenPort));
+		haIndexController.addHomeAgentIndex(haIndex);
+
+		this->udpConnection.listen();
 		this->ioServicePool.startServices();
 	}
 
-	void runServer();
-	void handleUDPDataReceive(boost::asio::ip::udp::endpoint& remoteEndPoint, boost::array <char, MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived);
+	std::string& getHomeAgentAlias()
+	{
+		return this->homeAgentAlias;
+	}
 
+	void setHomeAgentAlias(const std::string& homeAgentAlias)
+	{
+		this->homeAgentAlias = homeAgentAlias;
+	}
 
+	UDPConnection& getUDPConnection()
+	{
+		return this->udpConnection;
+	}
 };
 
 
