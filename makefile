@@ -1,7 +1,7 @@
 all: pweb_home_agent_test
 
-pweb_home_agent_test:		cassandra_db.o pweb_home_agent_test.o home_agent_index_cassandra_controller.o home_agent_index.o udp_connection.o io_service_pool.o dns_message_handler.o
-				g++ -Wall -g obj/cassandra_db.o obj/pweb_home_agent_test.o obj/home_agent_index_cassandra_controller.o obj/home_agent_index.o obj/udp_connection.o obj/io_service_pool.o obj/dns_message_handler.o -lpthread -lboost_system -lboost_thread -lssl -lcrypto -lleveldb -lcql -o bin/pweb_home_agent_test
+pweb_home_agent_test:		cassandra_db.o pweb_home_agent_test.o home_agent_index_cassandra_controller.o home_agent_index.o udp_connection.o io_service_pool.o dns_message_handler.o dns_message.o
+				g++ -Wall -g obj/cassandra_db.o obj/pweb_home_agent_test.o obj/home_agent_index_cassandra_controller.o obj/home_agent_index.o obj/udp_connection.o obj/io_service_pool.o obj/dns_message_handler.o obj/dns_message.o -lpthread -lboost_system -lboost_thread -lssl -lcrypto -lleveldb -lcql -o bin/pweb_home_agent_test
 
 home_agent_index_cassandra_controller.o: src/controllers/home_agent_index_cassandra_controller.cpp
 					 g++ -Wall -c -g src/controllers/home_agent_index_cassandra_controller.cpp -o obj/home_agent_index_cassandra_controller.o
@@ -18,9 +18,11 @@ io_service_pool.o:		src/communication/io_service_pool.cpp
 udp_connection.o:		src/server/udp_connection.cpp
 				g++ -Wall -c -g src/server/udp_connection.cpp -o obj/udp_connection.o
 
-dns_message_handler.o:		src/protocol/dns_message_handler.cpp
-				g++ -Wall -c -g src/protocol/dns_message_handler.cpp -o obj/dns_message_handler.o
-				
+dns_message_handler.o:		src/protocol/dns/dns_message_handler.cpp
+				g++ -Wall -c -g src/protocol/dns/dns_message_handler.cpp -o obj/dns_message_handler.o
+
+dns_message.o:			src/protocol/dns/datastructure/dns_message.cpp
+				g++ -Wall -c -g src/protocol/dns/datastructure/dns_message.cpp -o obj/dns_message.o				
 pweb_home_agent_test.o:		src/test/pweb_home_agent_test.cpp
 				g++ -Wall -c -g src/test/pweb_home_agent_test.cpp -o obj/pweb_home_agent_test.o
 

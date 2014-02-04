@@ -16,7 +16,7 @@
 #include "../global.h"
 
 #include "../communication/io_service_pool.h"
-#include "../protocol/dns_message_handler.h"
+#include "../protocol/dns/dns_message_handler.h"
 #include "../database/cassandra_db.h"
 #include "../controllers/home_agent_index_cassandra_controller.h"
 #include "../models/home_agent_index.h"

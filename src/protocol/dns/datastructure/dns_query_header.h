@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <netinet/in.h>
-#include "../protocol_helper.h"
+#include "../../protocol_helper.h"
 #include "typedefs.h"
 #include "../../../global.h"
 
@@ -132,275 +132,371 @@ ARCOUNT         an unsigned 16 bit integer specifying the number of
 class DNSQueryHeader
 {
 	char *buf;
-	unsigned short flag;
-	bool bufferAllocated;
+	unsigned char flag[2];
+
+	unsigned short id;
+
+	bool qr;
+	OpCode opcode;
+	bool aa, tc, rd, ra;
+	unsigned char z;
+	ReturnCode retcode;
+
+	unsigned short qdCount, anCount, nsCount, arCount;
+
 public:
 
+	DNSQueryHeader()
+	{
+		this->buf = NULL;
+	}
 	DNSQueryHeader(char* _buf)
 	{
 		clear();
 		buf = _buf;
-		readFlags();
-		bufferAllocated = false;
 	}
 
-	void allocateBuffer()
+	DNSQueryHeader& operator=(const DNSQueryHeader& header)
 	{
-		this->buf = new char[DNS_HEADER_LENGTH];
-		bufferAllocated = true;
-	}
+		this->flag[0] = header.flag[0];
+		this->flag[1] = header.flag[1];
 
-	void deallocateBuffer()
-	{
-		if(bufferAllocated)
-		{
-			delete[] this->buf;
-			bufferAllocated = false;
-		}
+		this->id = header.id;
+		this->qr = header.qr;
+		this->opcode = header.opcode;
+		this->aa = header.aa;
+		this->tc = header.tc;
+		this->rd = header.rd;
+		this->ra = header.ra;
+		this->z = header.z;
+		this->retcode = header.retcode;
+		this->qdCount = header.qdCount;
+		this->anCount = header.anCount;
+		this->nsCount = header.nsCount;
+		this->arCount = header.arCount;
+		return *this;
 	}
 
 	void setBuffer(char* buffer)
 	{
 		clear();
-		this->buf = buf;
-		readFlags();
-		bufferAllocated = false;
+		this->buf = buffer;
 	}
+
 	void readFlags()
 	{
 		long byteOffset = 2;
-		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &this->flag);
+		this->flag[0] = buf[byteOffset++];
+		this->flag[1] = buf[byteOffset++];
+
+		readQR();
+		readOpcode();
+		readTC();
+		readAA();
+		readRD();
+		readRA();
+		readZ();
+		readRetCode();
 	}
 
 	void writeFlag()
 	{
-		const long byteOffset = 2;
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons(flag));
+		long byteOffset = 2;
+
+		printf("Flushing data to flag, previous contents: %hx %hx\n", flag[0], flag[1]);
+
+		writeQR();
+		writeOpcode();
+		writeTC();
+		writeAA();
+		writeRD();
+		writeRA();
+		writeRetCode();
+
+		printf("Data flushed to flag, contents: %hx %hx\n", flag[0], flag[1]);
+
+		byteOffset = ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, flag[0]);
+		byteOffset = ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, flag[1]);
 	}
 
 	void clear(){ buf = NULL; }
 
-
 	unsigned short getId()
 	{
-		unsigned short id;
+		return this->id;
+	}
+
+	void setId(unsigned short& id)
+	{
+		this->id = id;
+	}
+
+	void readId()
+	{
 		const long byteOffset = 0;
 		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &id);
-		return ntohs(id);
+		this->id = ntohs(this->id);
 	}
 
-	void setId(unsigned short id)
+	void writeId()
 	{
 		const long byteOffset = 0;
-		id = htons(id);
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, id);
+		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons(this->id));
 	}
 
-	bool getQR()
+	bool getQR(){ return this->qr; }
+	void setQR(bool& qr){ this->qr = qr; }
+
+	//0x80
+	void readQR()
 	{
 		long byteOffset = 0;
 		int bitOffset = 7;
-		char* ptr = (char*)&flag;
-		return ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+		unsigned char* ptr = flag;
+		this->qr = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
 	}
 
-	void setQR(const bool qr)
+	void writeQR()
 	{
 		long byteOffset = 0;
 		int bitOffset = 7;
-		char* ptr = (char*)&flag;
-		if(qr)
+		unsigned char* ptr = flag;
+
+		printf("Writing value of qr: %d\n", this->qr);
+
+		if(this->qr)
 			ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
 		else
 			ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
+		printf("\tFlags: 0x%hx %hx\n", this->getFlags()[0], this->getFlags()[1]);
 	}
 
-	OpCode getOpcode() const
+	OpCode getOpcode() { return this->opcode; }
+	void setOpcode(OpCode& code){ this->opcode = code; }
+
+	void readOpcode()
 	{
-		OpCode op;
-		unsigned char val = ((unsigned char)flag & 0x78 ) >> 3;
+		unsigned char val = (flag[0] & 0x78) >> 3;  //0x78
 
 		switch(val)
 		{
 		case 0:
-			return O_QUERY;
+			this->opcode = O_QUERY;
+			break;
 		case 1:
-			return O_IQUERY;
+			this->opcode = O_IQUERY;
+			break;
 		case 2:
-			return O_STATUS;
+			this->opcode = O_STATUS;
+			break;
 		case 3:
-			return O_RESERVED;
+			this->opcode = O_RESERVED;
+			break;
 		}
 	}
 
-	void setOpcode(const OpCode op)
+	void writeOpcode()
 	{
-		flag |= (unsigned short)(op << 3);
+		flag[0] |= (unsigned short)(opcode << 3);
 	}
 
-	bool getAA()
-	{
-		long byteOffset = 0;
-		int bitOffset = 2;
-		char* ptr = (char*)&flag;
-		return ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
-	}
+	bool getAA(){ return this->aa; }
+	void setAA(bool& aa){ this->aa = aa; }
 
-	void setAA(const bool aa)
+	//0x04
+	void readAA()
 	{
 		long byteOffset = 0;
 		int bitOffset = 2;
-		char* ptr = (char*)&flag;
-		if(aa) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
+		unsigned char* ptr = flag;
+		this->aa = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+	}
+
+	void writeAA()
+	{
+		long byteOffset = 0;
+		int bitOffset = 2;
+		unsigned char* ptr = flag;
+		if(this->aa) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
 		else ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
 	}
 
-	bool getTC()
+	bool getTC(){ return this->tc; }
+	void setTC(bool& tc){ this->tc = tc; }
+
+	//0x02
+	void readTC()
 	{
 		long byteOffset = 0;
 		int bitOffset = 1;
-		char* ptr = (char*)&flag;
-		return ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+		unsigned char* ptr = flag;
+		this->tc = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
 	}
 
-	void setTC( bool const tc )
+	void writeTC()
 	{
 		long byteOffset = 0;
 		int bitOffset = 1;
-		char* ptr = (char*)&flag;
-		if(tc) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
+		unsigned char* ptr = flag;
+		if(this->tc) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
 		else ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
 	}
 
-	bool getRD()
+	bool getRD(){ return this->rd; }
+	void setRD(bool& rd){ this->rd = rd; }
+
+	//0x01
+	bool readRD()
 	{
 		long byteOffset = 0;
 		int bitOffset = 0;
-		char* ptr = (char*)&flag;
-		return ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+		unsigned char* ptr = flag;
+		this->rd = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
 	}
 
-	void setRD( bool const rd )
+	void writeRD()
 	{
 		long byteOffset = 0;
 		int bitOffset = 0;
-		char* ptr = (char*)&flag;
-		if(rd) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
+		unsigned char* ptr = flag;
+		if(this->rd) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
 		else ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
 	}
 
-	bool getRA()
+	bool getRA(){ return this->ra; }
+	void setRA(bool& ra){ this->ra = ra; }
+
+	//0x80
+	void readRA()
 	{
 		long byteOffset = 1;
 		int bitOffset = 7;
-		char* ptr = (char*)&flag;
-		return ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+		unsigned char* ptr = flag;
+		this->ra = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
 	}
 
-	void setRA( bool const ra )
+	void writeRA()
 	{
 		const long byteOffset = 1;
 		const int bitOffset = 7;
-		char* ptr = (char*)&flag;
-		if(ra) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
+		unsigned char* ptr = flag;
+		if(this->ra) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
 		else ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
 	}
 
-	unsigned char getZ()
+	unsigned char getZ(){ return this->z; }
+	void setZ(unsigned char& z){ this->z = z; }
+
+	void readZ()
 	{
-		const long byteOffset = 3;
-		const unsigned short mask = 0x7000;
-		return (unsigned char)((flag & mask) >> (1 + sizeof(char)));
+		const unsigned short mask = 0x70;
+		this->z = (unsigned char)((flag[1] & mask) >> 4);
 	}
 
-	ReturnCode getRetCode() const
+	ReturnCode getRetCode(){ return this->retcode; }
+	void setRetCode(ReturnCode& retcode){ this->retcode = retcode; }
+
+	void readRetCode()
 	{
-		const unsigned short mask = 0x0f00;
-		unsigned char val = (flag & mask) >> (4 + sizeof(char));
+		const unsigned short mask = 0xF0;
+		unsigned char val = (flag[1] & mask) >> 4;
 
 		switch ( val )
 		{
 		case 0:
-			return R_SUCCESS;
+			this->retcode = R_SUCCESS;
+			break;
 	    case 1:
-	    	return R_FORMAT_ERROR;
+	    	this->retcode = R_FORMAT_ERROR;
+	    	break;
 	    case 2:
-	    	return R_SERVER_FAILURE;
+	    	this->retcode = R_SERVER_FAILURE;
+	    	break;
 	    case 3:
-	    	return R_NAME_ERROR;
+	    	this->retcode = R_NAME_ERROR;
+	    	break;
 	    case 4:
-	    	return R_NOT_IMPLEMENTED;
+	    	this->retcode = R_NOT_IMPLEMENTED;
+	    	break;
 	    case 5:
-	    	return R_REFUSED;
+	    	this->retcode = R_REFUSED;
+	    	break;
 	    default:
-	    	return R_RESERVED;
+	    	this->retcode = R_RESERVED;
+	    	break;
 	    }
     }
 
-	void setRetCode( ReturnCode code )
+	void writeRetCode()
 	{
-		flag |= (unsigned char)(code << 4);
+		flag[1] |= (unsigned char)(this->retcode << 4);
 	}
 
+	unsigned short getQDCount(){ return this->qdCount; }
+	void setQDCount(unsigned short& qdCount){ this->qdCount = qdCount; }
 
-
-	unsigned short getQDCount()
-	{
-		unsigned short ret;
-		const long byteOffset = 4;
-		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &ret);
-		return ntohs(ret);
-	}
-
-	void setQDCount(size_t qdcount)
+	void readQDCount()
 	{
 		const long byteOffset = 4;
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)qdcount));
+		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &this->qdCount);
+		this->qdCount = ntohs(this->qdCount);
 	}
 
-	unsigned short getANCount()
+	void writeQDCount()
 	{
-		unsigned short ret;
+		const long byteOffset = 4;
+		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)this->qdCount));
+	}
+
+	unsigned short getANCount(){ return this->anCount; }
+	void setANCount(unsigned short& anCount){ this->anCount = anCount; }
+
+	void readANCount()
+	{
 		const long byteOffset = 6;
-		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &ret);
-		return ntohs(ret);
+		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &this->anCount);
+		this->anCount = ntohs(this->anCount);
 	}
 
-	void setANCount(size_t ancount)
+	void writeANCount()
 	{
 		const long byteOffset = 6;
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)ancount));
+		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)this->anCount));
 	}
 
-	unsigned short getNSCount()
-	{
-		unsigned short ret;
-		const long byteOffset = 8;
-		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &ret);
-		return ntohs(ret);
-	}
+	unsigned short getNSCount(){ return this->nsCount; }
+	void setNSCount(unsigned short& nsCount){ this->nsCount = nsCount; }
 
-	void setNSCount(size_t nscount)
+	void readNSCount()
 	{
 		const long byteOffset = 8;
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)nscount));
+		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &this->nsCount);
+		this->nsCount = ntohs(this->nsCount);
 	}
 
-	unsigned short getARCount()
+	void writeNSCount()
 	{
-		unsigned short ret;
-		const long byteOffset = 10;
-		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &ret);
-		return ntohs(ret);
+		const long byteOffset = 8;
+		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)this->nsCount));
 	}
 
-	void setARCount(size_t arcount)
+	unsigned short getARCount(){ return this->arCount; }
+	void setARCount(unsigned short& arCount){ this->arCount = arCount; }
+
+	void readARCount()
 	{
 		const long byteOffset = 10;
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)arcount));
+		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &this->arCount);
+		this->arCount = htons(this->arCount);
 	}
 
-	unsigned short getFlags()
+	void writeARCount()
+	{
+		const long byteOffset = 10;
+		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)this->arCount));
+	}
+
+	unsigned char* getFlags()
 	{
 		return this->flag;
 	}
@@ -410,12 +506,34 @@ public:
 		return DNS_HEADER_LENGTH;
 	}
 
+	long parseFromBuffer()
+	{
+		readId();
+		readFlags();
+		readQDCount();
+		readANCount();
+		readNSCount();
+		readARCount();
+		return DNS_HEADER_LENGTH;
+	}
+
+	long writeToBuffer()
+	{
+		writeId();
+		writeFlag();
+		writeQDCount();
+		writeANCount();
+		writeNSCount();
+		writeARCount();
+	}
+
 	void print()
 	{
 		printf("{\n");
 		{
+			this->readFlags();
 			printf("\tID: 0x%hx\n", this->getId());
-			printf("\tFlags: 0x%hx\n", this->getFlags());
+			printf("\tFlags: 0x%2hx%2hx\n", this->getFlags()[0], this->getFlags()[1]);
 			printf("\tOpcode: 0x%x\n", this->getOpcode());
 			printf("\tMessage type: 0x%x\n", this->getQR());
 			printf("\tQuery count: 0x%x\n", this->getQDCount());
@@ -423,10 +541,6 @@ public:
 		printf("}\n");
 	}
 
-	~DNSQueryHeader()
-	{
-		this->deallocateBuffer();
-	}
 };
 
 

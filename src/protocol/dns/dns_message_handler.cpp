@@ -5,14 +5,17 @@
  *      Author: sr2chowd
  */
 
-#include "datastructure/dns_query.h"
-#include "datastructure/dns_query_header.h"
-#include "dns_message_handler.h"
-#include "../controllers/home_agent_index_cassandra_controller.h"
-#include "../models/home_agent_index.h"
-#include "../database/cassandra_db.h"
 
-#include "../global.h"
+#include "datastructure/dns_query_header.h"
+#include "datastructure/dns_question.h"
+#include "datastructure/dns_message.h"
+
+#include "dns_message_handler.h"
+#include "../../controllers/home_agent_index_cassandra_controller.h"
+#include "../../models/home_agent_index.h"
+#include "../../database/cassandra_db.h"
+
+#include "../../global.h"
 
 #include <boost/array.hpp>
 

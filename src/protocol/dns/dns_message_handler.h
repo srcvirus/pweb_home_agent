@@ -8,7 +8,7 @@
 #ifndef DNS_MESSAGE_HANDLER_H_
 #define DNS_MESSAGE_HANDLER_H_
 
-#include "../global.h"
+#include "../../global.h"
 #include <boost/array.hpp>
 
 class DNSMessageHandler

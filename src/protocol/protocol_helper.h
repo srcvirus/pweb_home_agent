@@ -84,17 +84,17 @@ public:
 		return offset + sizeof(char) * strLength;
 	}
 
-	static void setBit(char *buf, long offset, int bit)
+	static void setBit(unsigned char *buf, long offset, int bit)
 	{
 		*(buf + offset) |= (1 << bit);
 	}
 
-	static void resetBit(char *buf, long offset, int bit)
+	static void resetBit(unsigned char *buf, long offset, int bit)
 	{
 		*(buf + offset) &= ~(1 << bit);
 	}
 
-	static bool getBit(char *buf, long offset, int bit)
+	static bool getBit(unsigned char *buf, long offset, int bit)
 	{
 		return ((*(buf + offset)) & (1 << bit)) ? true : false;
 	}

@@ -10,9 +10,10 @@
 
 #include <vector>
 #include <stdio.h>
-#include "../protocol_helper.h"
+#include "../../protocol_helper.h"
 #include "dns_question.h"
 #include "dns_query_header.h"
+#include "dns_resource_record.h"
 
 using namespace std;
 
@@ -29,69 +30,113 @@ class DNSMessage
 	vector <DNSQuestion> questions;
 	vector <DNSResourceRecord> answers, authority, additional;
 
+public:
+	DNSMessage()
+	{
+		this->buffer = NULL;
+		header.clear();
+		questions.clear();
+		answers.clear();
+		authority.clear();
+		additional.clear();
+	}
+
+	DNSMessage(char* _buf)
+	{
+		this->buffer = _buf;
+		header.clear();
+		questions.clear();
+		answers.clear();
+		authority.clear();
+		additional.clear();
+	}
+
+	char* getBuffer(){ return this->buffer; }
+
+	size_t getSize();
+
+	DNSQueryHeader& getDNSHeader()
+	{
+		return this->header;
+	}
+
+	void setDNSHeader(const DNSQueryHeader& header){ this->header = header; }
+
+	vector <DNSQuestion>& getDNSQuestions()
+	{
+		return this->questions;
+	}
+
+	void setDNSQuestion(const vector <DNSQuestion>& questions){ this->questions = questions; }
+
+	vector <DNSResourceRecord>& getDNSAnswers(){ return this->answers; }
+	vector <DNSResourceRecord>& getDNSAuthority(){ return this->authority; }
+	vector <DNSResourceRecord>& getDNSAdditional(){ return this->additional; }
+
+	long parse();
+	long write();
+
 	long parseHeaders(long offset);
 	long parseQuestions(long offset);
 	long parseAnswers(long offset);
 	long parseAuthority(long offset);
 	long parseAdditional(long offset);
-	long parseResrouceRecord(long offset, vector <DNSResourceRecord>& rr, size_t n);
 
-	long writeHeader(long offset);
+	long writeHeaders(long offset);
 	long writeQuestions(long offset);
+	long writeAnswers(long offset);
 	long writeAuthority(long offset);
-	long parseAdditional(long offset);
-	long writeResrouceRecord(long offset, vector <DNSResourceRecord>& rr);
+	long writeAdditional(long offset);
 
-
-public:
-	DNSMessage(char* _buf):header(DNSQueryHeader(_buf))
+	void allocateBuffer()
 	{
-		this->buffer = _buf;
+		size_t bufferSize = this->getSize();
+		//if(this->buffer != NULL) delete[] this->buffer;
+		this->buffer = new char[bufferSize];
+	}
+
+	void deallocateBuffer()
+	{
+		if(this->buffer != NULL)
+			delete[] buffer;
+		this->buffer = NULL;
+	}
+
+	~DNSMessage()
+	{
+		//this->deallocateBuffer();
+	}
+
+	DNSMessage& operator=(const DNSMessage& msg)
+	{
+		this->header = msg.header;
+		this->questions = msg.questions;
+		this->answers = msg.answers;
+		this->authority = msg.authority;
+		this->additional = msg.additional;
+		return *this;
+	}
+
+	void print()
+	{
+		printf("------------------------------------------\n");
 		header.print();
-
-		int qCount = header.getQDCount();
-		long offset = DNSQueryHeader::getDNSHeaderLength();
-
-		for(int i = 0; i < qCount; i++)
-		{
-			DNSQuestion question;
-			unsigned short qType, qClass;
-			while(true)
-			{
-				string nameComponent;		// name components are known as lebel in dns message format terminology
-				offset = ProtocolHelper::extractStringFromByteBuffer(_buf, offset, nameComponent );
-				if(nameComponent.length() <= 0) break;
-
-				if(question.getName().length() > 0) question.getName() += ".";
-				question.getName() += nameComponent;
-				question.getLabels().push_back(nameComponent);
-			}
-
-			offset = ProtocolHelper::extractAtomicDataFromByteBuffer(_buf, offset, &qType);
-			offset = ProtocolHelper::extractAtomicDataFromByteBuffer(_buf, offset, &qClass);
-			qType = ntohs(qType);
-			qClass = ntohs(qClass);
-
-			question.setType((QueryType)qType);
-			question.setClass((QueryClass)qClass);
-
-			this->questions.push_back(question);
-		}
-
-		for(int i = 0; i < qCount; i++)
+		printf("nQuestions: %d\n", questions.size());
+		for(int i = 0; i < questions.size(); i++)
 			questions[i].print();
-	}
 
-	size_t getSize();
+		printf("nAnswers: %d\n", answers.size());
+		for(int i = 0; i < answers.size(); i++)
+			answers[i].print();
 
-	const DNSQueryHeader& getDNSHeader()
-	{
-		return this->header;
-	}
+		printf("nAuthority: %d\n", authority.size());
+		for(int i = 0; i < authority.size(); i++)
+			authority[i].print();
 
-	vector <DNSQuestion>& getDNSQuestions()
-	{
-		return this->questions;
+		printf("nAdditional: %d\n", additional.size());
+		for(int i = 0; i < additional.size(); i++)
+			additional[i].print();
+		printf("------------------------------------------\n");
 	}
 };
 

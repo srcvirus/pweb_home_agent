@@ -11,96 +11,158 @@
 
 long DNSMessage::parseHeaders(long offset)
 {
-	this->header.setBuffer(this->buffer);
-	return offset + DNS_HEADER_LENGTH;
+	this->header.setBuffer(this->buffer + offset);
+	return offset + this->header.parseFromBuffer();
 }
 
 long DNSMessage::parseQuestions(long offset)
 {
-	int qCount = this->header.getQDCount();
+	unsigned short qCount = this->header.getQDCount();
 
-	for(int i = 0; i < qCount; i++)
+	for(unsigned short i = 0; i < qCount; i++)
 	{
-		DNSQuestion question;
-		unsigned short qType, qClass;
-
-		while(true)
-		{
-			string nameComponent;		// name components are known as lebel in dns message format terminology
-			offset = ProtocolHelper::extractStringFromByteBuffer(this->buffer, offset, nameComponent );
-			if(nameComponent.length() <= 0) break;
-
-			if(question.getName().length() > 0) question.getName() += ".";
-			question.getName() += nameComponent;
-			question.getLabels().push_back(nameComponent);
-		}
-
-		offset = ProtocolHelper::extractAtomicDataFromByteBuffer(this->buffer, offset, &qType);
-		offset = ProtocolHelper::extractAtomicDataFromByteBuffer(this->buffer, offset, &qClass);
-
-		qType = ntohs(qType);
-		qClass = ntohs(qClass);
-
-		question.setType((QueryType)qType);
-		question.setClass((QueryClass)qClass);
-
+		DNSQuestion question(this->buffer + offset);
 		this->questions.push_back(question);
+		offset += question.getSize();
 	}
+	return offset;
 }
 
-long DNSMessage::parseResrouceRecord(long offset, vector <DNSResourceRecord>& rr, size_t n)
+long DNSMessage::parse()
 {
-	for(int i = 0; i < n; i++)
-	{
-		DNSResourceRecord record;
-		unsigned short rType, rClass;
-		unsigned int ttl;
-		unsigned short rdLength;
-		std::vector <char> rData;
+	long offset = 0;
+	offset = parseHeaders(offset);
+	offset = parseQuestions(offset);
+	offset = parseAnswers(offset);
+	offset = parseAuthority(offset);
+	offset = parseAdditional(offset);
 
-		while(true)
-		{
-			string nameComponent;		// name components are known as lebel in dns message format terminology
-			offset = ProtocolHelper::extractStringFromByteBuffer(this->buffer, offset, nameComponent );
-			if(nameComponent.length() <= 0) break;
-			if(record.getName().length() > 0) record.getName() += ".";
-			record.getName() += nameComponent;
-		}
-
-		offset = ProtocolHelper::extractAtomicDataFromByteBuffer(this->buffer, offset, &rType);
-		offset = ProtocolHelper::extractAtomicDataFromByteBuffer(this->buffer, offset, &rClass);
-		offset = ProtocolHelper::extractAtomicDataFromByteBuffer(this->buffer, offset, &ttl);
-		offset = ProtocolHelper::extractAtomicDataFromByteBuffer(this->buffer, offset, &rdLength);
-
-		record.setType((QueryType)rType);
-		record.setClass((QueryClass)rClass);
-		record.setTtl(ttl);
-		record.setRdLength(rdLength);
-
-		for(int j = 0; j < rdLength; j++)
-			record.getData().push_back(this->buffer[offset++]);
-	}
+	return offset;
 }
 
-/**
- * char* buffer;
+long DNSMessage::write()
+{
+	long offset = 0;
+	offset = writeHeaders(offset);
+	offset = writeQuestions(offset);
+	offset = writeAnswers(offset);
+	offset = writeAuthority(offset);
+	offset = writeAdditional(offset);
 
-	DNSQueryHeader header;
-	vector <DNSQuestion> questions;
-	vector <DNSResourceRecord> answers, authority, additional;
- * @return
- */
+	return offset;
+}
+long DNSMessage::writeHeaders(long offset)
+{
+	this->header.setBuffer(this->buffer);
+	return offset + this->header.writeToBuffer();
+}
+
+long DNSMessage::writeQuestions(long offset)
+{
+	size_t i;
+	for(i = 0; i < questions.size(); i++)
+	{
+		questions[i].setBuffer(this->buffer + offset);
+		offset += questions[i].writeToBuffer();
+	}
+	return offset;
+}
+
+long DNSMessage::writeAnswers(long offset)
+{
+	size_t i;
+	for(i = 0; i < answers.size(); i++)
+	{
+		answers[i].setBuffer(this->buffer + offset);
+		offset += answers[i].writeToBuffer();
+	}
+	return offset;
+}
+
+long DNSMessage::writeAuthority(long offset)
+{
+	size_t i;
+	for(i = 0; i < authority.size(); i++)
+	{
+		authority[i].setBuffer(this->buffer + offset);
+		offset += authority[i].writeToBuffer();
+	}
+	return offset;
+}
+
+long DNSMessage::writeAdditional(long offset)
+{
+	size_t i;
+	for(i = 0; i < additional.size(); i++)
+	{
+		additional[i].setBuffer(this->buffer + offset);
+		offset += additional[i].writeToBuffer();
+	}
+	return offset;
+}
+
+long DNSMessage::parseAnswers(long offset)
+{
+	unsigned short i;
+	unsigned short anCount = this->header.getANCount();
+
+	for(i = 0; i < anCount; i++)
+	{
+		DNSResourceRecord answer(this->buffer + offset);
+		this->answers.push_back(answer);
+		offset += answer.getSize();
+	}
+
+	return offset;
+}
+
+long DNSMessage::parseAuthority(long offset)
+{
+	unsigned short i, authCount = this->header.getNSCount();
+
+	for(i = 0; i < authCount; i++)
+	{
+		DNSResourceRecord auth(this->buffer + offset);
+		this->authority.push_back(auth);
+		offset += auth.getSize();
+	}
+
+	return offset;
+}
+
+long DNSMessage::parseAdditional(long offset)
+{
+	unsigned short i, arCount = this->header.getARCount();
+
+	for(i = 0; i < arCount; i++)
+	{
+		DNSResourceRecord additional(this->buffer + offset);
+		this->additional.push_back(additional);
+		offset += additional.getSize();
+	}
+
+	return offset;
+}
+
+
 size_t DNSMessage::getSize()
 {
-	size_t size = 0;
+	size_t i, size = 0;
 	size += DNSQueryHeader::getDNSHeaderLength();
-	for(int i = 0; i < questions.size(); i++)
+
+	for(i = 0; i < questions.size(); i++)
 		size += questions[i].getSize();
 
-	for(int i = 0; i < answers.size(); i++);
-	for(int i = 0; i < answers.size(); i++);
-	for(int i = 0; i < answers.size(); i++);
-	for(int i = 0; i < answers.size(); i++);
+	for(i = 0; i < answers.size(); i++)
+		size += answers[i].getSize();
+
+	for(i = 0; i < authority.size(); i++)
+		size += authority[i].getSize();
+
+	for(i = 0; i < additional.size(); i++)
+		size += additional[i].getSize();
+
+	return size;
 }
 
 
