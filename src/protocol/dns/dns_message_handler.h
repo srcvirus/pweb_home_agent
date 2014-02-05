@@ -15,7 +15,7 @@ class DNSMessageHandler
 {
 	//HomeAgentServer* containerServer;
 public:
-	void handleDNSQuery(boost::array <char, MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived);
+	void handleDNSQuery(boost::array <char, MAX_UDP_BUFFER_SIZE> buffer, size_t bytesReceived);
 	//void setContainerServer(HomeAgentServer* haServer){ this->containerServer = haServer; }
 	//HomeAgentServer* getContainerSerer(){return this->containerServer;}
 };

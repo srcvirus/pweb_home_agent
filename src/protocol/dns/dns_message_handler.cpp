@@ -22,7 +22,7 @@
 using namespace boost;
 using namespace std;
 
-void DNSMessageHandler::handleDNSQuery(boost::array <char, MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived)
+void DNSMessageHandler::handleDNSQuery(boost::array <char, MAX_UDP_BUFFER_SIZE> buffer, size_t bytesReceived)
 {
 	printf("Received %lu bytes\n", bytesReceived);
 	int byteOffset = 0;
