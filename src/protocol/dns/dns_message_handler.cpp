@@ -5,11 +5,6 @@
  *      Author: sr2chowd
  */
 
-
-#include "datastructure/dns_query_header.h"
-#include "datastructure/dns_question.h"
-#include "datastructure/dns_message.h"
-
 #include "dns_message_handler.h"
 #include "../../controllers/home_agent_index_cassandra_controller.h"
 #include "../../models/home_agent_index.h"
@@ -19,17 +14,18 @@
 
 #include <boost/array.hpp>
 
+#include "../../server/udp_connection.h"
+
 using namespace boost;
 using namespace std;
 
-void DNSMessageHandler::handleDNSQuery(boost::array <char, MAX_UDP_BUFFER_SIZE> buffer, size_t bytesReceived)
+void DNSMessageHandler::handleDNSQueryRecive(boost::array <char, MAX_UDP_BUFFER_SIZE> buffer, size_t bytesReceived, boost::system::error_code error, UDPConnection* connection)
 {
-	printf("Received %lu bytes\n", bytesReceived);
 	int byteOffset = 0;
+	DNSMessage dnsQueryMessage(buffer.c_array());
+	dnsQueryMessage.parse();
 
-	DNSMessage dnsQuery(buffer.c_array());
-
-	vector <DNSQuestion>& questions = dnsQuery.getDNSQuestions();
+	vector <DNSQuestion>& questions = dnsQueryMessage.getDNSQuestions();
 
 	for(int i = 0; i < questions.size(); i++)
 	{
@@ -41,36 +37,31 @@ void DNSMessageHandler::handleDNSQuery(boost::array <char, MAX_UDP_BUFFER_SIZE> 
 			string& user = labels[1];
 			string& device = labels[2];
 
-			//if(haAlias == this->containerServer->getHomeAgentAlias())
+			if(haAlias == connection->getAlias())
 			{
 				// lookup the user and device from the database
 				// form a DNS reply message and send that to the requesting node
 			}
-			//else
+			else
 			{
 				boost::shared_ptr <CassandraDBDriver> dbDriver = boost::dynamic_pointer_cast<CassandraDBDriver>(CassandraDBDriver::getDatabaseDriverObject());
 				HomeAgentIndexCassandraController haIndexController(dbDriver);
 				boost::shared_ptr <HomeAgentIndex> haIndex = haIndexController.getHomeAgentIndex(haAlias);
 				if(haIndex)
 				{
-					// forward the dns message to the found home agent.
+					boost::asio::ip::address_v4 remoteHAIp = boost::asio::ip::address_v4::from_string(haIndex->getIp());
+					boost::asio::ip::udp::endpoint remoteHAEndpoint(remoteHAIp, haIndex->getPort());
+					this->forwardDNSMessage(dnsQueryMessage, remoteHAEndpoint, connection);
 				}
 			}
 		}
 	}
+}
 
-	/*byteOffset += DNSQueryHeader::getDNSHeaderLength();
-
-	int curByte = 0;
-
-	for( ;curByte < bytesReceived; )
-	{
-		for(int j = 0; curByte < bytesReceived && j < 8; j++)
-		{
-			printf("0x%x ", buffer.data()[curByte++]);
-		}
-		putchar('\n');
-	}*/
+void DNSMessageHandler::forwardDNSMessage(DNSMessage& message, boost::asio::ip::udp::endpoint& remoteEndPoint, UDPConnection* connection)
+{
+	connection->getSocket().async_send_to(boost::asio::buffer(message.getBuffer(), message.getSize()), remoteEndPoint,
+			boost::bind(&UDPConnection::handleDataSent, connection, boost::asio::placeholders::error()));
 }
 
 

@@ -9,13 +9,13 @@
 
 //temp
 #include "../protocol/dns/datastructure/dns_message.h"
-
 #include <boost/bind.hpp>
 
-UDPConnection::UDPConnection(IOServicePool* ioServicePool, unsigned short localListenPort):
+UDPConnection::UDPConnection(IOServicePool* ioServicePool, unsigned short localListenPort, DNSMessageHandler& handler):
 	ioServicePool(ioServicePool),
 	localEndpoint(boost::asio::ip::udp::v4(), localListenPort),
-	socket(ioServicePool->getPinnedIOService(), this->localEndpoint)
+	socket(ioServicePool->getPinnedIOService(), this->localEndpoint),
+	handler(handler)
 {
 	this->socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
 }
@@ -23,17 +23,19 @@ UDPConnection::UDPConnection(IOServicePool* ioServicePool, unsigned short localL
 void UDPConnection::listen()
 {
 	this->socket.async_receive_from(boost::asio::buffer(this->buffer), this->remoteEndpoint,
-			boost::bind(&UDPConnection::handleDataReceived, this, this->buffer, boost::asio::placeholders::bytes_transferred()));
+			boost::bind(&UDPConnection::handleDataReceived, this, this->buffer, boost::asio::placeholders::bytes_transferred(), boost::asio::placeholders::error()));
 }
 
-void UDPConnection::handleDataSent()
+void UDPConnection::handleDataSent(boost::system::error_code& error)
 {
 	;
 }
 
-void UDPConnection::handleDataReceived(boost::array <char, MAX_UDP_BUFFER_SIZE>& buf, size_t bytesReceived)
+void UDPConnection::handleDataReceived(boost::array <char, MAX_UDP_BUFFER_SIZE>& buf, size_t bytesReceived, boost::system::error_code& error)
 {
-	printf("Received %d bytes data from %s:%d\n", bytesReceived, this->remoteEndpoint.address().to_string().c_str(), this->remoteEndpoint.port());
+	this->ioServicePool->getIOService().post(boost::bind(&DNSMessageHandler::handleDNSQueryRecive, &this->handler, buf, bytesReceived, error, this));
+
+	/*printf("Received %d bytes data from %s:%d\n", bytesReceived, this->remoteEndpoint.address().to_string().c_str(), this->remoteEndpoint.port());
 	DNSMessage message(buf.c_array());
 	message.parse();
 	message.getDNSHeader().print();
@@ -85,6 +87,6 @@ void UDPConnection::handleDataReceived(boost::array <char, MAX_UDP_BUFFER_SIZE>&
 		boost::asio::ip::udp::socket s(this->ioServicePool->getIOService(), this->localEndpoint);
 		s.async_send_to(boost::asio::buffer(reply.getBuffer(), reply.getSize()), this->remoteEndpoint,
 				boost::bind(&UDPConnection::handleDataSent, this));
-	}
+	}*/
 	this->listen();
 }

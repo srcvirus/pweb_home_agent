@@ -28,12 +28,12 @@ class HomeAgentServer
 	boost::shared_ptr <CassandraDBDriver> database;
 	IOServicePool ioServicePool;
 	UDPConnection udpConnection;
-
+	DNSMessageHandler handler;
 public:
 
 	HomeAgentServer(const std::string& homeAgentAlias, unsigned short serverListenPort, size_t nIOThreads, unsigned long cpuPinMask = 0x0):
 		ioServicePool(nIOThreads, cpuPinMask),
-		udpConnection(&this->ioServicePool, serverListenPort)
+		udpConnection(&this->ioServicePool, serverListenPort, handler)
 	{
 		printf("Initializing home agent server\n");
 		this->homeAgentAlias = homeAgentAlias;
