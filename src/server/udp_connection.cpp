@@ -17,7 +17,7 @@ UDPConnection::UDPConnection(IOServicePool* ioServicePool, unsigned short localL
 	localEndpoint(boost::asio::ip::udp::v4(), localListenPort),
 	socket(ioServicePool->getPinnedIOService(), this->localEndpoint)
 {
-	;
+	this->socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
 }
 
 void UDPConnection::listen()
@@ -82,7 +82,8 @@ void UDPConnection::handleDataReceived(boost::array <char, MAX_UDP_BUFFER_SIZE>&
 		reply.write();
 		reply.print();
 
-		this->socket.async_send_to(boost::asio::buffer(reply.getBuffer(), reply.getSize()), this->remoteEndpoint,
+		boost::asio::ip::udp::socket s(this->ioServicePool->getIOService(), this->localEndpoint);
+		s.async_send_to(boost::asio::buffer(reply.getBuffer(), reply.getSize()), this->remoteEndpoint,
 				boost::bind(&UDPConnection::handleDataSent, this));
 	}
 	this->listen();
