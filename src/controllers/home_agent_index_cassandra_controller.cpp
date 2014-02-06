@@ -12,21 +12,30 @@ using namespace std;
 
 boost::shared_ptr <HomeAgentIndex> HomeAgentIndexCassandraController::getHomeAgentIndex(const string& name)
 {
-	string queryString = "select * from " + HomeAgentIndex::TABLE_NAME +  " where name = '" + name + "';";
-	boost::shared_ptr <HomeAgentIndex> retObject;
+	unsigned long tid = (unsigned long)pthread_self();
 
+	string queryString = "select * from " + HomeAgentIndex::TABLE_NAME +  " where name = '" + name + "';";
+
+	printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
+
+	boost::shared_ptr <HomeAgentIndex> retObject;
 	boost::shared_future <cql::cql_future_result_t> results = databaseDriver->executeQuery(queryString);
 
 	if(results.get().error.is_err())
 	{
-		printf("[ERROR]\t%s\n", results.get().error.message.c_str());
+		printf("[ERROR] %s\n", results.get().error.message.c_str());
 		return retObject;
 	}
 
-	cql::cql_result_t& rows = *(results.get().result); //databaseDriver->executeQuery(queryString);
+	cql::cql_result_t& rows = *(results.get().result);
 
 	if(rows.row_count() <= 0)
+	{
+		printf("[DEBUG] Zero rows returned\n");
 		return retObject;
+	}
+
+	printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
 
 	string haName, haIp;
 	int haPort;
@@ -38,26 +47,30 @@ boost::shared_ptr <HomeAgentIndex> HomeAgentIndexCassandraController::getHomeAge
 	rows.get_int(HomeAgentIndex::COL_PORT, haPort);
 
 	retObject = boost::shared_ptr <HomeAgentIndex> (new HomeAgentIndex(haName, haIp, haPort));
+	printf("[DEBUG] [Thread 0x%lx] ", tid); retObject->printShort();
 	return retObject;
 }
 
 int HomeAgentIndexCassandraController::addHomeAgentIndex(boost::shared_ptr <HomeAgentIndex>& haIndex)
 {
 	std::string strPort;
-	std::ostringstream ss(strPort);
-	ss << haIndex->getPort();
+	char str[10];
+	sprintf(str, "%d", haIndex->getPort());
+	strPort = str;
 
 	string queryString = "insert into " + HomeAgentIndex::TABLE_NAME + " (" +
 								HomeAgentIndex::COL_NAME + "," +
 								HomeAgentIndex::COL_IP + "," +
-								HomeAgentIndex::COL_PORT + ") values " + "(" +
-								haIndex->getName() + ", " + haIndex->getIp() + "," + strPort + ");";
+								HomeAgentIndex::COL_PORT + ") values " + "('" +
+								haIndex->getName() + "', '" + haIndex->getIp() + "'," + strPort + ");";
+
+	printf("[DEBUG] %s\n", queryString.c_str());
 
 	boost::shared_future <cql::cql_future_result_t> results = databaseDriver->executeQuery(queryString);
 	if(results.get().error.is_err())
 	{
 		printf("[ERROR]\t%s\n", results.get().error.message.c_str());
-		results.get().error.code;
+		return results.get().error.code;
 	}
 	return 0;
 }

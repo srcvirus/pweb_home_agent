@@ -121,20 +121,20 @@ public:
 	{
 		printf("------------------------------------------\n");
 		header.print();
-		printf("nQuestions: %d\n", questions.size());
-		for(int i = 0; i < questions.size(); i++)
+		printf("nQuestions: %lu\n", questions.size());
+		for(int i = 0; i < (int)questions.size(); i++)
 			questions[i].print();
 
-		printf("nAnswers: %d\n", answers.size());
-		for(int i = 0; i < answers.size(); i++)
+		printf("nAnswers: %lu\n", answers.size());
+		for(int i = 0; i < (int)answers.size(); i++)
 			answers[i].print();
 
-		printf("nAuthority: %d\n", authority.size());
-		for(int i = 0; i < authority.size(); i++)
+		printf("nAuthority: %lu\n", authority.size());
+		for(int i = 0; i < (int)authority.size(); i++)
 			authority[i].print();
 
-		printf("nAdditional: %d\n", additional.size());
-		for(int i = 0; i < additional.size(); i++)
+		printf("nAdditional: %lu\n", additional.size());
+		for(int i = 0; i < (int)additional.size(); i++)
 			additional[i].print();
 		printf("------------------------------------------\n");
 	}

@@ -25,6 +25,7 @@ IOServicePool::IOServicePool(unsigned int poolSize, unsigned long cpuPinnedServi
 	this->nextCPUPinnedIOServiceIndex = -1;
 	this->nextNonPinnedIOServiceIndex = -1;
 	this->nextIOServiceIndex = -1;
+	this->dedicatedServices = 0x0;
 
 	for(i = 0; i < poolSize; ++i)
 	{
@@ -70,29 +71,45 @@ void IOServicePool::startServices()
 void* IOServicePool::ioServiceThreadMethod(void* args)
 {
 	boost::asio::io_service* ioService = *((boost::asio::io_service**)args);
-	printf("Starting i/o thread 0x%x, with io_service pointer %p\n", (unsigned int)pthread_self(), ioService);
+	printf("Starting i/o thread 0x%lx, with io_service pointer %p\n", pthread_self(), ioService);
 	ioService->run();
 }
 
 boost::asio::io_service& IOServicePool::getNonPinnedIOService()
 {
 	//return a io_service based on round robin scheduling
-	nextNonPinnedIOServiceIndex++;
-	nextNonPinnedIOServiceIndex %= nonPinnedServices.size();
+	while(true)
+	{
+		nextNonPinnedIOServiceIndex = (nextNonPinnedIOServiceIndex + 1) % nonPinnedServices.size();
+		if(!(dedicatedServices & (1 << nextNonPinnedIOServiceIndex)))
+			break;
+	}
 	return *this->ioServicePool[this->nonPinnedServices[nextNonPinnedIOServiceIndex]];
 }
 
 boost::asio::io_service& IOServicePool::getPinnedIOService()
 {
-	nextCPUPinnedIOServiceIndex++;
-	nextCPUPinnedIOServiceIndex %= cpuPinnedServices.size();
+	while(true)
+	{
+		nextCPUPinnedIOServiceIndex = (nextCPUPinnedIOServiceIndex + 1) % cpuPinnedServices.size();
+		if(!(dedicatedServices & (1 << nextCPUPinnedIOServiceIndex))) break;
+	}
 	return *this->ioServicePool[this->cpuPinnedServices[nextCPUPinnedIOServiceIndex]];
 }
 
 boost::asio::io_service& IOServicePool::getIOService()
 {
-	nextIOServiceIndex++;
-	nextIOServiceIndex %= nIOServicePoolSize;
+	while(true)
+	{
+		nextIOServiceIndex = (nextIOServiceIndex + 1) % nIOServicePoolSize;
+		if(!(dedicatedServices & (1 << nextIOServiceIndex))) break;
+	}
 	return *this->ioServicePool[nextIOServiceIndex];
 }
 
+boost::asio::io_service& IOServicePool::getDedicatedIOService()
+{
+	nextCPUPinnedIOServiceIndex = (nextCPUPinnedIOServiceIndex + 1) % cpuPinnedServices.size();
+	dedicatedServices |= (1 << nextCPUPinnedIOServiceIndex);
+	return *this->ioServicePool[nextCPUPinnedIOServiceIndex];
+}

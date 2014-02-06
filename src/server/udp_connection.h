@@ -16,6 +16,7 @@
 #include "../communication/io_service_pool.h"
 
 #include "../protocol/dns/dns_message_handler.h"
+#include "../protocol/dns/datastructure/dns_message.h"
 
 class DNSMessageHandler;
 
@@ -40,18 +41,21 @@ class UDPConnection
 	/* The message handler */
 	DNSMessageHandler& handler;
 
+	/* Wrapper around this pointer */
+	boost::shared_ptr <UDPConnection> thisConnection;
+
 public:
 	UDPConnection(IOServicePool*, unsigned short, DNSMessageHandler& handler);
 
 	void listen();
-	void handleDataReceived(boost::array <char, MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived, boost::system::error_code& error);
-	void handleDataSent(boost::system::error_code& error);
+	void handleDataReceived(boost::array <char, MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived);
+	void handleDataSent();
 
-	boost::asio::ip::udp::socket& getSocket(){ return this->socket; }
+	boost::asio::ip::udp::socket& getSocket() { return this->socket; }
 	boost::asio::ip::udp::endpoint& getLocalEndpoint(){ return this->localEndpoint; }
 	boost::asio::ip::udp::endpoint& getRemoteEndpoint(){ return this->remoteEndpoint; }
 
-	string& getAlias(){ return this->alias; }
+	string& getAlias() { return this->alias; }
 	void setAlias(const string& alias){ this->alias = alias; }
 };
 

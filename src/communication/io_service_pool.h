@@ -19,6 +19,7 @@ class IOServicePool
 	int nextCPUPinnedIOServiceIndex;
 	int nextNonPinnedIOServiceIndex;
 	int nextIOServiceIndex;
+	unsigned long dedicatedServices;
 
 	vector < boost::asio::io_service* > ioServicePool;
 	vector < boost::asio::io_service::work* > ioServiceWorkPool;
@@ -30,10 +31,11 @@ class IOServicePool
 
 public:
 
-	IOServicePool(unsigned int poolSize, unsigned long cpuPinnedServiceMask);
+	IOServicePool(unsigned int poolSize, unsigned long cpuPinnedServiceMask = 0x01);
 	boost::asio::io_service& getNonPinnedIOService();
 	boost::asio::io_service& getPinnedIOService();
 	boost::asio::io_service& getIOService();
+	boost::asio::io_service& getDedicatedIOService();
 
 	void startServices();
 

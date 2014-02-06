@@ -26,12 +26,10 @@ CassandraDBDriver::CassandraDBDriver(const char* dbServerHost, unsigned short in
 
 int CassandraDBDriver::openConnection()
 {
-	pthread_mutex_lock(&this->dbLock);
 	cqlBuilder = cql::cql_cluster_t::builder();
 	cqlBuilder->add_contact_point(boost::asio::ip::address::from_string(this->dbServerHostName), (unsigned short int)this->dbServerPort);
 	cqlCluster = cqlBuilder->build();
 	cqlSession = cqlCluster->connect();
-	pthread_mutex_unlock(&this->dbLock);
 
 	if(cqlSession)
 	{
@@ -55,13 +53,14 @@ boost::shared_future <cql::cql_future_result_t>
 CassandraDBDriver::executeQuery(const string& queryString)
 {
 	pthread_mutex_lock(&this->dbLock);
+
 	if(!connected)
 		this->openConnection();
+
 	boost::shared_ptr <cql::cql_query_t> cqlQuery( new cql::cql_query_t(queryString, cql::CQL_CONSISTENCY_ALL) );
 	boost::shared_future <cql::cql_future_result_t> cqlResult = this->cqlSession->query(cqlQuery);
 	cqlResult.wait();
 	pthread_mutex_unlock(&this->dbLock);
-
 	return cqlResult;
 }
 

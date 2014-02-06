@@ -38,6 +38,7 @@ public:
 		this->buffer = NULL;
 		labels.clear();
 		rData.clear();
+		this->rdLength = 0;
 	}
 
 	DNSResourceRecord(char* _buf)
@@ -45,6 +46,8 @@ public:
 		this->buffer = _buf;
 		labels.clear();
 		rData.clear();
+		this->rdLength = 0;
+		this->parseFromBuffer();
 	}
 
 	DNSResourceRecord& operator=(const DNSResourceRecord& record)

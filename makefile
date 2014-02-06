@@ -2,7 +2,7 @@ CPP = g++
 WARNING = -Wall
 DEBUGON = -g
 CFLAGS = -c $(DEBUGON)
-LDFLAGS = -lpthread -lboost_system -lboost_thread -lssl -lcrypto -lleveldb -lcql
+LDFLAGS = -lpthread -lboost_system -lboost_thread -lssl -lcrypto -lleveldb -lcql -lboost_program_options
 
 SRCDIR = src
 OBJDIR = obj
@@ -12,9 +12,9 @@ SRCS := $(shell find $(SRCDIR) -name '*.cpp')
 SRCDIRS = $(shell find $(SRCDIR) -type d | sed 's/$(SRCDIR)/./g' )
 OBJS := $(patsubst $(SRCDIRS)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 
-all: $(BINDIR)/pweb_home_agent_test
+all: $(BINDIR)/pweb_home_agent
 
-$(BINDIR)/pweb_home_agent_test: $(OBJS)
+$(BINDIR)/pweb_home_agent: $(OBJS)
 	$(CPP) $(DEBUGON) $(OBJS) $(LDFLAGS) -o $@
 
 $(OBJDIR)/%.o: $(SRCDIRS)/%.cpp
