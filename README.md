@@ -5,22 +5,10 @@ Home Agent Software for pWeb name resolution system
 ### Dependencies
 
 The home agent software uses cassandra (1.2+) as underlying
-indexing storage and levelDB as a local embeded key-value storage. 
-Details about cassandra (1.2+) installation can be found at:
+indexing storage. Details about cassandra (1.2+) installation 
+can be found at:
 
 http://www.datastax.com/documentation/cassandra/1.2/webhelp/index.html#cassandra/install/installDeb_t.html
-
-Latest stable version of levelDB (leveldb-1.15.0.tar.gz) can be downloaded from: https://code.google.com/p/leveldb/downloads/list
-
-After downloading the tarball, untar it in a suitable folder (say ~/Downloads) and
-perform the following steps:
-
-```
-cd leveldb-1.15.0
-make
-sudo cp -r include/leveldb /usr/include/
-sudo cp libleveldb.so* /usr/lib/
-```
 
 The home agent software depends on the following libraries:
 
