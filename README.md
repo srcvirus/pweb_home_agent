@@ -43,7 +43,7 @@ command line by running:
 work as well)
 
 ```
-sudo apt-get install libboost1.54-dev-all libssl-dev libssh2-1-dev libcrypto++-dev
+sudo apt-get install libboost1.54-all-dev libssl-dev libssh2-1-dev libcrypto++-dev
 ```
 
 To install libcql download the Datastax C++ driver from github by running:
