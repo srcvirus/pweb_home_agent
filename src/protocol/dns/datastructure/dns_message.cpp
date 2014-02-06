@@ -36,7 +36,7 @@ long DNSMessage::parse()
 	offset = parseAnswers(offset);
 	offset = parseAuthority(offset);
 	offset = parseAdditional(offset);
-
+	this->bufferSize = offset;
 	return offset;
 }
 

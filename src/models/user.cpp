@@ -12,7 +12,7 @@ const string User::COL_FULL_NAME = "fullname";
 const string User::COL_EMAIL = "email";
 const string User::COL_LOCATION = "location";
 const string User::COL_AFFILIATION = "affiliation";
-
+const string User::TABLE_NAME = "pweb.user";
 
 
 

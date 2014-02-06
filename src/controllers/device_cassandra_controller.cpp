@@ -13,7 +13,9 @@ string DeviceCassandraController::getDeviceIp(const string& deviceName, const st
 	bool searchable;
 
 	unsigned long tid = (unsigned long)pthread_self();
-	string queryString = "select " + Device::COL_IP + "," + Device::COL_SEARCHABLE + " from device where " + Device::COL_DEVICE_NAME + "='" + deviceName + "' and " + Device::COL_USER_NAME + "='" + userName + "';";
+	string queryString = "select " + Device::COL_IP + "," + Device::COL_SEARCHABLE + " from " + Device::TABLE_NAME +
+			" where " + Device::COL_DEVICE_NAME + "='" + deviceName + "' and " + Device::COL_USER_NAME + "='" + userName + "';";
+
 	printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
 
 	boost::shared_future <cql::cql_future_result_t> results = databaseDriver->executeQuery(queryString);

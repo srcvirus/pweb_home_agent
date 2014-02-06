@@ -160,6 +160,9 @@ public:
 		this->ttl = ttl;
 		this->rdLength = ntohs(rdLength);
 
+		for(int i = 0; i < (int)this->rdLength; i++)
+			this->rData.push_back(this->buffer[offset++]);
+
 		return offset;
 	}
 

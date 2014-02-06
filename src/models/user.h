@@ -27,6 +27,7 @@ public:
 	static const string COL_FULL_NAME;
 	static const string COL_LOCATION;
 	static const string COL_AFFILIATION;
+	static const string TABLE_NAME;
 
 	User(const string& username, const string& password, const string& fullname, const string& location, const string& affiliation):
 		username(username),

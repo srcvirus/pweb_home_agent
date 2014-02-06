@@ -29,6 +29,7 @@ class DNSMessage
 	DNSQueryHeader header;
 	vector <DNSQuestion> questions;
 	vector <DNSResourceRecord> answers, authority, additional;
+	size_t bufferSize;
 
 public:
 	DNSMessage()
@@ -39,6 +40,7 @@ public:
 		answers.clear();
 		authority.clear();
 		additional.clear();
+		bufferSize = 0;
 	}
 
 	DNSMessage(char* _buf)
@@ -49,6 +51,7 @@ public:
 		answers.clear();
 		authority.clear();
 		additional.clear();
+		bufferSize = 0;
 	}
 
 	char* getBuffer(){ return this->buffer; }
@@ -137,6 +140,20 @@ public:
 		for(int i = 0; i < (int)additional.size(); i++)
 			additional[i].print();
 		printf("------------------------------------------\n");
+	}
+
+	void printBuffer()
+	{
+		int i = 0, j;
+
+		while(i < bufferSize)
+		{
+			for(j = 0; j < 8; j++)
+			{
+				printf(" 0x%x", this->buffer[i++]);
+			}
+			putchar('\n');
+		}
 	}
 };
 

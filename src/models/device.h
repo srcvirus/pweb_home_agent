@@ -29,6 +29,7 @@ public:
 
 	static const string COL_USER_NAME, COL_DEVICE_NAME, COL_TYPE, COL_IP, COL_DIR_IP, COL_PUBLIC_FOLDER, COL_PRIVATE_FOLDER, COL_OS, COL_DESCRIPTION, COL_CONTENT_META;
 	static const string COL_PORT, COL_DIR_PORT, COL_LAST_SEEN, COL_CONTENT_TIME_STAMP, COL_SEARCHABLE;
+	static const string TABLE_NAME;
 
 	Device(const string& username, const string& devicename, const string& type, const string& ip, unsigned short port,
 			const string& dirIp, unsigned short dirPort, const string& publicFolder, const string& privateFolder,
