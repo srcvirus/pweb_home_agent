@@ -6,6 +6,7 @@
  */
 
 #include "dns_message_handler.h"
+
 #include "../../controllers/home_agent_index_cassandra_controller.h"
 #include "../../models/home_agent_index.h"
 #include "../../database/cassandra_db.h"
@@ -24,119 +25,182 @@ using namespace std;
 
 void DNSMessageHandler::handleDNSQueryRecive(boost::array <char, MAX_UDP_BUFFER_SIZE> buffer, size_t bytesReceived, boost::shared_ptr <UDPConnection>& connection)
 {
+	boost::asio::ip::udp::endpoint remoteEndpoint = connection->getRemoteEndpoint();
+
 	unsigned long tid = (unsigned long)pthread_self();
-	printf("[DEBUG] Processing DNS query from thread 0x%lx\n", tid);
+	printf("[DEBUG] [Thread 0x%lx] Processing DNS query\n", tid);
 
 	int byteOffset = 0;
 	DNSMessage dnsQueryMessage(buffer.c_array());
 	dnsQueryMessage.parse();
 
 	printf("[DEBUG] [Thread 0x%lx]\n", tid);
-	dnsQueryMessage.printBuffer();
 	dnsQueryMessage.print();
-	boost::asio::ip::udp::endpoint remoteEndpoint = connection->getRemoteEndpoint();
 
-	if(dnsQueryMessage.getDNSHeader().getQR())
-	{
-		;
-	}
-	else
-	{
-		vector <DNSQuestion>& questions = dnsQueryMessage.getDNSQuestions();
+	string ansToQuestion = "";
 
-		for(int i = 0; i < questions.size(); i++)
+	bool isQuery = !dnsQueryMessage.getDNSHeader().getQR();
+
+	if(isQuery)
+	{
+		bool isValid = this->isValidRequest(dnsQueryMessage, connection->getSuffix());
+		if(isValid)
 		{
-			vector <string>& labels = questions[i].getLabels();
+			vector <DNSQuestion>& questions = dnsQueryMessage.getDNSQuestions();
+			DNSQuestion question = questions[0];
 
-			if(labels.size() >= 3)
+			vector <string>& labels = question.getLabels();
+			string& haAlias = labels[2];
+			string& user = labels[1];
+			string& device = labels[0];
+			boost::shared_ptr <CassandraDBDriver> dbDriver = boost::dynamic_pointer_cast<CassandraDBDriver>(CassandraDBDriver::getDatabaseDriverObject());
+			printf("[DEBUG] [Thread 0x%lx] haAlias = %s, user = %s, device = %s\n", tid, haAlias.c_str(), user.c_str(), device.c_str());
+
+			if(haAlias == connection->getAlias())
 			{
-				string& haAlias = labels[2];
-				string& user = labels[1];
-				string& device = labels[0];
+				// This is the target home agent
+				printf("[DEBUG] [Thread 0x%lx] Current Home agent == Query Home agent (%s == %s)\n", tid, connection->getAlias().c_str(), haAlias.c_str());
 
-				printf("[DEBUG] [Thread 0x%lx] haAlias = %s, user = %s, device = %s\n", tid, haAlias.c_str(), user.c_str(), device.c_str());
-				if(haAlias == connection->getAlias())
+				DeviceCassandraController dController(dbDriver);
+				string ip = dController.getDeviceIp(device, user);
+				if(ip.size() <= 0)
+					isValid = false;
+
+				if(isValid)
 				{
-					// This is the target home agent
-					printf("[DEBUG] [Thread 0x%lx] Current Home agent == Query Home agent (%s == %s)\n", tid, connection->getAlias().c_str(), haAlias.c_str());
-					boost::shared_ptr <CassandraDBDriver> dbDriver = boost::dynamic_pointer_cast<CassandraDBDriver>(CassandraDBDriver::getDatabaseDriverObject());
-					DeviceCassandraController dController(dbDriver);
-					string ip = dController.getDeviceIp(device, user);
-					if(ip.size() > 0)
-					{
-						DNSMessage reply;
-						unsigned short int ancount = 1;
-						unsigned short int zero = 0;
-
-						bool qr = true;
-
-						reply.setDNSHeader(dnsQueryMessage.getDNSHeader());
-						reply.getDNSHeader().setANCount(ancount);
-						reply.getDNSHeader().setNSCount(zero);
-						reply.getDNSHeader().setARCount(zero);
-						reply.getDNSHeader().setQDCount(zero);
-
-						reply.getDNSHeader().setQR(qr);
-
-						unsigned int ttl = 0;
-						unsigned short rdLength = sizeof(int);
-						boost::asio::ip::address_v4 addr = boost::asio::ip::address_v4::from_string(ip);
-
-						unsigned int ip = (unsigned int)addr.to_ulong();
-						unsigned char data[rdLength];
-						memcpy(data, &ip, sizeof(int));
-						vector <char> d;
-
-						for(int i = rdLength - 1; i >= 0; i--) d.push_back(data[i]);
-
-						DNSResourceRecord ans;
-						ans.setLabels(dnsQueryMessage.getDNSQuestions()[0].getLabels());
-						ans.setClass(dnsQueryMessage.getDNSQuestions()[0].getClass());
-						ans.setRdLength(rdLength);
-						ans.setData(d);
-						ans.setType(dnsQueryMessage.getDNSQuestions()[0].getType());
-						ans.setTtl(ttl);
-
-						reply.getDNSAnswers().push_back(ans);
-
-						reply.allocateBuffer();
-						reply.write();
-						reply.print();
-
-						this->forwardDNSMessage(reply, remoteEndpoint, connection);
-					}
-					// lookup the user and device from the database
-					// form a DNS reply message and send that to the requesting node
+					ansToQuestion = ip;
+					DNSMessage reply;
+					this->composeSuccessReply(dnsQueryMessage, reply, ansToQuestion);
+					reply.print();
+					this->forwardDNSMessage(reply, remoteEndpoint, connection);
 				}
-				else
-				{
+			}
+			else
+			{
 					// This is not the target home agent
 					// Lookup home agent's alias in cassandra
 					// to forward to query to the target home agent
-
-					boost::shared_ptr <CassandraDBDriver> dbDriver = boost::dynamic_pointer_cast<CassandraDBDriver>(CassandraDBDriver::getDatabaseDriverObject());
 					HomeAgentIndexCassandraController haIndexController(dbDriver);
 					boost::shared_ptr <HomeAgentIndex> haIndex = haIndexController.getHomeAgentIndex(haAlias);
 					if(haIndex)
 					{
+						string mapKey = ProtocolHelper::shortToString(dnsQueryMessage.getDNSHeader().getId());
+						mapKey += "_" + dnsQueryMessage.getDNSQuestions()[0].getName();
+						printf("[DEBUG] [Thread 0x%lx] Adding key %s, value %s:%u to map\n",tid, mapKey.c_str(), remoteEndpoint.address().to_string().c_str(), remoteEndpoint.port());
+
+						connection->getPendingRequests().add(mapKey, remoteEndpoint);
+
 						boost::asio::ip::address_v4 remoteHAIp = boost::asio::ip::address_v4::from_string(haIndex->getIp());
 						remoteEndpoint = boost::asio::ip::udp::endpoint(remoteHAIp, haIndex->getPort());
-						printf("[DEBUG] [Thread 0x%lx] Found home agent %s, (%s:%d)\n", tid, haIndex->getName().c_str(), haIndex->getIp().c_str(), haIndex->getPort());
+
+						printf("[INFO] [Thread 0x%lx] Found home agent %s, (%s:%d)\n", tid, haIndex->getName().c_str(), haIndex->getIp().c_str(), haIndex->getPort());
 						this->forwardDNSMessage(dnsQueryMessage, remoteEndpoint, connection);
 					}
-				}
+					else isValid = false;
 			}
+		}
+
+		if(!isValid)
+		{
+			DNSMessage reply;
+			this->composeFailReply(dnsQueryMessage, reply);
+			this->forwardDNSMessage(dnsQueryMessage, remoteEndpoint, connection);
+		}
+	}
+	else
+	{
+		string mapKey = ProtocolHelper::shortToString(dnsQueryMessage.getDNSHeader().getId());
+		mapKey += "_" + dnsQueryMessage.getDNSAnswers()[0].getName();
+		printf("[DEBUG] [Thread 0x%lx] Looking up key %s in map\n", tid, mapKey.c_str());
+
+		if(connection->getPendingRequests().lookup(mapKey, remoteEndpoint))
+		{
+			printf("[DEBUG] [Thread 0x%lx] Found key %s, value %s:%u in map\n", tid, mapKey.c_str(), remoteEndpoint.address().to_string().c_str(), remoteEndpoint.port());
+			connection->getPendingRequests().remove(mapKey);
+			this->forwardDNSMessage(dnsQueryMessage, remoteEndpoint, connection);
 		}
 	}
 }
 
 void DNSMessageHandler::forwardDNSMessage(DNSMessage& message, boost::asio::ip::udp::endpoint& remoteEndpoint, boost::shared_ptr <UDPConnection>& connection)
 {
+	int n = message.getSize();
 	printf("[DEBUG] [Thread 0x%lx] Forwarding %lu bytes to %s:%u\n", (unsigned long)pthread_self(), message.getSize(), remoteEndpoint.address().to_string().c_str(), remoteEndpoint.port());
 	connection->getSocket().async_send_to(boost::asio::buffer(message.getBuffer(), message.getSize()), remoteEndpoint,
 			boost::bind(&UDPConnection::handleDataSent, connection));
 }
 
+bool DNSMessageHandler::isValidRequest(DNSMessage& message, const string& suffix)
+{
+	if(message.getDNSHeader().getOpcode() != O_QUERY)
+		return false;
 
+	int nQuestions = (int)message.getDNSQuestions().size();
+
+	if(nQuestions <= 0)
+		return false;
+
+	for(int i = 0; i < nQuestions; i++)
+	{
+		DNSQuestion& question = message.getDNSQuestions()[i];
+		if(question.getLabels().size() < 4)
+			return false;
+
+		if(!ProtocolHelper::isSuffix(question.getName(), suffix))
+			return false;
+	}
+
+	return true;
+}
+
+void DNSMessageHandler::composeFailReply(DNSMessage& query, DNSMessage& reply)
+{
+	unsigned short zero = 0;
+	bool qr = true;
+	ReturnCode retCode = R_NAME_ERROR;
+	DNSResourceRecord ans;
+
+	reply.setDNSHeader(query.getDNSHeader());
+	reply.getDNSHeader().setQR(qr);
+	reply.getDNSHeader().setANCount(zero);
+	reply.getDNSHeader().setNSCount(zero);
+	reply.getDNSHeader().setARCount(zero);
+	reply.getDNSHeader().setQDCount(zero);
+	reply.getDNSHeader().setRetCode(retCode);
+}
+
+void DNSMessageHandler::composeSuccessReply(DNSMessage& query, DNSMessage& reply, string& ansToQuestion)
+{
+	unsigned short anCount = 1;
+	unsigned short zero = 0;
+	bool qr = true;
+	ReturnCode retCode = R_SUCCESS;
+
+	reply.setDNSHeader(query.getDNSHeader());
+	reply.getDNSHeader().setQR(qr);
+	reply.getDNSHeader().setANCount(anCount);
+	reply.getDNSHeader().setNSCount(zero);
+	reply.getDNSHeader().setARCount(zero);
+	reply.getDNSHeader().setQDCount(zero);
+	reply.getDNSAdditional().clear();
+	reply.getDNSAuthority().clear();
+	reply.getDNSQuestions().clear();
+	reply.getDNSHeader().setRetCode(retCode);
+
+	DNSResourceRecord ans;
+	boost::array <unsigned char, sizeof(int)> ipAddressData = boost::asio::ip::address_v4::from_string(ansToQuestion).to_bytes();
+	unsigned short rdLength = sizeof(int);
+	unsigned int ttl = 0;
+
+	ans.setLabels(query.getDNSQuestions()[0].getLabels());
+	ans.setClass(query.getDNSQuestions()[0].getClass());
+	ans.setType(query.getDNSQuestions()[0].getType());
+	ans.setRdLength(rdLength);
+	ans.setTtl(ttl);
+	for(int j = 0; j < rdLength; j++) ans.getData().push_back(ipAddressData[j]);
+	reply.getDNSAnswers().push_back(ans);
+	reply.allocateBuffer();
+	reply.write();
+}
 
 

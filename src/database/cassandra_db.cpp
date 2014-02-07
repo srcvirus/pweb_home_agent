@@ -57,7 +57,7 @@ CassandraDBDriver::executeQuery(const string& queryString)
 	if(!connected)
 		this->openConnection();
 
-	boost::shared_ptr <cql::cql_query_t> cqlQuery( new cql::cql_query_t(queryString, cql::CQL_CONSISTENCY_ALL) );
+	boost::shared_ptr <cql::cql_query_t> cqlQuery( new cql::cql_query_t(queryString, cql::CQL_CONSISTENCY_ONE) );
 	boost::shared_future <cql::cql_future_result_t> cqlResult = this->cqlSession->query(cqlQuery);
 	cqlResult.wait();
 	pthread_mutex_unlock(&this->dbLock);

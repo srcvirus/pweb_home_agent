@@ -24,7 +24,7 @@
 
 class HomeAgentServer
 {
-	std::string hostName, ip, homeAgentAlias;
+	std::string hostName, ip, homeAgentAlias, suffix;
 	unsigned short listenPort;
 	boost::shared_ptr <CassandraDBDriver> database;
 	IOServicePool ioServicePool;
@@ -43,12 +43,13 @@ class HomeAgentServer
 
 public:
 
-	HomeAgentServer(const std::string& homeAgentAlias, const std::string& homeAgentHost, unsigned short serverListenPort, size_t nIOThreads, unsigned long cpuPinMask = 0x0):
+	HomeAgentServer(const std::string& homeAgentAlias, const std::string& suffix, const std::string& homeAgentHost, unsigned short serverListenPort, size_t nIOThreads, unsigned long cpuPinMask = 0x0):
 		hostName(homeAgentHost),
 		homeAgentAlias(homeAgentAlias),
+		suffix(suffix),
 		listenPort(serverListenPort),
 		ioServicePool(nIOThreads, cpuPinMask),
-		udpConnection(&this->ioServicePool, serverListenPort, handler)
+		udpConnection(&this->ioServicePool, serverListenPort, handler, homeAgentAlias, suffix)
 	{
 		printf("[INFO] Initializing home agent server\n");
 

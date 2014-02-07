@@ -8,6 +8,9 @@
 #ifndef UDP_CONNECTION_H_
 #define UDP_CONNECTION_H_
 
+#include <map>
+#include <string>
+
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -18,6 +21,10 @@
 #include "../protocol/dns/dns_message_handler.h"
 #include "../protocol/dns/datastructure/dns_message.h"
 
+#include "../datastructure/lookup_table.h"
+
+using namespace std;
+
 class DNSMessageHandler;
 
 class UDPConnection
@@ -27,6 +34,9 @@ class UDPConnection
 
 	/* alias of the container home agent */
 	string alias;
+
+	/* suffix of the container home agent */
+	string suffix;
 
 	/*End points of the connection*/
 	boost::asio::ip::udp::endpoint remoteEndpoint;
@@ -44,11 +54,13 @@ class UDPConnection
 	/* Wrapper around this pointer */
 	boost::shared_ptr <UDPConnection> thisConnection;
 
+	/* pending requests */
+	LookupTable <string, boost::asio::ip::udp::endpoint> pendingRequests;
 public:
-	UDPConnection(IOServicePool*, unsigned short, DNSMessageHandler& handler);
+	UDPConnection(IOServicePool*, unsigned short, DNSMessageHandler& handler, const string& alias, const string& suffix);
 
 	void listen();
-	void handleDataReceived(boost::array <char, MAX_UDP_BUFFER_SIZE>& buffer, size_t bytesReceived);
+	void handleDataReceived(size_t bytesReceived);
 	void handleDataSent();
 
 	boost::asio::ip::udp::socket& getSocket() { return this->socket; }
@@ -57,6 +69,11 @@ public:
 
 	string& getAlias() { return this->alias; }
 	void setAlias(const string& alias){ this->alias = alias; }
+
+	string& getSuffix(){ return this->suffix; }
+	void setSuffix(const string& suffix){ this->suffix = suffix; }
+
+	LookupTable <string, boost::asio::ip::udp::endpoint>& getPendingRequests(){ return this->pendingRequests; }
 };
 
 

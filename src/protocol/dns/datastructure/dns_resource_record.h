@@ -145,6 +145,7 @@ public:
 			if(nameComponent.length() <= 0) break;
 			if(this->name.length() > 0) this->name += ".";
 			this->name += nameComponent;
+			this->labels.push_back(nameComponent);
 		}
 
 		unsigned short rType, rClass, rdLength;

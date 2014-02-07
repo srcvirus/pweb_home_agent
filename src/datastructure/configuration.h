@@ -16,8 +16,9 @@ class Configuration
 {
 	string alias;
 	string hostname;
+	string suffix;
 	unsigned short listenPort;
-	unsigned char nThreads;
+	unsigned short nThreads;
 
 public:
 	string& getAlias()
@@ -50,14 +51,24 @@ public:
 		this->listenPort = listenPort;
 	}
 
-	unsigned char& getThreads()
+	unsigned short& getThreads()
 	{
 		return nThreads;
 	}
 
-	void setThreads(unsigned char& threads)
+	void setThreads(unsigned short& threads)
 	{
 		nThreads = threads;
+	}
+
+	string& getSuffix()
+	{
+		return suffix;
+	}
+
+	void setSuffix(const string& suffix)
+	{
+		this->suffix = suffix;
 	}
 };
 

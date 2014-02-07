@@ -16,13 +16,13 @@ string DeviceCassandraController::getDeviceIp(const string& deviceName, const st
 	string queryString = "select " + Device::COL_IP + "," + Device::COL_SEARCHABLE + " from " + Device::TABLE_NAME +
 			" where " + Device::COL_DEVICE_NAME + "='" + deviceName + "' and " + Device::COL_USER_NAME + "='" + userName + "';";
 
-	printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
+	//printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
 
 	boost::shared_future <cql::cql_future_result_t> results = databaseDriver->executeQuery(queryString);
 
 	if(results.get().error.is_err())
 	{
-		printf("[ERROR] %s\n", results.get().error.message.c_str());
+		printf("[ERROR] [Thread 0x%lx] %s\n", tid, results.get().error.message.c_str());
 		return retIp;
 	}
 
@@ -30,11 +30,11 @@ string DeviceCassandraController::getDeviceIp(const string& deviceName, const st
 
 	if(rows.row_count() <= 0)
 	{
-		printf("[DEBUG] Zero rows returned\n");
+		//printf("[DEBUG] [Thread 0x%lx] Zero rows returned\n", tid);
 		return retIp;
 	}
 
-	printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
+	//printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
 
 	rows.next();
 	rows.get_bool(Device::COL_SEARCHABLE, searchable);

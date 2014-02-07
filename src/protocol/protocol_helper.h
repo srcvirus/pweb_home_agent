@@ -10,6 +10,7 @@
 
 #include <string>
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 
@@ -97,6 +98,39 @@ public:
 	static bool getBit(unsigned char *buf, long offset, int bit)
 	{
 		return ((*(buf + offset)) & (1 << bit)) ? true : false;
+	}
+
+	static bool isSuffix(const string& str, const string& suffix)
+	{
+		int strSize = (int)str.size();
+		int sufSize = (int)suffix.size();
+
+		if(sufSize > strSize)
+			return false;
+
+		int i, j;
+
+		for(i = strSize - 1, j = sufSize - 1; j >= 0; i--, j--)
+			if(str[i] != suffix[j])
+				return false;
+
+		return true;
+	}
+
+	static string shortToString(unsigned short int x)
+	{
+		char str[10];
+		sprintf(str, "%hu", x);
+		string ret = str;
+		return ret;
+	}
+
+	static string intToString(unsigned int x)
+	{
+		char str[20];
+		sprintf(str, "%u", x);
+		string ret = str;
+		return ret;
 	}
 };
 
