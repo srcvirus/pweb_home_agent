@@ -69,6 +69,7 @@ void DNSMessageHandler::handleDNSQueryRecive(boost::array <char, MAX_UDP_BUFFER_
 				if(isValid)
 				{
 					ansToQuestion = ip;
+					printf("[DEBUG] [Thread 0x%lx] Query resolved to %s\n", tid, ip.c_str());
 					DNSMessage reply;
 					this->composeSuccessReply(dnsQueryMessage, reply, ansToQuestion);
 					reply.print();
@@ -104,6 +105,7 @@ void DNSMessageHandler::handleDNSQueryRecive(boost::array <char, MAX_UDP_BUFFER_
 		{
 			DNSMessage reply;
 			this->composeFailReply(dnsQueryMessage, reply);
+			reply.print();
 			this->forwardDNSMessage(dnsQueryMessage, remoteEndpoint, connection);
 		}
 	}
@@ -167,6 +169,9 @@ void DNSMessageHandler::composeFailReply(DNSMessage& query, DNSMessage& reply)
 	reply.getDNSHeader().setARCount(zero);
 	reply.getDNSHeader().setQDCount(zero);
 	reply.getDNSHeader().setRetCode(retCode);
+
+	reply.allocateBuffer();
+	reply.write();
 }
 
 void DNSMessageHandler::composeSuccessReply(DNSMessage& query, DNSMessage& reply, string& ansToQuestion)
