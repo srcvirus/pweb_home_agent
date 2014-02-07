@@ -1,0 +1,71 @@
+CREATE KEYSPACE pweb WITH replication = {
+  'class': 'SimpleStrategy',
+  'replication_factor': '3'
+};
+
+USE pweb;
+
+CREATE TABLE device (
+  username text,
+  devicename text,
+  content_meta text,
+  content_timestamp int,
+  description text,
+  dir_ip text,
+  dir_port text,
+  ip text,
+  last_seen int,
+  os text,
+  port text,
+  private_folder text,
+  public_folder text,
+  searchable boolean,
+  type text,
+  PRIMARY KEY (username, devicename)
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='KEYS_ONLY' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'SnappyCompressor'};
+
+CREATE TABLE home_agent_index (
+  name text PRIMARY KEY,
+  ip text,
+  port int
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='KEYS_ONLY' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'SnappyCompressor'};
+
+CREATE TABLE user (
+  username text PRIMARY KEY,
+  affiliation text,
+  email text,
+  fullname text,
+  location text,
+  password text
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='KEYS_ONLY' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'SnappyCompressor'};
+
