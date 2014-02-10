@@ -66,6 +66,8 @@ void IOServicePool::startServices()
 
 	for(i = 0; i < nIOServicePoolSize; ++i)
 		pthread_join(threadPool[i], NULL);
+
+	printf("All threads joined. Exiting..!\n");
 }
 
 void* IOServicePool::ioServiceThreadMethod(void* args)

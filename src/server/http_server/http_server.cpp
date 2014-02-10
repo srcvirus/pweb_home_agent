@@ -19,7 +19,7 @@
 #include <boost/bind.hpp>
 
 http_server::http_server(const std::string& address, const unsigned short& port,
-		IOServicePool* io_service_pool_) :
+		boost::shared_ptr <IOServicePool>& io_service_pool_) :
 		io_service_pool_(io_service_pool_), acceptor_(
 				io_service_pool_->getDedicatedIOService()), new_connection_(), request_handler_()
 {
@@ -31,8 +31,6 @@ http_server::http_server(const std::string& address, const unsigned short& port,
 	acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 	acceptor_.bind(endpoint);
 	acceptor_.listen();
-
-	start_accept();
 }
 
 

@@ -46,7 +46,7 @@ class UDPConnection
 	boost::asio::ip::udp::socket socket;
 
 	/* Pool of threads to handle the I/O and processing*/
-	IOServicePool* ioServicePool;
+	boost::shared_ptr <IOServicePool> ioServicePool;
 
 	/* The message handler */
 	DNSMessageHandler& handler;
@@ -57,7 +57,7 @@ class UDPConnection
 	/* pending requests */
 	LookupTable <string, boost::asio::ip::udp::endpoint> pendingRequests;
 public:
-	UDPConnection(IOServicePool*, unsigned short, DNSMessageHandler& handler, const string& alias, const string& suffix);
+	UDPConnection(boost::shared_ptr <IOServicePool>&, unsigned short, DNSMessageHandler& handler, const string& alias, const string& suffix);
 
 	void listen();
 	void handleDataReceived(size_t bytesReceived);

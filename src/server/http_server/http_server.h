@@ -13,12 +13,13 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-
-#include <boost/asio.hpp>
 #include <string>
 #include <vector>
+
+#include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
+
 #include "tcp_connection.h"
 #include "../../communication/io_service_pool.h"
 #include "../../protocol/http/http_request_handler.h"
@@ -29,11 +30,11 @@ class http_server: private boost::noncopyable
 public:
 	/// Construct the server to listen on the specified TCP address and port, and
 	/// serve up files from the given directory.
-	explicit http_server(const std::string& address, const unsigned short& port, IOServicePool* io_service_pool_);
-
+	explicit http_server(const std::string& address, const unsigned short& port, boost::shared_ptr <IOServicePool>& io_service_pool_);
+	void start_accept();
 private:
 	/// Initiate an asynchronous accept operation.
-	void start_accept();
+
 
 	/// Handle completion of an asynchronous accept operation.
 	void handle_accept(const boost::system::error_code& e);
@@ -42,7 +43,7 @@ private:
 	void handle_stop();
 
 	/// The pool of io_service objects used to perform asynchronous operations.
-	IOServicePool* io_service_pool_;
+	boost::shared_ptr<IOServicePool> io_service_pool_;
 
 	/// Acceptor used to listen for incoming connections.
 	boost::asio::ip::tcp::acceptor acceptor_;

@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include <boost/program_options.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "datastructure/configuration.h"
 #include "server/home_agent_server/home_agent_server.h"
@@ -22,13 +23,15 @@ boost::program_options::options_description config(USAGE_STRING);
 boost::program_options::variables_map		programOptionMap;
 
 Configuration programConfig;
+boost::shared_ptr <IOServicePool> ioServicePool;
+boost::shared_ptr <HomeAgentServer> haServer;
+boost::shared_ptr <http_server> httpServer;
 
 void populateConfigOptions(int, char*[]);
 
 int main(int argc, char* argv[])
 {
 	bool optionsOk = true;
-	IOServicePool* ioServicePool = NULL;
 
 	try
 	{
@@ -39,18 +42,19 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 		boost::program_options::notify(programOptionMap);
-		ioServicePool = new IOServicePool(programConfig.getThreads(), 0x03);
+		ioServicePool = boost::shared_ptr <IOServicePool> (new IOServicePool(programConfig.getThreads(), 0x03));
 
-		HomeAgentServer haServer(programConfig.getAlias(),
+		haServer = boost::shared_ptr <HomeAgentServer> (new HomeAgentServer (programConfig.getAlias(),
 								 programConfig.getSuffix(),
 								 programConfig.getHostName(),
 								 programConfig.getListenPort(),
-								 ioServicePool);
+								 ioServicePool));
 
-		http_server httpServer(programConfig.getHostName(),
-							   programConfig.getHttpListenPort(),
-							   ioServicePool);
-		haServer.start();
+		httpServer = boost::shared_ptr <http_server> (new http_server (programConfig.getHostName(),
+							   	   	   	   	   	   	   	   	   	   	   programConfig.getHttpListenPort(),
+							   	   	   	   	   	   	   	   	   	   	   ioServicePool));
+		haServer->start();
+		httpServer->start_accept();
 		ioServicePool->startServices();
 	}
 	catch(std::exception& ex)

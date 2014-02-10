@@ -12,7 +12,7 @@
 #include <boost/bind.hpp>
 #include <boost/bind/bind.hpp>
 
-UDPConnection::UDPConnection(IOServicePool* ioServicePool, unsigned short localListenPort, DNSMessageHandler& handler, const string& alias, const string& suffix):
+UDPConnection::UDPConnection(boost::shared_ptr <IOServicePool>& ioServicePool, unsigned short localListenPort, DNSMessageHandler& handler, const string& alias, const string& suffix):
 	ioServicePool(ioServicePool),
 	localEndpoint(boost::asio::ip::udp::v4(), localListenPort),
 	socket(ioServicePool->getDedicatedIOService(), this->localEndpoint),

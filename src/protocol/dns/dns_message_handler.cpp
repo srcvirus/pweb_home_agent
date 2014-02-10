@@ -20,7 +20,7 @@
 using namespace boost;
 using namespace std;
 
-void DNSMessageHandler::handleDNSQueryRecive(boost::array <char, MAX_UDP_BUFFER_SIZE> buffer, size_t bytesReceived, boost::shared_ptr <UDPConnection>& connection)
+void DNSMessageHandler::handleDNSQueryRecive(boost::array <char, MAX_UDP_BUFFER_SIZE> buffer, size_t bytesReceived, boost::shared_ptr <UDPConnection> connection)
 {
 	boost::asio::ip::udp::endpoint remoteEndpoint = connection->getRemoteEndpoint();
 
@@ -121,7 +121,7 @@ void DNSMessageHandler::handleDNSQueryRecive(boost::array <char, MAX_UDP_BUFFER_
 	}
 }
 
-void DNSMessageHandler::forwardDNSMessage(DNSMessage& message, boost::asio::ip::udp::endpoint& remoteEndpoint, boost::shared_ptr <UDPConnection>& connection)
+void DNSMessageHandler::forwardDNSMessage(DNSMessage& message, boost::asio::ip::udp::endpoint& remoteEndpoint, boost::shared_ptr <UDPConnection> connection)
 {
 	int n = message.getSize();
 	printf("[DEBUG] [Thread 0x%lx] Forwarding %lu bytes to %s:%u\n", (unsigned long)pthread_self(), message.getSize(), remoteEndpoint.address().to_string().c_str(), remoteEndpoint.port());

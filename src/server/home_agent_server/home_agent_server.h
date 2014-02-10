@@ -27,8 +27,8 @@ class HomeAgentServer
 	std::string hostName, ip, homeAgentAlias, suffix;
 	unsigned short listenPort;
 	boost::shared_ptr <CassandraDBDriver> database;
-	IOServicePool* ioServicePool;
-	UDPConnection udpConnection;
+	boost::shared_ptr <IOServicePool> ioServicePool;
+	boost::shared_ptr <UDPConnection> udpConnection;
 	DNSMessageHandler handler;
 
 	string getMyIp()
@@ -43,13 +43,14 @@ class HomeAgentServer
 
 public:
 
-	HomeAgentServer(const std::string& homeAgentAlias, const std::string& suffix, const std::string& homeAgentHost, unsigned short serverListenPort, IOServicePool* ioPool):
+	HomeAgentServer(const std::string& homeAgentAlias, const std::string& suffix, const std::string& homeAgentHost,
+			unsigned short serverListenPort, boost::shared_ptr <IOServicePool>& ioPool):
 		hostName(homeAgentHost),
 		homeAgentAlias(homeAgentAlias),
 		suffix(suffix),
 		listenPort(serverListenPort),
 		ioServicePool(ioPool),
-		udpConnection(ioServicePool, serverListenPort, handler, homeAgentAlias, suffix)
+		udpConnection(new UDPConnection(ioServicePool, serverListenPort, handler, homeAgentAlias, suffix))
 	{
 		printf("[INFO] Initializing home agent server\n");
 
@@ -65,13 +66,13 @@ public:
 		haIndexController.addHomeAgentIndex(haIndex);
 
 		/* Add home agent alias to the connection end point */
-		this->udpConnection.setAlias(this->homeAgentAlias);
+		this->udpConnection->setAlias(this->homeAgentAlias);
 	}
 
 	void start()
 	{
 		/* Start the io_services */
-		this->udpConnection.listen();
+		this->udpConnection->listen();
 	}
 
 	std::string& getHomeAgentAlias()
@@ -84,7 +85,7 @@ public:
 		this->homeAgentAlias = homeAgentAlias;
 	}
 
-	UDPConnection& getUDPConnection()
+	boost::shared_ptr<UDPConnection>& getUDPConnection()
 	{
 		return this->udpConnection;
 	}

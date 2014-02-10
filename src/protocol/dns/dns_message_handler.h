@@ -27,9 +27,9 @@ class UDPConnection;
 class DNSMessageHandler
 {
 public:
-	void handleDNSQueryRecive(boost::array <char, MAX_UDP_BUFFER_SIZE> buffer, size_t bytesReceived, boost::shared_ptr <UDPConnection>& connection);
+	void handleDNSQueryRecive(boost::array <char, MAX_UDP_BUFFER_SIZE> buffer, size_t bytesReceived, boost::shared_ptr <UDPConnection> connection);
 	void handleDNSQuerySend(boost::system::error_code error);
-	void forwardDNSMessage(DNSMessage& message, boost::asio::ip::udp::endpoint& remoteEndPoint, boost::shared_ptr <UDPConnection>& connection);
+	void forwardDNSMessage(DNSMessage& message, boost::asio::ip::udp::endpoint& remoteEndPoint, boost::shared_ptr <UDPConnection> connection);
 	bool isValidRequest(DNSMessage& message, const string& suffix);
 	void composeFailReply(DNSMessage& query, DNSMessage& reply);
 	void composeSuccessReply(DNSMessage& query, DNSMessage& reply, string& ansToQuestion);
