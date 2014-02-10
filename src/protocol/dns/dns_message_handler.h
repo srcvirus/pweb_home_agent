@@ -9,7 +9,7 @@
 #define DNS_MESSAGE_HANDLER_H_
 
 #include "../../global.h"
-#include "../../server/udp_connection.h"
+#include "../../server/home_agent_server/udp_connection.h"
 
 #include "../protocol_helper.h"
 

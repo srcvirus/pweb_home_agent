@@ -12,11 +12,8 @@
 #include "../../database/cassandra_db.h"
 #include "../../controllers/device_cassandra_controller.h"
 
-#include "../../global.h"
-
 #include <boost/array.hpp>
 
-#include "../../server/udp_connection.h"
 
 #include <pthread.h>
 

@@ -18,6 +18,7 @@ class Configuration
 	string hostname;
 	string suffix;
 	unsigned short listenPort;
+	unsigned short httpListenPort;
 	unsigned short nThreads;
 
 public:
@@ -49,6 +50,16 @@ public:
 	void setListenPort(unsigned short& listenPort)
 	{
 		this->listenPort = listenPort;
+	}
+
+	void setHttpListenPort(unsigned short& httpListenPort)
+	{
+		this->httpListenPort = httpListenPort;
+	}
+
+	unsigned short& getHttpListenPort()
+	{
+		return this->httpListenPort;
 	}
 
 	unsigned short& getThreads()

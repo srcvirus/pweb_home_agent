@@ -15,6 +15,7 @@
 
 #define N_CPU_THREADS	(sysconf(_SC_NPROCESSORS_ONLN))
 #define DEFAULT_LISTEN_PORT	53
+#define DEFAULT_HTTP_LISTEN_PORT 80
 #define DEFAULT_HOST_NAME	"localhost"
 #define DEFAULT_SUFFIX	"dht.pwebproject.net"
 #define USAGE_STRING	"Usage: pweb_home_agent [-a <home_agent_alias> | --alias=<home_agent_alias>] [optional args]\nOptional Args"

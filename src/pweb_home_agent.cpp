@@ -11,7 +11,8 @@
 #include <boost/program_options.hpp>
 
 #include "datastructure/configuration.h"
-#include "server/home_agent_server.h"
+#include "server/home_agent_server/home_agent_server.h"
+#include "server/http_server/http_server.h"
 #include "global.h"
 
 using namespace std;
@@ -27,6 +28,7 @@ void populateConfigOptions(int, char*[]);
 int main(int argc, char* argv[])
 {
 	bool optionsOk = true;
+	IOServicePool* ioServicePool = NULL;
 
 	try
 	{
@@ -37,14 +39,19 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 		boost::program_options::notify(programOptionMap);
+		ioServicePool = new IOServicePool(programConfig.getThreads(), 0x03);
 
 		HomeAgentServer haServer(programConfig.getAlias(),
 								 programConfig.getSuffix(),
 								 programConfig.getHostName(),
 								 programConfig.getListenPort(),
-								 programConfig.getThreads(),
-								 0x01);
+								 ioServicePool);
+
+		http_server httpServer(programConfig.getHostName(),
+							   programConfig.getHttpListenPort(),
+							   ioServicePool);
 		haServer.start();
+		ioServicePool->startServices();
 	}
 	catch(std::exception& ex)
 	{
@@ -61,6 +68,7 @@ void populateConfigOptions(int argc, char* argv[])
 			("help,h", "Print help message and exit")
 			("alias,a", boost::program_options::value <string>(&programConfig.getAlias())->required(), "Home Agent alias")
 			("port,p", boost::program_options::value <unsigned short>(&programConfig.getListenPort())->default_value(DEFAULT_LISTEN_PORT), "UDP port to listen for DNS queries")
+			("http_port,P", boost::program_options::value <unsigned short>(&programConfig.getHttpListenPort())->default_value(DEFAULT_HTTP_LISTEN_PORT), "Port for listening REST API calls")
 			("host,H", boost::program_options::value <string>(&programConfig.getHostName())->default_value(DEFAULT_HOST_NAME), "Host name of the home agent server")
 			("suffix,s", boost::program_options::value <string> (&programConfig.getSuffix())->default_value(DEFAULT_SUFFIX), "Common suffix of the device names")
 			("threads,t", boost::program_options::value <unsigned short>(&programConfig.getThreads())->default_value(N_CPU_THREADS), "Number of threads");
