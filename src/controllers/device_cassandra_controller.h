@@ -27,7 +27,7 @@ class DeviceCassandraController
 {
 	boost::shared_ptr <CassandraDBDriver> databaseDriver;
 	
-	string& buildInsertStatement(boost::shared_ptr <Device>& device);
+	string buildInsertStatement(boost::shared_ptr <Device>& device);
 	void buildDeviceObjectFromQueryResult(cql::cql_result_t& row, boost::shared_ptr <Device>& device);
 public:
 	DeviceCassandraController():databaseDriver(boost::shared_ptr <CassandraDBDriver>()){;}

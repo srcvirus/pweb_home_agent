@@ -7,7 +7,7 @@
 
 #include "device_cassandra_controller.h"
 
-string& DeviceCassandraController::buildInsertStatement(boost::shared_ptr <Device>& device)
+string DeviceCassandraController::buildInsertStatement(boost::shared_ptr <Device>& device)
 {
 	string queryString = "insert into " + Device::TABLE_NAME + " (" + 
                                                         Device::COL_USER_NAME + ", " + 

@@ -21,7 +21,7 @@
 http_server::http_server(const std::string& address, const std::string& home_agent_alias, const unsigned short& port,
 		boost::shared_ptr <IOServicePool>& io_service_pool_) :
 		io_service_pool_(io_service_pool_), acceptor_(io_service_pool_->getDedicatedIOService()),
-		new_connection_(), request_handler_(),
+		new_connection_(), request_handler_(home_agent_alias),
 		home_agent_alias(home_agent_alias)
 {
 	// Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).

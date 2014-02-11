@@ -16,8 +16,11 @@
 
 #include <string>
 #include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
 #include "query_string_parser.h"
 #include "datastructure/http_reply.h"
+
+#include "../rest_api_helper.h"
 
 using namespace std;
 
@@ -29,7 +32,8 @@ class request_handler: private boost::noncopyable
 {
 public:
 	/// Construct with a directory containing files to be served.
-	explicit request_handler();
+	explicit request_handler(const string& homeAgentAlias);
+	string homeAgentAlias;
 
 	/// Handle a request and produce a reply.
 	void handle_request(const request& req, reply& rep);
@@ -38,7 +42,8 @@ public:
 	/// invalid.
 	static bool url_decode(const std::string& in, std::string& out);
 
-	static std::string& strtoupper(std::string& str);
+	static std::string& strtolower(std::string& str);
+	boost::shared_ptr <RESTAPIHelper> restapi;
 private:
 	/// Build the response string
 	void build_response(QueryStringParser& qsp, string& http_payload, reply::status_type& http_response);

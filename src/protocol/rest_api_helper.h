@@ -17,6 +17,12 @@
 
 #include "../database/cassandra_db.h"
 #include "../global.h"
+#include "../models/home_agent_index.h"
+#include "../models/user.h"
+#include "../models/device.h"
+#include "../controllers/home_agent_index_cassandra_controller.h"
+#include "../controllers/user_cassandra_controller.h"
+#include "../controllers/device_cassandra_controller.h"
 
 using namespace std;
 
@@ -143,7 +149,7 @@ public:
 			{
 				return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
 			}
-			if(isAvailable)
+			if(!isAvailable)
 			{
 				suggestions.append("\"" + uname + "\",");
 			}	
@@ -252,7 +258,7 @@ public:
 			{
 				return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
 			}
-			if(isAvailable)
+			if(!isAvailable)
 			{
 				suggestions.append("\"" + dname + "\",");
 			}

@@ -18,7 +18,7 @@
 
 using namespace std;
 
-request_handler::request_handler()
+request_handler::request_handler(const string& homeAgentAlias):restapi(boost::shared_ptr <RESTAPIHelper> (new RESTAPIHelper(homeAgentAlias))), homeAgentAlias(homeAgentAlias)
 {
 	;
 }
@@ -37,7 +37,7 @@ void request_handler::handle_request(const request& req, reply& rep)
 	}
 
 	QueryStringParser qsp;
-	qsp.parse(request_path.substr(1));
+	qsp.parse(request_path.substr(2));
 
 	printf("[DEBUG] [Thread 0x%lx] http request_path: %s\n", tid,
 			request_path.c_str());
@@ -82,29 +82,25 @@ void request_handler::build_response(QueryStringParser& qsp,
 	string methodKey = "method";
 	string method_name;
 
-	http_payload = "{\"key\":\"value\"}";
-	http_code = reply::ok;
-
-	return;
+	http_payload = "";
+	http_code = reply::bad_request;
 
 	if (qsp.get_value(methodKey, method_name))
 	{
-		if (strtoupper(method_name) == "EXISTUSERNAME")
+		if (strtolower(method_name) == "is_username_available")
 		{
-			string name;
-			if (qsp.get_value("name", name))
+			string username;
+			if (qsp.get_value("username", username))
 			{
-				/*http_payload.append(existUsername(name));
-				http_code = "200 OK";*/
+				http_payload.append(restapi->isUsernameAvailable(username));
 				http_code = reply::ok;
 			}
 			else
 			{
-//				http_code = "451 Parameter Not Understood";
 				http_code = reply::bad_request;
 			}
 		}
-		/*else if (strtoupper(method_name) == "REGISTERUSER")
+		/*else if (strtolower(method_name) == "is_username_availabe")
 		{
 			string name, password, email, fullname, location, affiliation;
 			if (qsp.get_value("name", name)
@@ -352,10 +348,10 @@ bool request_handler::url_decode(const std::string& in, std::string& out)
 	return true;
 }
 
-string& request_handler::strtoupper(std::string& str)
+string& request_handler::strtolower(std::string& str)
 {
 	for(int i = 0; i < (int)str.length(); i++)
-		str[i] = toupper(str[i]);
+		str[i] = tolower(str[i]);
 
 	return str;
 }
