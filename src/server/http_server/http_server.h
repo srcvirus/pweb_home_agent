@@ -30,10 +30,11 @@ class http_server: private boost::noncopyable
 public:
 	/// Construct the server to listen on the specified TCP address and port, and
 	/// serve up files from the given directory.
-	explicit http_server(const std::string& address, const unsigned short& port, boost::shared_ptr <IOServicePool>& io_service_pool_);
+	explicit http_server(const std::string& address, const std::string& home_agent_alias, const unsigned short& port, boost::shared_ptr <IOServicePool>& io_service_pool_);
+
+	/// Initiate an asynchronous accept operation.
 	void start_accept();
 private:
-	/// Initiate an asynchronous accept operation.
 
 
 	/// Handle completion of an asynchronous accept operation.
@@ -53,6 +54,8 @@ private:
 
 	/// The handler for all incoming requests.
 	request_handler request_handler_;
+
+	std::string home_agent_alias;
 };
 
 #endif /* HTTP_SERVER_H_ */

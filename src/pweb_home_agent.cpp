@@ -51,6 +51,7 @@ int main(int argc, char* argv[])
 								 ioServicePool));
 
 		httpServer = boost::shared_ptr <http_server> (new http_server (programConfig.getHostName(),
+																	   programConfig.getAlias(),
 							   	   	   	   	   	   	   	   	   	   	   programConfig.getHttpListenPort(),
 							   	   	   	   	   	   	   	   	   	   	   ioServicePool));
 		haServer->start();

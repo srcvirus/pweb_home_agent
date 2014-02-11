@@ -16,6 +16,8 @@
 
 #include <string>
 #include <boost/noncopyable.hpp>
+#include "query_string_parser.h"
+#include "datastructure/http_reply.h"
 
 using namespace std;
 
@@ -32,10 +34,15 @@ public:
 	/// Handle a request and produce a reply.
 	void handle_request(const request& req, reply& rep);
 
-private:
 	/// Perform URL-decoding on a string. Returns false if the encoding was
 	/// invalid.
 	static bool url_decode(const std::string& in, std::string& out);
+
+	static std::string& strtoupper(std::string& str);
+private:
+	/// Build the response string
+	void build_response(QueryStringParser& qsp, string& http_payload, reply::status_type& http_response);
+
 };
 
 #endif /* HTTP_REQUEST_HANDLER_H_ */
