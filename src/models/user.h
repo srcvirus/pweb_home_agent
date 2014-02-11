@@ -9,6 +9,7 @@
 #define USER_H_
 
 #include <string>
+#include <cstdio>
 
 using namespace std;
 
@@ -29,7 +30,7 @@ public:
 	static const string COL_AFFILIATION;
 	static const string TABLE_NAME;
 
-	User(const string& username, const string& password, const string& fullname, const string& location, const string& affiliation):
+	User(const string& username, const string& password, const string& email, const string& fullname, const string& location, const string& affiliation):
 		username(username),
 		password(password),
 		email(email),
@@ -98,6 +99,28 @@ public:
 	void setUsername(const string& username)
 	{
 		this->username = username;
+	}
+
+	void print()
+	{
+		printf("{\n");
+		printf("\t%s : %s\n", User::COL_USER_NAME.c_str(), this->username.c_str());
+		printf("\t%s : %s\n", User::COL_EMAIL.c_str(), this->email.c_str());
+		printf("\t%s : %s\n", User::COL_FULL_NAME.c_str(), this->fullname.c_str());
+		printf("\t%s : %s\n", User::COL_LOCATION.c_str(), this->location.c_str());
+		printf("\t%s : %s\n", User::COL_AFFILIATION.c_str(), this->affiliation.c_str());
+		printf("}\n");
+	}
+
+	void printShort()
+	{
+		printf("{%s : %s, %s : %s, %s : %s, %s : %s, %s : %s}\n", 
+			User::COL_USER_NAME.c_str(), this->username.c_str(),
+			User::COL_EMAIL.c_str(), this->email.c_str(),
+			User::COL_FULL_NAME.c_str(), this->fullname.c_str(),
+			User::COL_LOCATION.c_str(), this->location.c_str(),
+			User::COL_AFFILIATION.c_str(), this->affiliation.c_str());
+
 	}
 };
 

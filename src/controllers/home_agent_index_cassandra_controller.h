@@ -24,6 +24,7 @@ public:
 
 	boost::shared_ptr <HomeAgentIndex> getHomeAgentIndex(const string& name);
 	int addHomeAgentIndex(boost::shared_ptr <HomeAgentIndex>& haIndex);
+	vector < boost::shared_ptr <HomeAgentIndex> > getAllHomeAgentIndex();
 	~HomeAgentIndexCassandraController(){;}
 };
 
