@@ -25,9 +25,10 @@ http_server::http_server(const std::string& address, const std::string& home_age
 		home_agent_alias(home_agent_alias)
 {
 	// Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
-	boost::asio::ip::tcp::resolver resolver(acceptor_.get_io_service());
-	boost::asio::ip::tcp::resolver::query query(address, ProtocolHelper::intToString(port));
-	boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
+	//boost::asio::ip::tcp::resolver resolver(acceptor_.get_io_service());
+	//boost::asio::ip::tcp::resolver::query query(address, ProtocolHelper::intToString(port));
+	//boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
+	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
 	acceptor_.open(endpoint.protocol());
 	acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 	acceptor_.bind(endpoint);
