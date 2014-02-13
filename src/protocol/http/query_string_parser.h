@@ -20,6 +20,14 @@ public:
 		key_value_store = new LookupTable<string, string>();
 	}
 
+	string& strtolower(std::string& str)	
+	{
+		for(int i = 0; i < (int)str.length(); i++)
+			str[i] = tolower(str[i]);
+
+		return str;
+	}
+
 	void parse(const string query_string)
 	{
 		vector<string> kvps = split(query_string, '&');
@@ -28,12 +36,12 @@ public:
 			vector<string> kv = split(*it, '=');
 			if (kv.size() == 2)
 			{
-				key_value_store->add(kv[0], kv[1]);
+				key_value_store->add(strtolower(kv[0]), kv[1]);
 			}
 			else if (kv.size() == 1)
 			{
 				string value = "";
-				key_value_store->add(kv[0], value);
+				key_value_store->add(strtolower(kv[0]), value);
 			}
 			//printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 			//printf(">>>>>>>>>%s, %s --> %s, %s<<<<<<<<<<<\n", kv[0].c_str(), kv[1].c_str(), urlDecode(kv[0]).c_str(), urlDecode(kv[1]).c_str());

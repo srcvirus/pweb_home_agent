@@ -375,6 +375,10 @@ public:
 		return result;
 	}
 
+	////////////////////////////////////////////
+	//  CRAWLER 				  //
+	////////////////////////////////////////////
+
 	string getDeviceList(const string& timestamp)
 	{
 		string result = "<getall><name>" + this->homeAgentAlias + "</name>";

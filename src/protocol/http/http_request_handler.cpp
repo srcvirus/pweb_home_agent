@@ -95,217 +95,144 @@ void request_handler::build_response(QueryStringParser& qsp,
 				http_payload.append(restapi->isUsernameAvailable(username));
 				http_code = reply::ok;
 			}
-			else
-			{
-				http_code = reply::bad_request;
-			}
 		}
-		/*else if (strtolower(method_name) == "is_username_availabe")
+		else if (strtolower(method_name) == "register_user")
 		{
-			string name, password, email, fullname, location, affiliation;
-			if (qsp.get_value("name", name)
+			string username, password, email, fullname, location, affiliation;
+			if (qsp.get_value("username", username)
 					&& qsp.get_value("password", password)
 					&& qsp.get_value("email", email)
 					&& qsp.get_value("fullname", fullname)
 					&& qsp.get_value("location", location)
 					&& qsp.get_value("affiliation", affiliation))
 			{
-				http_payload.append(
-						registerUser(name, password, email, fullname, location,
-								affiliation));
-				http_code = "200 OK";
-			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
+				http_payload.append(restapi->registerUser(username, password, email, fullname, location, affiliation));
+				http_code = reply::ok;
 			}
 		}
-		else if (strtoupper(method_name) == "AUTHENTICATE")
+		else if (strtolower(method_name) == "authenticate_user")
 		{
-			string name, password;
-			if (qsp.get_value("name", name)
+			string username, password;
+			if (qsp.get_value("username", username)
 					&& qsp.get_value("password", password))
 			{
-				http_payload.append(authenticate(name, password));
-				http_code = "200 OK";
-			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
+				http_payload.append(restapi->authenticateUser(username, password));
+				http_code = reply::ok;
 			}
 		}
-		else if (strtoupper(method_name) == "GETDEVICELIST")
+		else if (strtolower(method_name) == "get_user_devices")
 		{
 			string username;
 			if (qsp.get_value("username", username))
 			{
-				http_payload.append(getDeviceList(username));
-				http_code = "200 OK";
-			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
+				http_payload.append(restapi->getUserDevices(username));
+				http_code = reply::ok;
 			}
 		}
-		else if (strtoupper(method_name) == "ISAVAILABLE")
+		else if (strtolower(method_name) == "is_devicename_available")
 		{
-			string username, devicename;
+			string devicename, username;
 			if (qsp.get_value("devicename", devicename)
 					&& qsp.get_value("username", username))
 			{
-				//int dot_index = name.find_last_of('.');
-				//devicename = name.substr(0, dot_index);
-				//username = name.substr(dot_index+1, string::npos);
-				http_payload.append(existDevicename(username, devicename));
-				http_code = "200 OK";
-			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
+				http_payload.append(restapi->isDevicenameAvailable(devicename, username));
+				http_code = reply::ok;
 			}
 		}
-		else if (strtoupper(method_name) == "MODIFYDEVICE")
+		else if (strtolower(method_name) == "update_device")
 		{
-			string username, devicename, newdevicename, ip, port, public_folder,
+			string devicename, username, newdevicename, ip, port, public_folder,
 					private_folder;
-			if (qsp.get_value("username", username)
-					&& qsp.get_value("devicename", devicename)
-					&& qsp.get_value("newdevicename", newdevicename)
-					&& qsp.get_value("ip", ip) && qsp.get_value("port", port)
+			if (qsp.get_value("devicename", devicename)
+					&& qsp.get_value("username", username)
+					&& qsp.get_value("new_devicename", newdevicename)
+					&& qsp.get_value("ip", ip) 
+					&& qsp.get_value("port", port)
 					&& qsp.get_value("public_folder", public_folder)
 					&& qsp.get_value("private_folder", private_folder))
 			{
-				//int dot_index = name.find_last_of('.');
-				//devicename = name.substr(0, dot_index);
-				//username = name.substr(dot_index+1, string::npos);
-				http_payload.append(
-						modifyDevice(username, devicename, newdevicename, ip,
-								port, public_folder, private_folder));
-				http_code = "200 OK";
-			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
+				if(!isNumber(port))
+					return;
+				http_payload.append(restapi->updateDevice(devicename, newdevicename, username, ip, port, public_folder, private_folder));
+				http_code = reply::ok;
 			}
 		}
-		else if (strtoupper(method_name) == "DELETEDEVICE")
+		else if (strtolower(method_name) == "delete_device")
 		{
-			string name, username, devicename;
-			if (qsp.get_value("name", name))
+			string devicename, username;
+			if (qsp.get_value("username", username) && qsp.get_value("devicename", devicename))
 			{
-				int dot_index = name.find_last_of('.');
-				devicename = name.substr(0, dot_index);
-				username = name.substr(dot_index + 1, string::npos);
-				http_payload.append(deleteDevice(username, devicename));
-				http_code = "200 OK";
-			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
+				http_payload.append(restapi->deleteDevice(devicename, username));
+				http_code = reply::ok;
 			}
 		}
-		else if (strtoupper(method_name) == "REGISTER")
+		else if (strtolower(method_name) == "register_device")
 		{
-			string name, username, devicename, type, ip, port, public_folder,
-					private_folder, os, description, is_publicly_indexed;
-			if (qsp.get_value("name", name) && qsp.get_value("type", type)
-					&& qsp.get_value("ip", ip) && qsp.get_value("port", port)
-					&& qsp.get_value("public_folder", public_folder)
-					&& qsp.get_value("private_folder", private_folder)
+			string devicename, username, type, ip, port, os, description, is_indexed;
+			if (qsp.get_value("devicename", devicename) && qsp.get_value("username", username) 
+					&& qsp.get_value("type", type)
+					&& qsp.get_value("ip", ip) 
+					&& qsp.get_value("port", port)
 					&& qsp.get_value("os", os)
 					&& qsp.get_value("description", description)
-					&& qsp.get_value("ispublicly_indexed", is_publicly_indexed))
+					&& qsp.get_value("is_indexed", is_indexed))
 			{
-				int dot_index = name.find_last_of('.');
-				devicename = name.substr(0, dot_index);
-				username = name.substr(dot_index + 1, string::npos);
-				bool searchable = true;
-				if (is_publicly_indexed == "no") searchable = false;
-				http_payload.append(
-						registerDevice(username, devicename, type, ip, port,
-								public_folder, private_folder, os, description,
-								searchable));
-				http_code = "200 OK";
-			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
+				if(!isNumber(port))
+					return;
+				if(is_indexed != "true" && is_indexed != "false")
+					return;
+				http_payload.append(restapi->registerDevice(devicename, username, type, ip, port, os, description, is_indexed));
+				http_code = reply::ok;
 			}
 		}
-		else if (strtoupper(method_name) == "UPDATE")
+		else if (strtolower(method_name) == "update_device_ip_port")
 		{
-			string name, username, devicename, ip, port;
-			if (qsp.get_value("name", name) && qsp.get_value("ip", ip)
+			string username, devicename, ip, port;
+			if (qsp.get_value("username", username) 
+					&& qsp.get_value("devicename", devicename) 
+					&& qsp.get_value("ip", ip)
 					&& qsp.get_value("port", port))
 			{
-				int dot_index = name.find_last_of('.');
-				devicename = name.substr(0, dot_index);
-				username = name.substr(dot_index + 1, string::npos);
-				http_payload.append(
-						updateDevice(username, devicename, ip, port));
-				http_code = "200 OK";
-			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
+				if(!isNumber(port))
+					return;
+				http_payload.append(restapi->updateDeviceIPPort(devicename, username, ip, port));
+				http_code = reply::ok;
 			}
 		}
-		else if (strtoupper(method_name) == "UPDATEMETA")
+		else if (strtolower(method_name) == "update_device_metadata")
 		{
-			string name, username, devicename, data;
-			if (qsp.get_value("name", name) && qsp.get_value("data", data))
+			string username, devicename, metadata;
+			if (qsp.get_value("username", username) 
+					&& qsp.get_value("devicename", devicename) 
+					&& qsp.get_value("metadata", metadata))
 			{
-				int dot_index = name.find_last_of('.');
-				devicename = name.substr(0, dot_index);
-				username = name.substr(dot_index + 1, string::npos);
-				http_payload.append(updateMeta(username, devicename, data));
-				http_code = "200 OK";
-			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
+				http_payload.append(restapi->updateDeviceMetadata(devicename, username, metadata));
+				http_code = reply::ok;
 			}
 		}
-		else if (strtoupper(method_name) == "GETALL"
-				|| strtoupper(method_name) == "DEVICELIST")
+		else if (strtolower(method_name) == "getall"
+				|| strtolower(method_name) == "devicelist")
 		{
-			string timestamp, neighbours;
+			string timestamp;
 			if (qsp.get_value("timestamp", timestamp))
 			{
-				string result = "<getall><name>" + this_peer->get_peer_name()
-						+ "</name>";
-				routingTable2XML(*this_peer->getProtocol()->getRoutingTable(),
-						neighbours);
-				result.append(neighbours);
-				result.append(getall(timestamp));
-				result.append("</getall>");
-				http_payload.append(result);
-				http_code = "200 OK";
-			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
+				if(!isNumber(timestamp)) 
+					return;
+				http_payload.append(restapi->getDeviceList(timestamp));
+				http_code = reply::ok;
 			}
 		}
-		else if (strtoupper(method_name) == "GETCONTENTLIST")
+		else if (strtolower(method_name) == "getcontentlist")
 		{
-			return_as_html = true;
-			string name, username, devicename;
-			if (qsp.get_value("name", name))
+			string username, devicename;
+			if (qsp.get_value("devicename", devicename) && qsp.get_value("username", username))
 			{
-				int dot_index = name.find_last_of('.');
-				devicename = name.substr(0, dot_index);
-				username = name.substr(dot_index + 1, string::npos);
 				http_payload.append("<html>");
-				http_payload.append(getContentList(username, devicename));
+				http_payload.append(restapi->getContentList(devicename, username));
 				http_payload.append("</html>");
-				http_code = "200 OK";
+				http_code = reply::ok;
 			}
-			else
-			{
-				http_code = "451 Parameter Not Understood";
-			}
-		}*/
+		}
 	}
 }
 
@@ -355,4 +282,15 @@ string& request_handler::strtolower(std::string& str)
 
 	return str;
 }
+
+bool request_handler::isNumber(const string& input)
+{
+	for(int i = 0; i < input.size(); ++i)
+	{
+		if(!isdigit(input.at(i))) 
+			return 0;
+	}
+	return 1 ;
+}
+
 

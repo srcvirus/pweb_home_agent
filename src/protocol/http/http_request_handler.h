@@ -43,6 +43,7 @@ public:
 	static bool url_decode(const std::string& in, std::string& out);
 
 	static std::string& strtolower(std::string& str);
+	static bool isNumber(const string& input);
 	boost::shared_ptr <RESTAPIHelper> restapi;
 private:
 	/// Build the response string
