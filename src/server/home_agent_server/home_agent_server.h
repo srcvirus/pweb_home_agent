@@ -15,11 +15,14 @@
 
 #include "../../global.h"
 
+
 #include "../../communication/io_service_pool.h"
 #include "../../protocol/dns/dns_message_handler.h"
 #include "../../database/cassandra_db.h"
 #include "../../controllers/home_agent_index_cassandra_controller.h"
 #include "../../models/home_agent_index.h"
+#include "../../models/device.h"
+#include "../../models/user.h"
 #include "udp_connection.h"
 
 class HomeAgentServer
@@ -33,12 +36,24 @@ class HomeAgentServer
 
 	string getMyIp()
 	{
-		boost::asio::io_service io_service;
-		boost::asio::ip::tcp::resolver resolver(io_service);
-		boost::asio::ip::tcp::resolver::query query(this->hostName, "");
-		boost::asio::ip::tcp::resolver::iterator it = resolver.resolve(query);
-		boost::asio::ip::tcp::endpoint endpoint = *it;
-		return endpoint.address().to_string();
+		std::string command = "curl " + global::IP_SOURCE_URL;
+		FILE* pHandler = popen(command.c_str(), "r");
+		char strIp[20];
+		string ip = "";
+
+		if(!pHandler)
+			return ip;
+		fscanf(pHandler, "%s", strIp);
+			ip += strIp;
+
+		return ip;
+	}
+
+	void initModelNames()
+	{
+		HomeAgentIndex::TABLE_NAME = global::GLOBAL_NAMESPACE_PREFIX + "." + HomeAgentIndex::TABLE_NAME;
+		User::TABLE_NAME = global::LOCAL_NAMESPACE_PREFIX + this->homeAgentAlias + "." + User::TABLE_NAME;
+		Device::TABLE_NAME = global::LOCAL_NAMESPACE_PREFIX + this->homeAgentAlias + "." + Device::TABLE_NAME;
 	}
 
 public:
@@ -57,6 +72,8 @@ public:
 		/* Initialize the database driver */
 		database = boost::dynamic_pointer_cast<CassandraDBDriver>(CassandraDBDriver::getDatabaseDriverObject());
 		database->openConnection();
+
+		this->initModelNames();
 
 		/* Add the home agent alias to Cassandra database */
 		HomeAgentIndexCassandraController haIndexController(database);

@@ -24,7 +24,7 @@ public:
 	static const string COL_NAME;
 	static const string COL_IP;
 	static const string COL_PORT;
-	static const string TABLE_NAME;
+	static string TABLE_NAME;
 
 	HomeAgentIndex(){;}
 	HomeAgentIndex(string name, string ip, int port):name(name), ip(ip), port(port){;}
