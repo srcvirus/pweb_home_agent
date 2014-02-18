@@ -76,7 +76,7 @@ void request_handler::handle_request(const request& req, reply& rep)
 	rep.headers[1].name = "Content-Type";
 	rep.headers[1].value = mime_types::extension_to_type(extension);
 	rep.headers[2].name = "Access-Control-Allow-Origin";
-	rep.headers[2].value = "*\\r\\n";
+	rep.headers[2].value = "*";
 }
 
 void request_handler::build_response(QueryStringParser& qsp,
