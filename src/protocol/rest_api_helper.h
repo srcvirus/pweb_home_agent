@@ -201,15 +201,24 @@ public:
 		escapeSingleQuote(affiliation);
 		*/
 
+		UserCassandraController userController(database);
+		
+		string errorCode = "";
+		bool isAvailable = userController.isUsernameAvailable(username, errorCode);
+		if(isAvailable)
+		{
+			return "{\"status\":\"error\", \"error\":\"APP:7502\"}";
+		}
+
 		DeviceCassandraController deviceController(database);
 
-		string errorCode = "";
-		bool isAvaialble = deviceController.isDevicenameAvailable(devicename, username, errorCode);
+		errorCode = "";
+		isAvailable = deviceController.isDevicenameAvailable(devicename, username, errorCode);
 		if(!errorCode.empty())
 		{
 			return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
 		}
-		if(!isAvaialble)
+		if(!isAvailable)
 		{
 			return "{\"status\":\"error\", \"error\":\"APP:6401\"}";
 		}
@@ -383,7 +392,7 @@ public:
 	{
 		HomeAgentIndexCassandraController homeAgentIndexController(database);
 
-                string result = "{[";
+                string result = "{\"home_agents\":[";
 		string list = "";
                 vector < boost::shared_ptr <HomeAgentIndex> > homeAgents = homeAgentIndexController.getAllHomeAgentIndex();
                 for (vector < boost::shared_ptr <HomeAgentIndex> >::iterator hit = homeAgents.begin(); hit != homeAgents.end(); ++hit)
