@@ -64,8 +64,8 @@ void request_handler::handle_request(const request& req, reply& rep)
 	 {
 	 extension = request_path.substr(last_dot_pos + 1);
 	 }*/
-	std::string extension = "html";
-	//std::string extension = "application/json";
+	//std::string extension = "html";
+	std::string extension = "json";
 
 	// Fill out the reply to be sent to the client.
 	//rep.status = reply::ok;

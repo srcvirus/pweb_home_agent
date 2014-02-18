@@ -20,7 +20,7 @@ struct mapping
 	const char* extension;
 	const char* mime_type;
 } mappings[] = { { "gif", "image/gif" }, { "htm", "text/html" }, { "html",
-		"text/html" }, { "jpg", "image/jpeg" }, { "png", "image/png" }, { 0, 0 } // Marks end of list.
+		"text/html" }, { "jpg", "image/jpeg" }, { "png", "image/png" }, {"json", "application/json"}, { 0, 0 } // Marks end of list.
 };
 
 std::string extension_to_type(const std::string& extension)
