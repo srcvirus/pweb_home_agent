@@ -14,14 +14,6 @@ using namespace std;
 
 class ControllerHelper
 {
-	void static ReplaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace) {
-		size_t pos = 0;
-		while ((pos = subject.find(search, pos)) != std::string::npos) {
-			subject.replace(pos, search.length(), replace);
-			pos += replace.length();
-		}
-	}
-
 
 public:
 	bool static isNullOREmptyString(const string& str)
@@ -29,10 +21,6 @@ public:
 		if (boost::algorithm::trim_copy(str).empty())
 			return true;
 		return false;
-	}
-
-	void static escapeSingleQuote(string& value){
-		ReplaceStringInPlace(value, "'","''");
 	}
 };
 

@@ -51,6 +51,8 @@ public:
 
 	bool get_value(string key, string &value)
 	{
+		escapeSingleQuote(key);
+		escapeSingleQuote(value);
 		return key_value_store->lookup(key, value);
 	}
 
@@ -81,6 +83,19 @@ public:
 	{
 		return key_value_store->size();
 	}
+
+	void replaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace) {
+		size_t pos = 0;
+		while ((pos = subject.find(search, pos)) != std::string::npos) {
+			subject.replace(pos, search.length(), replace);
+			pos += replace.length();
+		}
+	}
+
+	void escapeSingleQuote(string& value){
+		replaceStringInPlace(value, "'","''");
+	}
+
 };
 
 #endif
