@@ -47,21 +47,41 @@ void DNSMessageHandler::handleDNSQueryRecive(boost::array <char, MAX_UDP_BUFFER_
 			DNSQuestion question = questions[0];
 
 			vector <string>& labels = question.getLabels();
-			string& haAlias = labels[2];
-			string& user = labels[1];
-			string& device = labels[0];
+			string haAlias, user, device;
+
+			if(labels.size() <= 4)
+				haAlias = labels[0];
+
+			else haAlias = labels[2];
+
 			boost::shared_ptr <CassandraDBDriver> dbDriver = boost::dynamic_pointer_cast<CassandraDBDriver>(CassandraDBDriver::getDatabaseDriverObject());
 			printf("[DEBUG] [Thread 0x%lx] haAlias = %s, user = %s, device = %s\n", tid, haAlias.c_str(), user.c_str(), device.c_str());
 
 			if(haAlias == connection->getAlias())
 			{
+				string ip;
 				// This is the target home agent
-				printf("[DEBUG] [Thread 0x%lx] Current Home agent == Query Home agent (%s == %s)\n", tid, connection->getAlias().c_str(), haAlias.c_str());
+				if(labels.size() > 4)
+				{
+					string& user = labels[1];
+					string& device = labels[0];
 
-				DeviceCassandraController dController(dbDriver);
-				string ip = dController.getDeviceIp(device, user);
-				if(ip.size() <= 0)
-					isValid = false;
+					printf("[DEBUG] [Thread 0x%lx] Current Home agent == Query Home agent (%s == %s)\n", tid, connection->getAlias().c_str(), haAlias.c_str());
+
+					DeviceCassandraController dController(dbDriver);
+					ip = dController.getDeviceIp(device, user);
+					if(ip.size() <= 0)
+						isValid = false;
+				}
+				else
+				{
+					HomeAgentIndexCassandraController haIndexController(dbDriver);
+					boost::shared_ptr <HomeAgentIndex> haIndex = haIndexController.getHomeAgentIndex(haAlias);
+					if(haIndex)
+					{
+						ip = haIndex->getIp();
+					}
+				}
 
 				if(isValid)
 				{
