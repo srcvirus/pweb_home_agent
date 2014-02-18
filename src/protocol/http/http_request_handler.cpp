@@ -65,15 +65,18 @@ void request_handler::handle_request(const request& req, reply& rep)
 	 extension = request_path.substr(last_dot_pos + 1);
 	 }*/
 	std::string extension = "html";
+	//std::string extension = "application/json";
 
 	// Fill out the reply to be sent to the client.
 	//rep.status = reply::ok;
 	this->build_response(qsp, rep.content, rep.status);
-	rep.headers.resize(2);
+	rep.headers.resize(3);
 	rep.headers[0].name = "Content-Length";
 	rep.headers[0].value = boost::lexical_cast<std::string>(rep.content.size());
 	rep.headers[1].name = "Content-Type";
 	rep.headers[1].value = mime_types::extension_to_type(extension);
+	rep.headers[2].name = "Access-Control-Allow-Origin";
+	rep.headers[2].value = "*\\r\\n";
 }
 
 void request_handler::build_response(QueryStringParser& qsp,
