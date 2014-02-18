@@ -45,6 +45,8 @@ public:
 	static std::string& strtolower(std::string& str);
 	static bool isNumber(const string& input);
 	boost::shared_ptr <RESTAPIHelper> restapi;
+	static bool isValidName(const string& input);
+	bool isValidIP(const string& input);
 private:
 	/// Build the response string
 	void build_response(QueryStringParser& qsp, string& http_payload, reply::status_type& http_response);

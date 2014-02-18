@@ -106,6 +106,8 @@ void request_handler::build_response(QueryStringParser& qsp,
 					&& qsp.get_value("location", location)
 					&& qsp.get_value("affiliation", affiliation))
 			{
+				if(!isValidName(username))
+					return;
 				http_payload.append(restapi->registerUser(username, password, email, fullname, location, affiliation));
 				http_code = reply::ok;
 			}
@@ -153,6 +155,8 @@ void request_handler::build_response(QueryStringParser& qsp,
 			{
 				if(!isNumber(port))
 					return;
+				if(!isValidIP(ip))
+					return;
 				http_payload.append(restapi->updateDevice(devicename, newdevicename, username, ip, port, public_folder, private_folder));
 				http_code = reply::ok;
 			}
@@ -177,6 +181,12 @@ void request_handler::build_response(QueryStringParser& qsp,
 					&& qsp.get_value("description", description)
 					&& qsp.get_value("is_indexed", is_indexed))
 			{
+				if(!isValidName(username))
+					return;
+				if(!isValidName(devicename))
+					return;
+				if(!isValidIP(ip))
+					return;
 				if(!isNumber(port))
 					return;
 				if(is_indexed != "true" && is_indexed != "false")
@@ -193,6 +203,8 @@ void request_handler::build_response(QueryStringParser& qsp,
 					&& qsp.get_value("ip", ip)
 					&& qsp.get_value("port", port))
 			{
+				if(!isValidIP(ip))
+					return;
 				if(!isNumber(port))
 					return;
 				http_payload.append(restapi->updateDeviceIPPort(devicename, username, ip, port));
@@ -232,6 +244,11 @@ void request_handler::build_response(QueryStringParser& qsp,
 				http_payload.append("</html>");
 				http_code = reply::ok;
 			}
+		}
+		else if (strtolower(method_name) == "get_homeagent_list")
+		{
+			http_payload.append(restapi->getHomeAgentList());
+			http_code = reply::ok;
 		}
 	}
 }
@@ -288,9 +305,31 @@ bool request_handler::isNumber(const string& input)
 	for(int i = 0; i < input.size(); ++i)
 	{
 		if(!isdigit(input.at(i))) 
-			return 0;
+			return false;
 	}
-	return 1 ;
+	return true;
 }
+
+bool request_handler::isValidName(const string& input)
+{
+	return (input.find(".") == string::npos);
+}
+
+bool request_handler::isValidIP(const string& input)
+{
+	int oct1, oct2, oct3, oct4;
+	int result = sscanf(input.c_str(), "%d.%d.%d.%d", &oct1, &oct2, &oct3, &oct4);
+
+	if(result != 4)
+		return false;
+	if(oct1 < 0 && oct1 > 255 
+		&& oct2 < 0 && oct2 > 255 
+		&& oct3 < 0 && oct3 > 255 
+		&& oct4 < 0 && oct4 > 255)
+		return false;
+	return true;
+}
+
+
 
 

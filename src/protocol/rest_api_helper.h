@@ -379,6 +379,27 @@ public:
 	//  CRAWLER 				  //
 	////////////////////////////////////////////
 
+	string getHomeAgentList()
+	{
+		HomeAgentIndexCassandraController homeAgentIndexController(database);
+
+                string result = "{[";
+		string list = "";
+                vector < boost::shared_ptr <HomeAgentIndex> > homeAgents = homeAgentIndexController.getAllHomeAgentIndex();
+                for (vector < boost::shared_ptr <HomeAgentIndex> >::iterator hit = homeAgents.begin(); hit != homeAgents.end(); ++hit)
+                {
+                        list += ("{\"alias\":\"" + (*hit)->getName() + "\", \"ip\":\"" + (*hit)->getIp()  + "\", \"port\":\"" + port2String((*hit)->getPort()) + "\"},");
+                }
+		if(list.size() > 0)
+		{
+			list = list.substr(0, list.size() - 1);
+		}
+		result += list;
+                result += "]}";
+		return result;
+	}
+
+
 	string getDeviceList(const string& timestamp)
 	{
 		string result = "<getall><name>" + this->homeAgentAlias + "</name>";

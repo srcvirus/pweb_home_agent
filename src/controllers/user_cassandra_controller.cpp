@@ -9,7 +9,7 @@
 
 
 /**
- * Get user by username
+ * Get user by username. 
  * @param username The username of the User you are looking for
  * @return A boost::shared_ptr <User> object on success, otherwise null
  */

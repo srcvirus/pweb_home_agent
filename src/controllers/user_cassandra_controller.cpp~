@@ -9,9 +9,9 @@
 
 
 /**
- * Get a user by username
+ * Get user by username
  * @param username The username of the User you are looking for
- * @return An boost::shared_ptr <User> object on success, otherwise null
+ * @return A boost::shared_ptr <User> object on success, otherwise null
  */
 boost::shared_ptr <User> UserCassandraController::getUser(const string& username)
 {
