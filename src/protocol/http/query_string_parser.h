@@ -51,9 +51,10 @@ public:
 
 	bool get_value(string key, string &value)
 	{
+		bool result = key_value_store->lookup(key, value);
 		escapeSingleQuote(key);
 		escapeSingleQuote(value);
-		return key_value_store->lookup(key, value);
+		return result;
 	}
 
 	vector<string> &split(const string &s, char delim, vector<string> &elems)

@@ -441,6 +441,7 @@ public:
 					result += "<device>";
 					result.append("<owner>" + (*uit)->getFullname() + "</owner>");
 					result.append("<name>" + (*dit)->getDevicename() + "." + (*uit)->getUsername() + "</name>");
+					result.append("<port>" + port2String((*dit)->getPort()) + "</port>");
 					result.append("<timestamp>" + timestamp2String((*dit)->getLastSeen()) + "</timestamp>");
 					result.append("<location>" + (*uit)->getLocation() + "</location>");
 					result.append("<description>" + (*dit)->getDescription() + "</description>");
