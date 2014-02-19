@@ -182,8 +182,10 @@ bool UserCassandraController::authenticateUser(const string& username, const str
 
 	if(rows.row_count() <= 0)
 	{
+		printf("[DEBUG] Zero rows returned\n");
 		return false;
 	}
+	printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
 	return true;
 }
 
