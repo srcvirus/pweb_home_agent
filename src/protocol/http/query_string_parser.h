@@ -43,6 +43,16 @@ public:
 				string value = "";
 				key_value_store->add(strtolower(kv[0]), value);
 			}
+			else
+			{
+				string value = "";
+				for(int i=1;i<kv.size();++i)
+				{
+					if (i > 1) value += "=";
+					value += kv[i];
+				}
+				key_value_store->add(strtolower(kv[0]), value);
+			}
 			//printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 			//printf(">>>>>>>>>%s, %s --> %s, %s<<<<<<<<<<<\n", kv[0].c_str(), kv[1].c_str(), urlDecode(kv[0]).c_str(), urlDecode(kv[1]).c_str());
 			//printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
