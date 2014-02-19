@@ -195,10 +195,11 @@ void DNSMessageHandler::composeSuccessReply(DNSMessage& query, DNSMessage& reply
 {
 	unsigned short anCount = 1;
 	unsigned short zero = 0;
-	bool qr = true;
+	bool qr = true, aa = true;
 	ReturnCode retCode = R_SUCCESS;
 
 	reply.setDNSHeader(query.getDNSHeader());
+	reply.getDNSHeader().setAA(aa);
 	reply.getDNSHeader().setQR(qr);
 	reply.getDNSHeader().setANCount(anCount);
 	reply.getDNSHeader().setNSCount(zero);
