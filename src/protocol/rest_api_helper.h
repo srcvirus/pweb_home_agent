@@ -397,7 +397,7 @@ public:
                 vector < boost::shared_ptr <HomeAgentIndex> > homeAgents = homeAgentIndexController.getAllHomeAgentIndex();
                 for (vector < boost::shared_ptr <HomeAgentIndex> >::iterator hit = homeAgents.begin(); hit != homeAgents.end(); ++hit)
                 {
-                        list += ("{\"alias\":\"" + (*hit)->getName() + "\", \"ip\":\"" + (*hit)->getIp()  + "\", \"port\":\"" + port2String((*hit)->getPort()) + "\"},");
+                        list += ("{\"alias\":\"" + (*hit)->getName() + ".pwebproject.net\", \"ip\":\"" + (*hit)->getIp()  + "\", \"port\":\"" + port2String((*hit)->getPort()) + "\"},");
                 }
 		if(list.size() > 0)
 		{
