@@ -422,7 +422,7 @@ public:
 		for (vector < boost::shared_ptr <HomeAgentIndex> >::iterator hit = homeAgents.begin(); hit != homeAgents.end(); ++hit)
 		{
 			result += "<home agent>";
-			result += "<hostname>" + (*hit)->getName() + "</hostname>";
+			result += "<hostname>" + (*hit)->getName() + ".pwebproject.net</hostname>";
 			result += "<port>" + port2String((*hit)->getPort()) + "</port>";
 			result += "</home agent>";
 		}
