@@ -144,6 +144,7 @@ void request_handler::build_response(QueryStringParser& qsp,
 				http_code = reply::ok;
 			}
 		}
+		/*
 		else if (strtolower(method_name) == "update_device")
 		{
 			string devicename, username, newdevicename, ip, port, public_folder,
@@ -161,6 +162,67 @@ void request_handler::build_response(QueryStringParser& qsp,
 				if(!isValidIP(ip))
 					return;
 				http_payload.append(restapi->updateDevice(devicename, newdevicename, username, ip, port, public_folder, private_folder));
+				http_code = reply::ok;
+			}
+		}
+		*/
+		else if (strtolower(method_name) == "update_device")
+		{
+			string devicename, username, new_devicename, type, metadata, ip, port, dir_ip, dir_port, description, os, public_folder, private_folder, is_indexed;
+			if (qsp.get_value("devicename", devicename) && qsp.get_value("username", username)){
+
+				boost::unordered_map<string, string> params;
+				
+				if(qsp.get_value("new_devicename", new_devicename))
+				{
+					if(!isValidName(new_devicename))
+						return;
+					params["new_devicename"] = new_devicename;
+				}
+				if(qsp.get_value("type", type))
+					params["type"] = type;
+				if(qsp.get_value("metadata", metadata))
+					params["metadata"] = metadata;
+				if(qsp.get_value("dir_ip", dir_ip))
+				{
+					if(!isValidIP(dir_ip))
+						return;
+					params["dir_ip"] = dir_ip;
+				}
+				if(qsp.get_value("dir_port", dir_port))
+				{
+					if(!isNumber(dir_port))
+						return;
+					params["dir_port"] = dir_port;
+				}
+				if(qsp.get_value("ip", ip))
+				{
+					if(!isValidIP(ip))
+						return;
+					params["ip"] = ip;
+				}
+				if(qsp.get_value("port", port))
+				{
+					if(!isNumber(port))
+						return;
+					params["port"] = port;
+				}
+				if(qsp.get_value("os", os))
+					params["os"] = os;
+				if(qsp.get_value("description", description))
+					params["description"] = description;
+				if(qsp.get_value("public_folder", public_folder))
+					params["public_folder"] = public_folder;
+				if(qsp.get_value("private_folder", private_folder))
+					params["private_folder"] = private_folder;
+				if(qsp.get_value("is_indexed", is_indexed))
+				{
+					if(!boost::iequals(is_indexed, "true") && !boost::iequals(is_indexed, "false"))
+						return;
+					params["is_indexed"] = is_indexed;
+				}
+
+				http_payload.append(restapi->updateDevice(devicename, username, params));
 				http_code = reply::ok;
 			}
 		}
@@ -192,7 +254,7 @@ void request_handler::build_response(QueryStringParser& qsp,
 					return;
 				if(!isNumber(port))
 					return;
-				if(is_indexed != "true" && is_indexed != "false")
+				if(!boost::iequals(is_indexed, "true") && !boost::iequals(is_indexed, "false"))
 					return;
 				http_payload.append(restapi->registerDevice(devicename, username, type, ip, port, os, description, is_indexed));
 				http_code = reply::ok;

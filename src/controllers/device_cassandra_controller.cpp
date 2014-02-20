@@ -364,5 +364,93 @@ int DeviceCassandraController::updateDevice(const string& currentDevicename, con
 	return result;
 }
 
+int DeviceCassandraController::updateDevice(const string& devicename, const string& username, boost::unordered_map<string, string>& params)
+{
+	if(params.size() <= 0)
+		return 0;
+
+	string errorCode  = "";
+	int result;
+
+	//get the current device
+	boost::shared_ptr <Device> device = getDevice(devicename, username, errorCode);
+	if(!errorCode.empty())
+	{
+		return boost::lexical_cast<int>(errorCode);
+	}
+	
+	//check if devicename needs to be changed
+	if(params.count("new_devicename"))
+	{
+		//delete the current device from db
+		result = deleteDevice(devicename, username);
+		if(result != 0)
+		{
+			return result;
+		}
+	}
+
+	//update data in the current device
+	if(params.count("new_devicename")) 
+	{
+		device->setDevicename(params["new_devicename"]);
+	}
+	if(params.count("type")) 
+	{
+		device->setType(params["type"]);
+	}
+	if(params.count("metadata")) 
+	{
+		device->setContentMeta(params["metadata"]);
+	}
+	if(params.count("dir_ip")) 
+	{
+		device->setDirIp(params["dir_ip"]);
+	}
+	if(params.count("dir_port")) 
+	{
+		unsigned short portValue = -1;
+		if (!ControllerHelper::isNullOREmptyString(params["dir_port"]))
+			portValue = boost::lexical_cast<unsigned short>(params["dir_port"]);
+		device->setDirPort(portValue);
+	}
+	if(params.count("ip")) 
+	{
+		device->setIp(params["ip"]);
+	}
+	if(params.count("port")) 
+	{
+		unsigned short portValue = -1;
+		if (!ControllerHelper::isNullOREmptyString(params["port"]))
+			portValue = boost::lexical_cast<unsigned short>(params["port"]);
+		device->setPort(portValue);
+	}
+	if(params.count("os")) 
+	{
+		device->setOs(params["os"]);
+	}
+	if(params.count("description")) 
+	{
+		device->setDescription(params["description"]);
+	}
+	if(params.count("public_folder")) 
+	{
+		device->setPublicFolder(params["public_folder"]);
+	}
+	if(params.count("private_folder")) 
+	{
+		device->setPrivateFolder(params["private_folder"]);
+	}
+	if(params.count("is_indexed")) 
+	{
+		bool is_indexed = false;
+		if(boost::iequals(params["is_indexed"], "true"))
+			is_indexed = true;
+		device->setSearchable(is_indexed);
+	}
+	//add the new device
+	result = addDevice(device);
+	return result;
+}
 
 

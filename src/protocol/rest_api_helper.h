@@ -12,6 +12,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>  
 #include <boost/shared_ptr.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <cstdlib>
 
@@ -287,6 +288,22 @@ public:
 	{
 		DeviceCassandraController deviceController(database);
 		int result = deviceController.deleteDevice(devicename, username);
+		if(result == 0)
+		{
+			return "{\"status\":\"success\"}";
+		}
+		if(result == -1)
+		{
+			return "{\"status\":\"error\", \"error\":\"APP:6402\"}";
+		}
+		string resultStr = boost::lexical_cast<string>(result);
+		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
+	}
+
+	string updateDevice(const string& devicename, const string& username, boost::unordered_map<string, string>& params)
+	{
+		DeviceCassandraController deviceController(database);
+		int result = deviceController.updateDevice(devicename, username, params);
 		if(result == 0)
 		{
 			return "{\"status\":\"success\"}";

@@ -15,6 +15,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/unordered_map.hpp>
 
 #include "../models/device.h"
 #include "../database/cassandra_db.h"
@@ -42,6 +43,7 @@ public:
 	int updateDevice(const string& currentDevicename, const string& newDevicename, const string& username, const string& ip, const string& port, const string& public_folder, const string& private_folder);
 	int updateDeviceIPPort(const string& devicename, const string& username, const string& ip, const string& port);
 	int updateDeviceMetadata(const string& devicename, const string& username, const string& metadata);
+	int updateDevice(const string& currentDevicename, const string& username, boost::unordered_map<string, string>& params);
 	~DeviceCassandraController(){;}
 };
 
