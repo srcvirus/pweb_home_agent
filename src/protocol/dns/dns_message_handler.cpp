@@ -196,6 +196,11 @@ void DNSMessageHandler::composeSuccessReply(DNSMessage& query, DNSMessage& reply
 	unsigned short anCount = 1;
 	unsigned short zero = 0;
 	bool qr = true, aa = true;
+
+	unsigned short nsCount = query.getDNSHeader().getNSCount();
+	unsigned short arCount = query.getDNSHeader().getARCount();
+	unsigned short qdCount = query.getDNSHeader().getQDCount();
+
 	ReturnCode retCode = R_SUCCESS;
 	QueryClass qClass = C_IN;
 	QueryType qType = T_A;
@@ -205,14 +210,20 @@ void DNSMessageHandler::composeSuccessReply(DNSMessage& query, DNSMessage& reply
 	reply.getDNSHeader().setAA(aa);
 	reply.getDNSHeader().setQR(qr);
 	reply.getDNSHeader().setANCount(anCount);
-	reply.getDNSHeader().setNSCount(zero);
-	reply.getDNSHeader().setARCount(zero);
-	reply.getDNSHeader().setQDCount(zero);
-	reply.getDNSAdditional().clear();
-	reply.getDNSAuthority().clear();
-	reply.getDNSQuestions().clear();
-	reply.getDNSHeader().setRetCode(retCode);
+	reply.getDNSHeader().setNSCount(nsCount);
+	reply.getDNSHeader().setARCount(arCount);
+	reply.getDNSHeader().setQDCount(qdCount);
 
+	for(int i = 0; i < nsCount; i++)
+		reply.getDNSAuthority().push_back(query.getDNSAuthority()[i]);
+
+	for(int i = 0; i < arCount; i++)
+		reply.getDNSAdditional().push_back(query.getDNSAdditional()[i]);
+
+	for(int i = 0; i < qdCount; i++)
+		reply.getDNSQuestions().push_back(query.getDNSQuestions()[i]);
+
+	reply.getDNSHeader().setRetCode(retCode);
 
 	DNSResourceRecord ans;
 	boost::array <unsigned char, sizeof(int)> ipAddressData = boost::asio::ip::address_v4::from_string(ansToQuestion).to_bytes();
