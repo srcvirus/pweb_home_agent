@@ -197,8 +197,11 @@ void DNSMessageHandler::composeSuccessReply(DNSMessage& query, DNSMessage& reply
 	unsigned short zero = 0;
 	bool qr = true, aa = true;
 	ReturnCode retCode = R_SUCCESS;
+	QueryClass qClass = C_IN;
+	QueryType qType = T_A;
 
 	reply.setDNSHeader(query.getDNSHeader());
+
 	reply.getDNSHeader().setAA(aa);
 	reply.getDNSHeader().setQR(qr);
 	reply.getDNSHeader().setANCount(anCount);
@@ -210,14 +213,15 @@ void DNSMessageHandler::composeSuccessReply(DNSMessage& query, DNSMessage& reply
 	reply.getDNSQuestions().clear();
 	reply.getDNSHeader().setRetCode(retCode);
 
+
 	DNSResourceRecord ans;
 	boost::array <unsigned char, sizeof(int)> ipAddressData = boost::asio::ip::address_v4::from_string(ansToQuestion).to_bytes();
 	unsigned short rdLength = sizeof(int);
 	unsigned int ttl = 0;
 
 	ans.setLabels(query.getDNSQuestions()[0].getLabels());
-	ans.setClass(query.getDNSQuestions()[0].getClass());
-	ans.setType(query.getDNSQuestions()[0].getType());
+	ans.setClass(qClass);
+	ans.setType(qType);
 	ans.setRdLength(rdLength);
 	ans.setTtl(ttl);
 	for(int j = 0; j < rdLength; j++) ans.getData().push_back(ipAddressData[j]);
