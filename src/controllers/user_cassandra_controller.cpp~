@@ -182,8 +182,50 @@ bool UserCassandraController::authenticateUser(const string& username, const str
 
 	if(rows.row_count() <= 0)
 	{
+		printf("[DEBUG] Zero rows returned\n");
 		return false;
 	}
+	printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
 	return true;
 }
 
+int UserCassandraController::updateUser(const string& username, boost::unordered_map<string, string>& params)
+{
+	if(params.size() <= 0)
+		return 0;
+
+	string errorCode  = "";
+	int result;
+
+	//get the current user
+	boost::shared_ptr <User> user = getUser(username);
+	if(!errorCode.empty())
+	{
+		return boost::lexical_cast<int>(errorCode);
+	}
+	
+	//update data in the current device
+	if(params.count("password")) 
+	{
+		user->setPassword(params["password"]);
+	}
+	if(params.count("email")) 
+	{
+		user->setEmail(params["email"]);
+	}
+	if(params.count("fullname")) 
+	{
+		user->setFullname(params["fullname"]);
+	}
+	if(params.count("location")) 
+	{
+		user->setLocation(params["location"]);
+	}
+	if(params.count("affiliation")) 
+	{
+		user->setAffiliation(params["affiliation"]);
+	}
+	//add the new device
+	result = addUser(user);
+	return result;
+}

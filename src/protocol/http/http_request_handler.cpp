@@ -260,6 +260,7 @@ void request_handler::build_response(QueryStringParser& qsp,
 				http_code = reply::ok;
 			}
 		}
+		/*
 		else if (strtolower(method_name) == "update_device_ip_port")
 		{
 			string username, devicename, ip, port;
@@ -276,6 +277,8 @@ void request_handler::build_response(QueryStringParser& qsp,
 				http_code = reply::ok;
 			}
 		}
+		*/
+		/*
 		else if (strtolower(method_name) == "update_device_metadata")
 		{
 			string username, devicename, metadata;
@@ -287,6 +290,7 @@ void request_handler::build_response(QueryStringParser& qsp,
 				http_code = reply::ok;
 			}
 		}
+		*/
 		else if (strtolower(method_name) == "getall"
 				|| strtolower(method_name) == "devicelist")
 		{
