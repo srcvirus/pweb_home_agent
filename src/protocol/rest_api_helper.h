@@ -149,7 +149,7 @@ public:
 			{
 				return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
 			}
-			if(!isAvailable)
+			if(isAvailable)
 			{
 				suggestions.append("\"" + uname + "\",");
 			}	
@@ -267,7 +267,7 @@ public:
 			{
 				return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
 			}
-			if(!isAvailable)
+			if(isAvailable)
 			{
 				suggestions.append("\"" + dname + "\",");
 			}
