@@ -121,6 +121,47 @@ public:
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
 
+	string registerUser(const string& username, boost::unordered_map<string, string>& params)
+	{
+		UserCassandraController userController(database);
+		
+		if(!userController.isUsernameAvailable(username))
+		{
+			return "{\"status\":\"error\", \"error\":\"APP:7501\"}";
+		}
+		
+		boost::shared_ptr <User> user = boost::shared_ptr <User> (new User(username, 
+				(params.count("password"))?params["password"]:"", 
+				(params.count("email"))?params["email"]:"", 
+				(params.count("fullname"))?params["fullname"]:"", 
+				(params.count("location"))?params["location"]:"", 
+				(params.count("affiliation"))?params["affiliation"]:""));
+		int result = userController.addUser(user);
+		if(result == 0)
+		{
+			return "{\"status\":\"success\"}";
+		}
+		string resultStr = boost::lexical_cast<string>(result);
+		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
+	}
+
+	string updateUser(const string& username, boost::unordered_map<string, string>& params)
+	{
+		UserCassandraController userController(database);
+		int result = userController.updateUser(username, params);
+		if(result == 0)
+		{
+			return "{\"status\":\"success\"}";
+		}
+		if(result == -1)
+		{
+			return "{\"status\":\"error\", \"error\":\"APP:7502\"}";
+		}
+		string resultStr = boost::lexical_cast<string>(result);
+		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
+	}
+
+
 	string isUsernameAvailable(const string& username)
 	{
 		UserCassandraController userController(database);

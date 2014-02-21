@@ -115,6 +115,45 @@ void request_handler::build_response(QueryStringParser& qsp,
 				http_code = reply::ok;
 			}
 		}
+		else if (strtolower(method_name) == "update_user")
+		{
+			string username, password, email, fullname, location, affiliation;
+			if (qsp.get_value("username", username))
+			{
+				boost::unordered_map<string, string> params;
+				
+				if(!isValidName(username))
+					return;
+
+				if(qsp.get_value("password", password))
+				{
+					if(!password.empty())
+						params["password"] = password;
+				}
+				if(qsp.get_value("email", email))
+				{
+					if(!email.empty())
+						params["email"] = email;
+				}
+				if(qsp.get_value("fullname", fullname))
+				{
+					if(!fullname.empty())
+						params["fullname"] = fullname;
+				}
+				if(qsp.get_value("location", location))
+				{
+					if(!location.empty())
+						params["location"] = location;
+				}
+				if(qsp.get_value("affiliation", affiliation))
+				{
+					if(!affiliation.empty())
+						params["affiliation"] = affiliation;
+				}
+				http_payload.append(restapi->updateUser(username, params));
+				http_code = reply::ok;
+			}
+		}
 		else if (strtolower(method_name) == "authenticate_user")
 		{
 			string username, password;
@@ -173,6 +212,11 @@ void request_handler::build_response(QueryStringParser& qsp,
 
 				boost::unordered_map<string, string> params;
 				
+				if(!isValidName(username))
+					return;
+				if(!isValidName(devicename))
+					return;
+
 				if(qsp.get_value("new_devicename", new_devicename))
 				{
 					if(!isValidName(new_devicename))
@@ -297,6 +341,11 @@ void request_handler::build_response(QueryStringParser& qsp,
 					return;
 				if(!isValidName(devicename))
 					return;
+				if(!isValidIP(ip))
+					return;
+				if(!isNumber(port))
+					return;
+
 				if(qsp.get_value("type", type))
 				{
 					if(!type.empty())
@@ -318,15 +367,11 @@ void request_handler::build_response(QueryStringParser& qsp,
 				}
 				if(qsp.get_value("ip", ip))
 				{
-					if(!isValidIP(ip))
-						return;
 					if(!ip.empty())
 						params["ip"] = ip;
 				}
 				if(qsp.get_value("port", port))
 				{
-					if(!isNumber(port))
-						return;
 					if(!port.empty())
 						params["port"] = port;
 				}
