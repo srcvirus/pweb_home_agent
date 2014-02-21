@@ -177,44 +177,67 @@ void request_handler::build_response(QueryStringParser& qsp,
 				{
 					if(!isValidName(new_devicename))
 						return;
-					params["new_devicename"] = new_devicename;
+					if(!new_devicename.empty)
+						params["new_devicename"] = new_devicename;
 				}
 				if(qsp.get_value("type", type))
-					params["type"] = type;
+				{
+					if(!type.empty())
+						params["type"] = type;
+				}
 				if(qsp.get_value("metadata", metadata))
-					params["metadata"] = metadata;
+				{
+					if(!metadata.empty())
+						params["metadata"] = metadata;
+				}
 				if(qsp.get_value("dir_ip", dir_ip))
 				{
 					if(!isValidIP(dir_ip))
 						return;
-					params["dir_ip"] = dir_ip;
+					if(!dir_ip.empty())
+						params["dir_ip"] = dir_ip;
 				}
 				if(qsp.get_value("dir_port", dir_port))
 				{
 					if(!isNumber(dir_port))
 						return;
-					params["dir_port"] = dir_port;
+					if(!dir_port.empty())
+						params["dir_port"] = dir_port;
 				}
 				if(qsp.get_value("ip", ip))
 				{
 					if(!isValidIP(ip))
 						return;
-					params["ip"] = ip;
+					if(!ip.empty())
+						params["ip"] = ip;
 				}
 				if(qsp.get_value("port", port))
 				{
 					if(!isNumber(port))
 						return;
-					params["port"] = port;
+					if(!port.empty())
+						params["port"] = port;
 				}
 				if(qsp.get_value("os", os))
-					params["os"] = os;
+				{
+					if(!os.empty())
+						params["os"] = os;
+				}
 				if(qsp.get_value("description", description))
-					params["description"] = description;
+				{
+					if(!description.empty())
+						params["description"] = description;
+				}
 				if(qsp.get_value("public_folder", public_folder))
-					params["public_folder"] = public_folder;
+				{
+					if(!public_folder.empty())
+						params["public_folder"] = public_folder;
+				}
 				if(qsp.get_value("private_folder", private_folder))
-					params["private_folder"] = private_folder;
+				{
+					if(!private_folder.empty())
+						params["private_folder"] = private_folder;
+				}
 				if(qsp.get_value("is_indexed", is_indexed))
 				{
 					if(!boost::iequals(is_indexed, "true") && !boost::iequals(is_indexed, "false"))
@@ -275,39 +298,58 @@ void request_handler::build_response(QueryStringParser& qsp,
 				if(!isValidName(devicename))
 					return;
 				if(qsp.get_value("type", type))
-					params["type"] = type;
-				if(qsp.get_value("ip", ip))
 				{
-					if(!isValidIP(ip))
-						return;
-					params["ip"] = ip;
-				}
-				if(qsp.get_value("port", port))
-				{
-					if(!isNumber(port))
-						return;
-					params["port"] = port;
+					if(!type.empty())
+						params["type"] = type;
 				}
 				if(qsp.get_value("dir_ip", dir_ip))
 				{
 					if(!isValidIP(dir_ip))
 						return;
-					params["dir_ip"] = dir_ip;
+					if(!dir_ip.empty())
+						params["dir_ip"] = dir_ip;
 				}
 				if(qsp.get_value("dir_port", dir_port))
 				{
 					if(!isNumber(dir_port))
 						return;
-					params["dir_port"] = dir_port;
+					if(!dir_port.empty())
+						params["dir_port"] = dir_port;
+				}
+				if(qsp.get_value("ip", ip))
+				{
+					if(!isValidIP(ip))
+						return;
+					if(!ip.empty())
+						params["ip"] = ip;
+				}
+				if(qsp.get_value("port", port))
+				{
+					if(!isNumber(port))
+						return;
+					if(!port.empty())
+						params["port"] = port;
 				}
 				if(qsp.get_value("os", os))
-					params["os"] = os;
+				{
+					if(!os.empty())
+						params["os"] = os;
+				}
 				if(qsp.get_value("description", description))
-					params["description"] = description;
+				{
+					if(!description.empty())
+						params["description"] = description;
+				}
 				if(qsp.get_value("public_folder", public_folder))
-					params["public_folder"] = public_folder;
+				{
+					if(!public_folder.empty())
+						params["public_folder"] = public_folder;
+				}
 				if(qsp.get_value("private_folder", private_folder))
-					params["private_folder"] = private_folder;
+				{
+					if(!private_folder.empty())
+						params["private_folder"] = private_folder;
+				}
 				if(qsp.get_value("is_indexed", is_indexed))
 				{
 					if(!boost::iequals(is_indexed, "true") && !boost::iequals(is_indexed, "false"))
