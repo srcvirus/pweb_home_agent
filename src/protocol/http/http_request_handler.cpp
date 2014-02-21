@@ -99,6 +99,7 @@ void request_handler::build_response(QueryStringParser& qsp,
 				http_code = reply::ok;
 			}
 		}
+		/*
 		else if (strtolower(method_name) == "register_user")
 		{
 			string username, password, email, fullname, location, affiliation;
@@ -112,6 +113,38 @@ void request_handler::build_response(QueryStringParser& qsp,
 				if(!isValidName(username))
 					return;
 				http_payload.append(restapi->registerUser(username, password, email, fullname, location, affiliation));
+				http_code = reply::ok;
+			}
+		}
+		*/
+		else if (strtolower(method_name) == "register_user")
+		{
+			string username, password, email, fullname, location, affiliation;
+			if (qsp.get_value("username", username) 
+					&& qsp.get_value("password", password)
+					&& qsp.get_value("email", email))
+			{
+				boost::unordered_map<string, string> params;
+				
+				if(!isValidName(username))
+					return;
+
+				if(qsp.get_value("fullname", fullname))
+				{
+					if(!fullname.empty())
+						params["fullname"] = fullname;
+				}
+				if(qsp.get_value("location", location))
+				{
+					if(!location.empty())
+						params["location"] = location;
+				}
+				if(qsp.get_value("affiliation", affiliation))
+				{
+					if(!affiliation.empty())
+						params["affiliation"] = affiliation;
+				}
+				http_payload.append(restapi->registerUser(username, password, email, params));
 				http_code = reply::ok;
 			}
 		}

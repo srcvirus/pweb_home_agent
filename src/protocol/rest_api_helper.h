@@ -121,7 +121,7 @@ public:
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
 
-	string registerUser(const string& username, boost::unordered_map<string, string>& params)
+	string registerUser(const string& username, const string& password, const string& email, boost::unordered_map<string, string>& params)
 	{
 		UserCassandraController userController(database);
 		
@@ -130,9 +130,7 @@ public:
 			return "{\"status\":\"error\", \"error\":\"APP:7501\"}";
 		}
 		
-		boost::shared_ptr <User> user = boost::shared_ptr <User> (new User(username, 
-				(params.count("password"))?params["password"]:"", 
-				(params.count("email"))?params["email"]:"", 
+		boost::shared_ptr <User> user = boost::shared_ptr <User> (new User(username, password, email, 
 				(params.count("fullname"))?params["fullname"]:"", 
 				(params.count("location"))?params["location"]:"", 
 				(params.count("affiliation"))?params["affiliation"]:""));
