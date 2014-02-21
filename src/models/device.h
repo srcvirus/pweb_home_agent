@@ -9,6 +9,7 @@
 #define DEVICE_H_
 
 #include <string>
+#include <boost/unordered_map.hpp>
 
 using namespace std;
 

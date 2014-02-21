@@ -229,7 +229,7 @@ public:
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
 
-	string registerDevice(const string& devicename, const string& username, const string& ip, const string& port, const string& is_indexed, boost::unordered_map<string, string>& params)
+	string registerDevice(const string& devicename, const string& username, const string& ip, const string& port, const string& isIndexed, boost::unordered_map<string, string>& params)
 	{
 		UserCassandraController userController(database);
 		
