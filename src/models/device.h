@@ -43,6 +43,17 @@ public:
 		;
 	}
 
+	Device(const string& username, const string& devicename, const string& ip, unsigned short port, bool is_indexed, 
+			unsigned long timeStamp, boost::unordered_map<string, string> params):
+				username(username), devicename(devicename), type((params.count("type"))?params["type"]:""), ip(ip), port(port),
+				dirIp((params.count("dir_ip"))?params["dir_ip"]:""), dirPort((params.count("dir_port"))?boost::lexical_cast<unsigned short>(params["dir_port"]):-1), 
+				publicFolder((params.count("public_folder"))?params["public_folder"]:""), privateFolder((params.count("private_folder"))?params["private_folder"]:""),
+				lastSeen(timeStamp), os((params.count("os"))?params["os"]:""), description((params.count("description"))?params["description"]:""), contentMeta(""),
+				searchable(searchable), contentTimestamp(timeStamp)
+	{
+		;
+	}
+
 	string& getContentMeta()
 	{
 		return contentMeta;

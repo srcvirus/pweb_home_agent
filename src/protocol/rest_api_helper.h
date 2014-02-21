@@ -193,15 +193,6 @@ public:
 	string registerDevice(const string& devicename, const string& username, const string& type, const string& ip,
 					const string& port, const string& os, const string& description, const string& isIndexed)
 	{
-		/*
-		escapeSingleQuote(username);
-		escapeSingleQuote(password);
-		escapeSingleQuote(email);
-		escapeSingleQuote(fullname);
-		escapeSingleQuote(location);
-		escapeSingleQuote(affiliation);
-		*/
-
 		UserCassandraController userController(database);
 		
 		string errorCode = "";
@@ -237,6 +228,44 @@ public:
 		string resultStr = boost::lexical_cast<string>(result);
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
+
+	string registerDevice(const string& devicename, const string& username, const string& ip, const string& port, const string& is_indexed, boost::unordered_map<string, string>& params)
+	{
+		UserCassandraController userController(database);
+		
+		string errorCode = "";
+		bool isAvailable = userController.isUsernameAvailable(username, errorCode);
+		if(isAvailable)
+		{
+			return "{\"status\":\"error\", \"error\":\"APP:7502\"}";
+		}
+
+		DeviceCassandraController deviceController(database);
+
+		errorCode = "";
+		isAvailable = deviceController.isDevicenameAvailable(devicename, username, errorCode);
+		if(!errorCode.empty())
+		{
+			return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
+		}
+		if(!isAvailable)
+		{
+			return "{\"status\":\"error\", \"error\":\"APP:6401\"}";
+		}
+
+		time_t timestamp = time(NULL);
+
+		boost::shared_ptr <Device> device = boost::shared_ptr <Device> (new Device(username, devicename, ip, boost::lexical_cast<unsigned short>(port), (boost::iequals(isIndexed, "true"))?true:false,
+			timestamp, params));
+		int result = deviceController.addDevice(device);
+		if(result == 0)
+		{
+			return "{\"status\":\"success\"}";
+		}
+		string resultStr = boost::lexical_cast<string>(result);
+		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
+	}
+
 
 	string isDevicenameAvailable(const string& devicename, const string& username)
 	{
