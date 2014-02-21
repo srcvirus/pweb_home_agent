@@ -9,6 +9,7 @@
 #define DEVICE_CASSANDRA_CONTROLLER_H_
 
 #include <string>
+#include <cstdlib>
 
 #include "controller_helper.h"
 

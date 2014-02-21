@@ -448,6 +448,9 @@ int DeviceCassandraController::updateDevice(const string& devicename, const stri
 			is_indexed = true;
 		device->setSearchable(is_indexed);
 	}
+	//update lastseen
+	time_t timestamp = time(NULL);
+	device->setLastSeen(time_t);
 	//add the new device
 	result = addDevice(device);
 	return result;
