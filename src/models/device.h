@@ -10,6 +10,7 @@
 
 #include <string>
 #include <boost/unordered_map.hpp>
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 
