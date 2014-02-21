@@ -177,7 +177,7 @@ void request_handler::build_response(QueryStringParser& qsp,
 				{
 					if(!isValidName(new_devicename))
 						return;
-					if(!new_devicename.empty)
+					if(!new_devicename.empty())
 						params["new_devicename"] = new_devicename;
 				}
 				if(qsp.get_value("type", type))
