@@ -450,7 +450,7 @@ int DeviceCassandraController::updateDevice(const string& devicename, const stri
 	}
 	//update lastseen
 	time_t timestamp = time(NULL);
-	device->setLastSeen(time_t);
+	device->setLastSeen(timestamp);
 	//add the new device
 	result = addDevice(device);
 	return result;
