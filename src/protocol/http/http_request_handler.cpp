@@ -36,6 +36,12 @@ void request_handler::handle_request(const request& req, reply& rep)
 		return;
 	}
 
+	if(request_path.size() < 3)
+	{
+		rep = reply::stock_reply(reply::bad_request);
+		return;
+	}
+
 	QueryStringParser qsp;
 	qsp.parse(request_path.substr(2));
 
