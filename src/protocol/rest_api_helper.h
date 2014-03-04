@@ -184,7 +184,7 @@ public:
 			availableUsername << username;	
 			availableUsername << rnd;
 			string uname(availableUsername.str());
-			isAvailable = userController.isUsernameAvailable(username, errorCode);
+			isAvailable = userController.isUsernameAvailable(uname, errorCode);
 			if(!errorCode.empty())
 			{
 				return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
