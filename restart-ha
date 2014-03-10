@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if pgrep pweb_home_agent >/dev/null 2>&1
+  then
+     echo ':)'
+  else
+     echo ':('
+     /home/ubuntu/pweb_home_agent/bin/pweb_home_agent -a mg -t 4 &> /home/ubuntu/ha-logs/log &
+fi
