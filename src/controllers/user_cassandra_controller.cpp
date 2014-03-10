@@ -204,7 +204,7 @@ int UserCassandraController::updateUser(const string& username, boost::unordered
 		return boost::lexical_cast<int>(errorCode);
 	}
 	
-	//update data in the current device
+	//update data in the current user
 	if(params.count("password")) 
 	{
 		user->setPassword(params["password"]);
@@ -225,7 +225,7 @@ int UserCassandraController::updateUser(const string& username, boost::unordered
 	{
 		user->setAffiliation(params["affiliation"]);
 	}
-	//add the new device
+	//add the new user
 	result = addUser(user);
 	return result;
 }
