@@ -1,4 +1,5 @@
 #!/bin/bash
+# add to crontab * * * * *    /home/ubuntu/pweb_home_agent/restart-ha
 
 if pgrep pweb_home_agent >/dev/null 2>&1
   then
