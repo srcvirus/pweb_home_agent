@@ -9,4 +9,5 @@
 const string HomeAgentIndex::COL_NAME = "name";
 const string HomeAgentIndex::COL_IP = "ip";
 const string HomeAgentIndex::COL_PORT = "port";
+const string HomeAgentIndex::COL_DESCRIPTION = "description";
 string HomeAgentIndex::TABLE_NAME = "home_agent_index";

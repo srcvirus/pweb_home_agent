@@ -37,7 +37,7 @@ boost::shared_ptr <HomeAgentIndex> HomeAgentIndexCassandraController::getHomeAge
 
 	printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
 
-	string haName, haIp;
+	string haName, haIp, haDescription;
 	int haPort;
 
 	rows.next();
@@ -45,6 +45,7 @@ boost::shared_ptr <HomeAgentIndex> HomeAgentIndexCassandraController::getHomeAge
 	rows.get_string(HomeAgentIndex::COL_NAME, haName);
 	rows.get_string(HomeAgentIndex::COL_IP, haIp);
 	rows.get_int(HomeAgentIndex::COL_PORT, haPort);
+	rows.get_string(HomeAgentIndex::COL_DESCRIPTION, haDescription);
 
 	retObject = boost::shared_ptr <HomeAgentIndex> (new HomeAgentIndex(haName, haIp, haPort));
 	printf("[DEBUG] [Thread 0x%lx] ", tid); retObject->printShort();
@@ -61,8 +62,9 @@ int HomeAgentIndexCassandraController::addHomeAgentIndex(boost::shared_ptr <Home
 	string queryString = "insert into " + HomeAgentIndex::TABLE_NAME + " (" +
 								HomeAgentIndex::COL_NAME + "," +
 								HomeAgentIndex::COL_IP + "," +
-								HomeAgentIndex::COL_PORT + ") values " + "('" +
-								haIndex->getName() + "', '" + haIndex->getIp() + "'," + strPort + ");";
+								HomeAgentIndex::COL_PORT + "," +
+								HomeAgentIndex::COL_DESCRIPTION + ") values " + "('" +
+								haIndex->getName() + "', '" + haIndex->getIp() + "'," + strPort + ",'" + haIndex->getDescription() + "');";
 
 	printf("[DEBUG] %s\n", queryString.c_str());
 

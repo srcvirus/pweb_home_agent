@@ -17,6 +17,7 @@ class HomeAgentIndex
 {
 	string name;
 	string ip;
+	string description;
 	int port;
 
 public:
@@ -24,6 +25,8 @@ public:
 	static const string COL_NAME;
 	static const string COL_IP;
 	static const string COL_PORT;
+	static const string COL_DESCRIPTION;
+
 	static string TABLE_NAME;
 
 	HomeAgentIndex(){;}
@@ -59,12 +62,23 @@ public:
 		this->port = port;
 	}
 
+	const string& getDescription()
+	{
+		return description;
+	}
+
+	void setDescription(const string& description)
+	{
+		this->description = description;
+	}
+
 	void print()
 	{
 		printf("{\n");
 		printf("\t%s : %s\n", HomeAgentIndex::COL_NAME.c_str(), this->name.c_str());
 		printf("\t%s : %s\n", HomeAgentIndex::COL_IP.c_str(), this->ip.c_str());
 		printf("\t%s : %d\n", HomeAgentIndex::COL_PORT.c_str(), this->port);
+		printf("\t%s : %d\n", HomeAgentIndex::COL_DESCRIPTION.c_str(), this->port);
 		printf("}\n");
 	}
 
