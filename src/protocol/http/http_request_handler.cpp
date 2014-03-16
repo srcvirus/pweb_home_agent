@@ -328,7 +328,7 @@ void request_handler::build_response(QueryStringParser& qsp,
 					params["is_indexed"] = is_indexed;
 				}
 
-				http_payload.append(restapi->updateDevice(devicename, username, params));
+				http_payload.append(restapi->updateDevice(devicename, username, password, params));
 				http_code = reply::ok;
 			}
 		}
