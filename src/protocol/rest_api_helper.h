@@ -274,11 +274,22 @@ public:
 	}
 	*/
 
-	string registerDevice(const string& devicename, const string& username, const string& ip, const string& port, const string& isIndexed, boost::unordered_map<string, string>& params)
+	string registerDevice(const string& devicename, const string& username, const string& password, const string& ip, const string& port, const string& isIndexed, boost::unordered_map<string, string>& params)
 	{
 		UserCassandraController userController(database);
 		
 		string errorCode = "";
+
+		bool isAuthentic = userController.authenticateUser(username, password, errorCode);
+		if(!errorCode.empty())
+		{
+			return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
+		}
+		if (!isAuthentic)
+		{
+			return "{\"status\":\"error\", \"error\":\"APP:7503\"}";
+		}
+
 		bool isAvailable = userController.isUsernameAvailable(username, errorCode);
 		if(isAvailable)
 		{
@@ -358,9 +369,23 @@ public:
 		return "{\"status\":\"success\", \"availability\":\"no\", \"suggestion\":[" + suggestions + "]}";
 	}
 
-	string deleteDevice(const string& devicename, const string& username)
+	string deleteDevice(const string& devicename, const string& username, const string& password)
 	{
+		UserCassandraController userController(database);
+
+		string errorCode = "";
+		bool isAuthentic = userController.authenticateUser(username, password, errorCode);
+		if(!errorCode.empty())
+		{
+			return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
+		}
+		if (!isAuthentic)
+		{
+			return "{\"status\":\"error\", \"error\":\"APP:7503\"}";
+		}
+
 		DeviceCassandraController deviceController(database);
+
 		int result = deviceController.deleteDevice(devicename, username);
 		if(result == 0)
 		{
@@ -374,8 +399,21 @@ public:
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
 
-	string updateDevice(const string& devicename, const string& username, boost::unordered_map<string, string>& params)
+	string updateDevice(const string& devicename, const string& username, const string& password, boost::unordered_map<string, string>& params)
 	{
+		UserCassandraController userController(database);
+
+		string errorCode = "";
+		bool isAuthentic = userController.authenticateUser(username, password, errorCode);
+		if(!errorCode.empty())
+		{
+			return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
+		}
+		if (!isAuthentic)
+		{
+			return "{\"status\":\"error\", \"error\":\"APP:7503\"}";
+		}
+
 		DeviceCassandraController deviceController(database);
 		int result = deviceController.updateDevice(devicename, username, params);
 		if(result == 0)

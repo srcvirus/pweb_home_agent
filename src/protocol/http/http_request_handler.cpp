@@ -246,8 +246,8 @@ void request_handler::build_response(QueryStringParser& qsp,
 		*/
 		else if (strtolower(method_name) == "update_device")
 		{
-			string devicename, username, new_devicename, type, metadata, ip, port, dir_ip, dir_port, description, os, public_folder, private_folder, is_indexed;
-			if (qsp.get_value("devicename", devicename) && qsp.get_value("username", username)){
+			string devicename, username, password, new_devicename, type, metadata, ip, port, dir_ip, dir_port, description, os, public_folder, private_folder, is_indexed;
+			if (qsp.get_value("devicename", devicename) && qsp.get_value("username", username) && qsp.get_value("password", password)){
 
 				boost::unordered_map<string, string> params;
 				
@@ -334,10 +334,10 @@ void request_handler::build_response(QueryStringParser& qsp,
 		}
 		else if (strtolower(method_name) == "delete_device")
 		{
-			string devicename, username;
-			if (qsp.get_value("username", username) && qsp.get_value("devicename", devicename))
+			string devicename, username, password;
+			if (qsp.get_value("username", username) && qsp.get_value("password", password) && qsp.get_value("devicename", devicename))
 			{
-				http_payload.append(restapi->deleteDevice(devicename, username));
+				http_payload.append(restapi->deleteDevice(devicename, username, password));
 				http_code = reply::ok;
 			}
 		}
@@ -370,8 +370,8 @@ void request_handler::build_response(QueryStringParser& qsp,
 		*/
 		else if (strtolower(method_name) == "register_device")
 		{
-			string devicename, username, type, ip, port, dir_ip, dir_port, description, os, public_folder, private_folder, is_indexed;
-			if (qsp.get_value("devicename", devicename) && qsp.get_value("username", username) 
+			string devicename, username, password, type, ip, port, dir_ip, dir_port, description, os, public_folder, private_folder, is_indexed;
+			if (qsp.get_value("devicename", devicename) && qsp.get_value("username", username) && qsp.get_value("password", password) 
 					&& qsp.get_value("ip", ip) && qsp.get_value("port", port))
 			{
 				boost::unordered_map<string, string> params;
@@ -441,7 +441,7 @@ void request_handler::build_response(QueryStringParser& qsp,
 					params["is_indexed"] = is_indexed;
 				}
 
-				http_payload.append(restapi->registerDevice(devicename, username, ip, port, is_indexed, params));
+				http_payload.append(restapi->registerDevice(devicename, username, password, ip, port, is_indexed, params));
 				http_code = reply::ok;
 			}
 		}
