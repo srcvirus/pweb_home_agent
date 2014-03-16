@@ -205,9 +205,9 @@ int UserCassandraController::updateUser(const string& username, boost::unordered
 	}
 	
 	//update data in the current user
-	if(params.count("password")) 
+	if(params.count("new_password")) 
 	{
-		user->setPassword(params["password"]);
+		user->setPassword(params["new_password"]);
 	}
 	if(params.count("email")) 
 	{

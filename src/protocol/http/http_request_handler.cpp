@@ -156,18 +156,18 @@ void request_handler::build_response(QueryStringParser& qsp,
 		}
 		else if (strtolower(method_name) == "update_user")
 		{
-			string username, password, email, fullname, location, affiliation;
-			if (qsp.get_value("username", username))
+			string username, password, new_password, email, fullname, location, affiliation;
+			if (qsp.get_value("username", username) && qsp.get_value("password", password))
 			{
 				boost::unordered_map<string, string> params;
 				
 				if(!isValidName(username))
 					return;
 
-				if(qsp.get_value("password", password))
+				if(qsp.get_value("new_password", new_password))
 				{
 					if(!password.empty())
-						params["password"] = password;
+						params["new_password"] = new_password;
 				}
 				if(qsp.get_value("email", email))
 				{
@@ -189,7 +189,7 @@ void request_handler::build_response(QueryStringParser& qsp,
 					if(!affiliation.empty())
 						params["affiliation"] = affiliation;
 				}
-				http_payload.append(restapi->updateUser(username, params));
+				http_payload.append(restapi->updateUser(username, password, params));
 				http_code = reply::ok;
 			}
 		}
