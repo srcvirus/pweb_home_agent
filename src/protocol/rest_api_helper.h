@@ -92,18 +92,10 @@ public:
 	//  USER 				  //
 	////////////////////////////////////////////
 
+	/*
 	string registerUser(const string& username, const string& password, const string& email,
 					const string& fullname, const string& location, const string& affiliation)
 	{
-		/*
-		escapeSingleQuote(username);
-		escapeSingleQuote(password);
-		escapeSingleQuote(email);
-		escapeSingleQuote(fullname);
-		escapeSingleQuote(location);
-		escapeSingleQuote(affiliation);
-		*/
-
 		UserCassandraController userController(database);
 		
 		if(!userController.isUsernameAvailable(username))
@@ -120,6 +112,7 @@ public:
 		string resultStr = boost::lexical_cast<string>(result);
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
+	*/
 
 	string registerUser(const string& username, const string& password, const string& email, boost::unordered_map<string, string>& params)
 	{
@@ -143,9 +136,21 @@ public:
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
 
-	string updateUser(const string& username, boost::unordered_map<string, string>& params)
+	string updateUser(const string& username, const string& password, boost::unordered_map<string, string>& params)
 	{
 		UserCassandraController userController(database);
+
+		string errorCode = "";
+		bool isAuthentic = userController.authenticateUser(username, password, errorCode);
+		if(!errorCode.empty())
+		{
+			return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
+		}
+		if (!isAuthentic)
+		{
+			return "{\"status\":\"error\", \"error\":\"APP:7503\"}";
+		}
+		
 		int result = userController.updateUser(username, params);
 		if(result == 0)
 		{
@@ -228,7 +233,7 @@ public:
 	//  DEVICE 				  //
 	////////////////////////////////////////////
 
-
+	/*
 	string registerDevice(const string& devicename, const string& username, const string& type, const string& ip,
 					const string& port, const string& os, const string& description, const string& isIndexed)
 	{
@@ -267,6 +272,7 @@ public:
 		string resultStr = boost::lexical_cast<string>(result);
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
+	*/
 
 	string registerDevice(const string& devicename, const string& username, const string& ip, const string& port, const string& isIndexed, boost::unordered_map<string, string>& params)
 	{
@@ -384,6 +390,7 @@ public:
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
 
+	/*
 	string updateDevice(const string& currentDevicename, const string& newDevicename, const string& username, const string& ip, const string& port, const string& 					publicFolder, const string& privateFolder)
 	{
 		DeviceCassandraController deviceController(database);
@@ -399,7 +406,9 @@ public:
 		string resultStr = boost::lexical_cast<string>(result);
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
+	*/
 
+	/*
 	string updateDeviceMetadata(const string& devicename, const string& username, const string& metadata)
 	{
 		DeviceCassandraController deviceController(database);
@@ -431,6 +440,7 @@ public:
 		string resultStr = boost::lexical_cast<string>(result);
 		return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
 	}
+	*/
 
 	string getUserDevices(const string& username)
 	{
