@@ -30,7 +30,7 @@ public:
 	static string TABLE_NAME;
 
 	HomeAgentIndex(){;}
-	HomeAgentIndex(string name, string ip, int port):name(name), ip(ip), port(port){;}
+	HomeAgentIndex(const string& name, const string& description, const string& ip, int port):name(name), description(description), ip(ip), port(port){;}
 
 	const string& getIp() const
 	{
@@ -84,9 +84,10 @@ public:
 
 	void printShort()
 	{
-		printf("{%s : %s, %s : %s, %s : %d}\n", HomeAgentIndex::COL_NAME.c_str(), this->name.c_str(),
+		printf("{%s : %s, %s : %s, %s : %d, %s : %s}\n", HomeAgentIndex::COL_NAME.c_str(), this->name.c_str(),
 												HomeAgentIndex::COL_IP.c_str(), this->ip.c_str(),
-												HomeAgentIndex::COL_PORT.c_str(), this->port);
+												HomeAgentIndex::COL_PORT.c_str(), this->port,
+												HomeAgentIndex::COL_DESCRIPTION.c_str(), this->description.c_str());
 	}
 
 

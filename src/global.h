@@ -21,6 +21,7 @@ using namespace std;
 #define DEFAULT_HTTP_LISTEN_PORT 80
 #define DEFAULT_HOST_NAME	"localhost"
 #define DEFAULT_SUFFIX	"dht.pwebproject.net"
+#define	DEFAULT_DESCRIPTION	"Home Agent"
 #define USAGE_STRING	"Usage: pweb_home_agent [-a <home_agent_alias> | --alias=<home_agent_alias>] [optional args]\nOptional Args"
 
 #define REST_API_SUGGESION_COUNT	5

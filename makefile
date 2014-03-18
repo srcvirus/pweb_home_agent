@@ -2,7 +2,7 @@ CPP = g++
 WARNING = -Wall
 DEBUGON = -g
 CFLAGS = -c $(DEBUGON)
-LDFLAGS = -lpthread -lboost_system -lboost_thread -lssl -lcrypto -lcql -lboost_program_options
+LDFLAGS = -lpthread -lboost_system -lboost_thread -lssl -lcrypto -lcql -lboost_program_options -ltcmalloc
 
 SRCDIR = src
 OBJDIR = obj
