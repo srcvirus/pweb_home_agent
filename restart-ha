@@ -6,5 +6,5 @@ if pgrep pweb_home_agent >/dev/null 2>&1
      echo ':)'
   else
      echo ':('
-     /home/ubuntu/pweb_home_agent/bin/pweb_home_agent -a mg -t 4 &> /home/ubuntu/ha-logs/log &
+     /home/ubuntu/pweb_home_agent/bin/pweb_home_agent -a mg -t 4 -d "McGill Home Agent" &> /home/ubuntu/ha-logs/log &
 fi
