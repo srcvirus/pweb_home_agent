@@ -13,3 +13,4 @@ obj
 storage
 docs/*
 Doxyfile
+restart-ha
