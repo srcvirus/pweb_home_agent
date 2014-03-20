@@ -7,4 +7,5 @@ if pgrep pweb_home_agent >/dev/null 2>&1
   else
      echo ':('
      /home/ubuntu/pweb_home_agent/bin/pweb_home_agent -a mg -t 4 -P 8080 -d "McGill Home Agent" &> /home/ubuntu/ha-logs/log &
+#     /home/ubuntu/pweb_home_agent/bin/pweb_home_agent -a mg -t 4 -P 8080 -d "Carlton Home Agent" &> /home/ubuntu/ha-logs/log &
 fi
