@@ -23,9 +23,9 @@ The home agent software depends on the following libraries:
 9. libssh2-1-dev
 10. libcrypto++-dev
 11. libcql
- 
+12. libtcmalloc 
 
-On a Ubuntu/Debian system all these libraries (except cql) can be installed from the
+On a Ubuntu/Debian system all these libraries (except cql and tcmalloc) can be installed from the
 command line by running:
 (instead of installing all the boost librarires, installing only the listed ones would
 work as well)
@@ -44,3 +44,6 @@ cmake . && make && make cql_demo && make cql_test && make test && make install
 ```
 More details along with example usage of libcql can be found in its github page:
 https://github.com/datastax/cpp-driver 
+
+### Cassandra Configuration
+After installing cassandra by following the instruction from their site, open cassandra's configuration file (/etc/cassandra/cassandra-env.sh). Under the "seeds" section add the IP addresses 132.206.206.134 as a bootstrap node to join. 
