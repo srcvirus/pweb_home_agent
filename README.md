@@ -45,5 +45,9 @@ cmake . && make && make cql_demo && make cql_test && make test && make install
 More details along with example usage of libcql can be found in its github page:
 https://github.com/datastax/cpp-driver 
 
+libtcmalloc is a high performance malloc implementation from Google. Details about downloading and installing libtcmalloc can be found at: http://code.google.com/p/gperftools/
+
+The home agent process would build without libtcmalloc. Open the makefile and remove "-ltcmalloc" from LD_FLAGS.
+
 ### Cassandra Configuration
 After installing cassandra by following the instruction from their site, open cassandra's configuration file (/etc/cassandra/cassandra-env.sh). Under the "seeds" section add the IP addresses 132.206.206.134 as a bootstrap node to join. 
