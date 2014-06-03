@@ -499,11 +499,17 @@ public:
 		string result = "{\"status\":\"success\", \"username\":\"" + username + "\", \"devices\":[";
 		for (vector < boost::shared_ptr <Device> >::iterator it = deviceVector.begin(); it != deviceVector.end(); ++it)
 		{
+			string is_indexed = "false";
+			if((*it)->isSearchable())
+			{
+				is_indexed = "true";
+			}
 			result.append("{\"devicename\":\"" + (*it)->getDevicename() + "\", \"type\":\"" + (*it)->getType() + "\", \"ip\":\"" + (*it)->getIp() + 
 					"\", \"port\":\"" + boost::lexical_cast<string>((*it)->getPort()) + "\", \"dir_ip\":\"" + (*it)->getDirIp() + 
 					"\", \"dir_port\":\"" + boost::lexical_cast<string>((*it)->getDirPort()) + "\", \"public_folder\":\"" + 
 					(*it)->getPublicFolder() + "\", \"private_folder\":\"" + (*it)->getPrivateFolder() + 
-					"\", \"os\":\"" + (*it)->getOs() + "\", \"description\":\"" + (*it)->getDescription() + "\"},");
+					"\", \"os\":\"" + (*it)->getOs() + "\", \"description\":\"" + (*it)->getDescription() + 
+					"\", \"is_indexed\":" + is_indexed + "},");
 			if(!dataAppended)
 			{
 				dataAppended = true;
