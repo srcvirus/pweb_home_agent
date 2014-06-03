@@ -47,6 +47,7 @@ int main(int argc, char* argv[])
 		haServer = boost::shared_ptr <HomeAgentServer> (new HomeAgentServer (programConfig.getAlias(),
 								 programConfig.getSuffix(),
 								 programConfig.getHostName(),
+								 programConfig.getDescription(),
 								 programConfig.getListenPort(),
 								 ioServicePool));
 
@@ -76,6 +77,7 @@ void populateConfigOptions(int argc, char* argv[])
 			("http_port,P", boost::program_options::value <unsigned short>(&programConfig.getHttpListenPort())->default_value(DEFAULT_HTTP_LISTEN_PORT), "Port for listening REST API calls")
 			("host,H", boost::program_options::value <string>(&programConfig.getHostName())->default_value(DEFAULT_HOST_NAME), "Host name of the home agent server")
 			("suffix,s", boost::program_options::value <string> (&programConfig.getSuffix())->default_value(DEFAULT_SUFFIX), "Common suffix of the device names")
+			("description,d", boost::program_options::value <string> (&programConfig.getDescription())->default_value(DEFAULT_DESCRIPTION), "Description of home agent")
 			("threads,t", boost::program_options::value <unsigned short>(&programConfig.getThreads())->default_value(N_CPU_THREADS), "Number of threads");
 
 	boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(config).run(), programOptionMap);

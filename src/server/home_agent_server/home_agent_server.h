@@ -27,7 +27,7 @@
 
 class HomeAgentServer
 {
-	std::string hostName, ip, homeAgentAlias, suffix;
+	std::string hostName, ip, homeAgentAlias, suffix, homeAgentDescription;
 	unsigned short listenPort;
 	boost::shared_ptr <CassandraDBDriver> database;
 	boost::shared_ptr <IOServicePool> ioServicePool;
@@ -59,10 +59,11 @@ class HomeAgentServer
 public:
 
 	HomeAgentServer(const std::string& homeAgentAlias, const std::string& suffix, const std::string& homeAgentHost,
-			unsigned short serverListenPort, boost::shared_ptr <IOServicePool>& ioPool):
+			const std::string& homeAgentDescription, unsigned short serverListenPort, boost::shared_ptr <IOServicePool>& ioPool):
 		hostName(homeAgentHost),
 		homeAgentAlias(homeAgentAlias),
 		suffix(suffix),
+		homeAgentDescription(homeAgentDescription),
 		listenPort(serverListenPort),
 		ioServicePool(ioPool),
 		udpConnection(new UDPConnection(ioServicePool, serverListenPort, handler, homeAgentAlias, suffix))
@@ -79,7 +80,7 @@ public:
 		HomeAgentIndexCassandraController haIndexController(database);
 		//this->ip = this->udpConnection.getLocalEndpoint().address().to_string();
 		this->ip = this->getMyIp();
-		boost::shared_ptr <HomeAgentIndex> haIndex (new HomeAgentIndex(this->homeAgentAlias, this->ip, serverListenPort));
+		boost::shared_ptr <HomeAgentIndex> haIndex (new HomeAgentIndex(this->homeAgentAlias, this->homeAgentDescription, this->ip, serverListenPort));
 		haIndexController.addHomeAgentIndex(haIndex);
 
 		/* Add home agent alias to the connection end point */

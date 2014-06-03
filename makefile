@@ -2,7 +2,8 @@ CPP = g++
 WARNING = -Wall
 DEBUGON = -g
 CFLAGS = -c $(DEBUGON)
-LDFLAGS = -lpthread -lboost_system -lboost_thread -lssl -lcrypto -lcql -lboost_program_options
+LDFLAGS = -lpthread -lboost_system -lboost_thread -lssl -lcrypto -lcql -lboost_program_options -ltcmalloc
+LIBDIR = -L/usr/local/lib
 
 SRCDIR = src
 OBJDIR = obj
@@ -15,7 +16,7 @@ OBJS := $(patsubst $(SRCDIRS)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 all: $(BINDIR)/pweb_home_agent
 
 $(BINDIR)/pweb_home_agent: $(OBJS)
-	$(CPP) $(DEBUGON) $(OBJS) $(LDFLAGS) -o $@
+	$(CPP) $(DEBUGON) $(OBJS) $(LDFLAGS) $(LIBDIR) -o $@
 
 $(OBJDIR)/%.o: $(SRCDIRS)/%.cpp
 	$(CPP) $(CFLAGS) $< -o $@

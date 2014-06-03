@@ -530,7 +530,7 @@ public:
                 vector < boost::shared_ptr <HomeAgentIndex> > homeAgents = homeAgentIndexController.getAllHomeAgentIndex();
                 for (vector < boost::shared_ptr <HomeAgentIndex> >::iterator hit = homeAgents.begin(); hit != homeAgents.end(); ++hit)
                 {
-                        list += ("{\"alias\":\"" + (*hit)->getName() + ".pwebproject.net\", \"ip\":\"" + (*hit)->getIp()  + "\", \"port\":\"" + port2String((*hit)->getPort()) + "\"},");
+                        list += ("{\"alias\":\"" + (*hit)->getName() + ".pwebproject.net\", \"ip\":\"" + (*hit)->getIp()  + "\", \"description\":\"" + (*hit)->getDescription()  + "\", \"port\":\"" + port2String((*hit)->getPort()) + "\"},");
                 }
 		if(list.size() > 0)
 		{
@@ -556,6 +556,7 @@ public:
 		{
 			result += "<home agent>";
 			result += "<hostname>" + (*hit)->getName() + ".pwebproject.net</hostname>";
+			result += "<description>" + (*hit)->getDescription() + "</description>";
 			result += "<port>" + port2String((*hit)->getPort()) + "</port>";
 			result += "</home agent>";
 		}

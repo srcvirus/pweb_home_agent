@@ -17,6 +17,8 @@ class Configuration
 	string alias;
 	string hostname;
 	string suffix;
+	string description;
+
 	unsigned short listenPort;
 	unsigned short httpListenPort;
 	unsigned short nThreads;
@@ -80,6 +82,16 @@ public:
 	void setSuffix(const string& suffix)
 	{
 		this->suffix = suffix;
+	}
+
+	string& getDescription()
+	{
+		return description;
+	}
+
+	void setDescription(const string& description)
+	{
+		this->description = description;
 	}
 };
 
