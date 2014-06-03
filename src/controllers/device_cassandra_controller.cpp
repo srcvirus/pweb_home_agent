@@ -402,6 +402,7 @@ int DeviceCassandraController::updateDevice(const string& devicename, const stri
 	if(params.count("metadata")) 
 	{
 		device->setContentMeta(params["metadata"]);
+		device->setContentTimestamp(time(NULL));
 	}
 	if(params.count("dir_ip")) 
 	{
@@ -449,8 +450,7 @@ int DeviceCassandraController::updateDevice(const string& devicename, const stri
 		device->setSearchable(is_indexed);
 	}
 	//update lastseen
-	time_t timestamp = time(NULL);
-	device->setLastSeen(timestamp);
+	device->setLastSeen(time(NULL));
 	//add the new device
 	result = addDevice(device);
 	return result;
