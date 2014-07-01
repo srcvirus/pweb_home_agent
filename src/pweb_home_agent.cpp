@@ -44,6 +44,12 @@ int main(int argc, char* argv[])
 		boost::program_options::notify(programOptionMap);
 		ioServicePool = boost::shared_ptr <IOServicePool> (new IOServicePool(programConfig.getThreads(), 0x03));
 
+		cout << "[DEBUG]" 
+			 << " alias: " << programConfig.getAlias()
+			 << ", ip: " << programConfig.getIp()
+			 << ", host name: " << programConfig.getHostName()
+			 << ", description: " << programConfig.getDescription()
+			 << ", listen-port: " << programConfig.getListenPort();
 		haServer = boost::shared_ptr <HomeAgentServer> (new HomeAgentServer (programConfig.getAlias(),
 								 programConfig.getIp(),
 								 programConfig.getSuffix(),
