@@ -45,6 +45,7 @@ int main(int argc, char* argv[])
 		ioServicePool = boost::shared_ptr <IOServicePool> (new IOServicePool(programConfig.getThreads(), 0x03));
 
 		haServer = boost::shared_ptr <HomeAgentServer> (new HomeAgentServer (programConfig.getAlias(),
+								 programConfig.getIp(),
 								 programConfig.getSuffix(),
 								 programConfig.getHostName(),
 								 programConfig.getDescription(),
@@ -73,6 +74,7 @@ void populateConfigOptions(int argc, char* argv[])
 	config.add_options()
 			("help,h", "Print help message and exit")
 			("alias,a", boost::program_options::value <string>(&programConfig.getAlias())->required(), "Home Agent alias")
+			("ip,I", boost::program_options::value <string>(&programConfig.getAlias())->required(), "IP address of Home Agent")
 			("port,p", boost::program_options::value <unsigned short>(&programConfig.getListenPort())->default_value(DEFAULT_LISTEN_PORT), "UDP port to listen for DNS queries")
 			("http_port,P", boost::program_options::value <unsigned short>(&programConfig.getHttpListenPort())->default_value(DEFAULT_HTTP_LISTEN_PORT), "Port for listening REST API calls")
 			("host,H", boost::program_options::value <string>(&programConfig.getHostName())->default_value(DEFAULT_HOST_NAME), "Host name of the home agent server")

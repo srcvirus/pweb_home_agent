@@ -16,6 +16,7 @@ class Configuration
 {
 	string alias;
 	string hostname;
+	string ip;
 	string suffix;
 	string description;
 
@@ -43,7 +44,17 @@ public:
 	{
 		this->hostname = hostName;
 	}
-
+	
+	string& getIp()
+	{
+		return ip;
+	}
+	
+	void setIp(const string& ip)
+	{
+		this->ip = ip;
+	}
+	
 	unsigned short& getListenPort()
 	{
 		return listenPort;

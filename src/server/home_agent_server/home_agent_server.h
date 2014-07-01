@@ -58,9 +58,12 @@ class HomeAgentServer
 
 public:
 
-	HomeAgentServer(const std::string& homeAgentAlias, const std::string& suffix, const std::string& homeAgentHost,
-			const std::string& homeAgentDescription, unsigned short serverListenPort, boost::shared_ptr <IOServicePool>& ioPool):
+	HomeAgentServer(const std::string& homeAgentAlias, const std::string& ip, 
+					const std::string& suffix, const std::string& homeAgentHost,
+					const std::string& homeAgentDescription, unsigned short serverListenPort, 
+					boost::shared_ptr <IOServicePool>& ioPool):
 		hostName(homeAgentHost),
+		ip(ip),
 		homeAgentAlias(homeAgentAlias),
 		suffix(suffix),
 		homeAgentDescription(homeAgentDescription),
@@ -79,7 +82,7 @@ public:
 		/* Add the home agent alias to Cassandra database */
 		HomeAgentIndexCassandraController haIndexController(database);
 		//this->ip = this->udpConnection.getLocalEndpoint().address().to_string();
-		this->ip = this->getMyIp();
+		//this->ip = this->getMyIp();
 		boost::shared_ptr <HomeAgentIndex> haIndex (new HomeAgentIndex(this->homeAgentAlias, this->homeAgentDescription, this->ip, serverListenPort));
 		haIndexController.addHomeAgentIndex(haIndex);
 
