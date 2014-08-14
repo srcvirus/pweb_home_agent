@@ -25,37 +25,39 @@
 #include "../../protocol/http/http_request_handler.h"
 
 /// The top-level class of the HTTP server.
-class http_server: private boost::noncopyable
-{
+class http_server : private boost::noncopyable {
 public:
-	/// Construct the server to listen on the specified TCP address and port, and
-	/// serve up files from the given directory.
-	explicit http_server(const std::string& address, const std::string& home_agent_alias, const unsigned short& port, boost::shared_ptr <IOServicePool>& io_service_pool_);
+  /// Construct the server to listen on the specified TCP address and port, and
+  /// serve up files from the given directory.
+  explicit http_server(const std::string &address,
+                       const std::string &home_agent_alias,
+                       const unsigned short &port,
+                       boost::shared_ptr<IOServicePool> &io_service_pool_);
 
-	/// Initiate an asynchronous accept operation.
-	void start_accept();
+  /// Initiate an asynchronous accept operation.
+  void start_accept();
+
 private:
 
+  /// Handle completion of an asynchronous accept operation.
+  void handle_accept(const boost::system::error_code &e);
 
-	/// Handle completion of an asynchronous accept operation.
-	void handle_accept(const boost::system::error_code& e);
+  /// Handle a request to stop the server.
+  void handle_stop();
 
-	/// Handle a request to stop the server.
-	void handle_stop();
+  /// The pool of io_service objects used to perform asynchronous operations.
+  boost::shared_ptr<IOServicePool> io_service_pool_;
 
-	/// The pool of io_service objects used to perform asynchronous operations.
-	boost::shared_ptr<IOServicePool> io_service_pool_;
+  /// Acceptor used to listen for incoming connections.
+  boost::asio::ip::tcp::acceptor acceptor_;
 
-	/// Acceptor used to listen for incoming connections.
-	boost::asio::ip::tcp::acceptor acceptor_;
+  /// The next connection to be accepted.
+  connection_ptr new_connection_;
 
-	/// The next connection to be accepted.
-	connection_ptr new_connection_;
+  /// The handler for all incoming requests.
+  request_handler request_handler_;
 
-	/// The handler for all incoming requests.
-	request_handler request_handler_;
-
-	std::string home_agent_alias;
+  std::string home_agent_alias;
 };
 
 #endif /* HTTP_SERVER_H_ */

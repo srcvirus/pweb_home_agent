@@ -12,18 +12,14 @@
 
 using namespace std;
 
-class ControllerHelper
-{
+class ControllerHelper {
 
 public:
-	bool static isNullOREmptyString(const string& str)
-	{
-		if (boost::algorithm::trim_copy(str).empty())
-			return true;
-		return false;
-	}
+  bool static isNullOREmptyString(const string &str) {
+    if (boost::algorithm::trim_copy(str).empty())
+      return true;
+    return false;
+  }
 };
-
-
 
 #endif /* CONTROLLER_HELPER_H_ */

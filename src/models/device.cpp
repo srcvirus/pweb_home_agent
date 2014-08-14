@@ -23,4 +23,3 @@ const string Device::COL_CONTENT_META = "content_meta";
 const string Device::COL_SEARCHABLE = "searchable";
 const string Device::COL_CONTENT_TIME_STAMP = "content_timestamp";
 string Device::TABLE_NAME = "device";
-

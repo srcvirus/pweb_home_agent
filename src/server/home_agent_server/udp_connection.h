@@ -27,55 +27,61 @@ using namespace std;
 
 class DNSMessageHandler;
 
-class UDPConnection
-{
-	/* data buffer */
-	boost::array <char, MAX_UDP_BUFFER_SIZE> buffer;
+class UDPConnection {
+  /* data buffer */
+  boost::array<char, MAX_UDP_BUFFER_SIZE> buffer;
 
-	/* alias of the container home agent */
-	string alias;
+  /* alias of the container home agent */
+  string alias;
 
-	/* suffix of the container home agent */
-	string suffix;
+  /* suffix of the container home agent */
+  string suffix;
 
-	/*End points of the connection*/
-	boost::asio::ip::udp::endpoint remoteEndpoint;
-	boost::asio::ip::udp::endpoint localEndpoint;
+  /*End points of the connection*/
+  boost::asio::ip::udp::endpoint remoteEndpoint;
+  boost::asio::ip::udp::endpoint localEndpoint;
 
-	/* The I/O Socket */
-	boost::asio::ip::udp::socket socket;
+  /* The I/O Socket */
+  boost::asio::ip::udp::socket socket;
 
-	/* Pool of threads to handle the I/O and processing*/
-	boost::shared_ptr <IOServicePool> ioServicePool;
+  /* Pool of threads to handle the I/O and processing*/
+  boost::shared_ptr<IOServicePool> ioServicePool;
 
-	/* The message handler */
-	DNSMessageHandler& handler;
+  /* The message handler */
+  DNSMessageHandler &handler;
 
-	/* Wrapper around this pointer */
-	boost::shared_ptr <UDPConnection> thisConnection;
+  /* Wrapper around this pointer */
+  boost::shared_ptr<UDPConnection> thisConnection;
 
-	/* pending requests */
-	LookupTable <string, boost::asio::ip::udp::endpoint> pendingRequests;
+  /* pending requests */
+  LookupTable<string, boost::asio::ip::udp::endpoint> pendingRequests;
+
 public:
-	UDPConnection(boost::shared_ptr <IOServicePool>&, unsigned short, DNSMessageHandler& handler, const string& alias, const string& suffix);
+  UDPConnection(boost::shared_ptr<IOServicePool> &, unsigned short,
+                DNSMessageHandler &handler, const string &alias,
+                const string &suffix);
 
-	void listen();
-	void handleDataReceived(size_t bytesReceived);
-	void handleDataSent();
+  void listen();
+  void handleDataReceived(size_t bytesReceived);
+  void handleDataSent();
 
-	boost::asio::ip::udp::socket& getSocket() { return this->socket; }
-	boost::asio::ip::udp::endpoint& getLocalEndpoint(){ return this->localEndpoint; }
-	boost::asio::ip::udp::endpoint& getRemoteEndpoint(){ return this->remoteEndpoint; }
+  boost::asio::ip::udp::socket &getSocket() { return this->socket; }
+  boost::asio::ip::udp::endpoint &getLocalEndpoint() {
+    return this->localEndpoint;
+  }
+  boost::asio::ip::udp::endpoint &getRemoteEndpoint() {
+    return this->remoteEndpoint;
+  }
 
-	string& getAlias() { return this->alias; }
-	void setAlias(const string& alias){ this->alias = alias; }
+  string &getAlias() { return this->alias; }
+  void setAlias(const string &alias) { this->alias = alias; }
 
-	string& getSuffix(){ return this->suffix; }
-	void setSuffix(const string& suffix){ this->suffix = suffix; }
+  string &getSuffix() { return this->suffix; }
+  void setSuffix(const string &suffix) { this->suffix = suffix; }
 
-	LookupTable <string, boost::asio::ip::udp::endpoint>& getPendingRequests(){ return this->pendingRequests; }
+  LookupTable<string, boost::asio::ip::udp::endpoint> &getPendingRequests() {
+    return this->pendingRequests;
+  }
 };
-
-
 
 #endif /* UDP_CONNECTION_H_ */

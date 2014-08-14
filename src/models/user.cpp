@@ -13,6 +13,3 @@ const string User::COL_EMAIL = "email";
 const string User::COL_LOCATION = "location";
 const string User::COL_AFFILIATION = "affiliation";
 string User::TABLE_NAME = "user";
-
-
-

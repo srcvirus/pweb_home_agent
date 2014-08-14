@@ -13,34 +13,34 @@
 
 using namespace std;
 
-class IOServicePool
-{
-	size_t nIOServicePoolSize;	//This is also equal to the number of IOService threads
-	int nextCPUPinnedIOServiceIndex;
-	int nextNonPinnedIOServiceIndex;
-	int nextIOServiceIndex;
-	unsigned long dedicatedServices;
+class IOServicePool {
+  size_t nIOServicePoolSize; // This is also equal to the number of IOService
+                             // threads
+  int nextCPUPinnedIOServiceIndex;
+  int nextNonPinnedIOServiceIndex;
+  int nextIOServiceIndex;
+  unsigned long dedicatedServices;
 
-	vector < boost::asio::io_service* > ioServicePool;
-	vector < boost::asio::io_service::work* > ioServiceWorkPool;
+  vector<boost::asio::io_service *> ioServicePool;
+  vector<boost::asio::io_service::work *> ioServiceWorkPool;
 
-	vector <int> cpuPinnedServices;
-	vector <int> nonPinnedServices;
+  vector<int> cpuPinnedServices;
+  vector<int> nonPinnedServices;
 
-	static void* ioServiceThreadMethod(void* args);
+  static void *ioServiceThreadMethod(void *args);
 
 public:
 
-	IOServicePool(unsigned int poolSize, unsigned long cpuPinnedServiceMask = 0x01);
-	boost::asio::io_service& getNonPinnedIOService();
-	boost::asio::io_service& getPinnedIOService();
-	boost::asio::io_service& getIOService();
-	boost::asio::io_service& getDedicatedIOService();
+  IOServicePool(unsigned int poolSize,
+                unsigned long cpuPinnedServiceMask = 0x01);
+  boost::asio::io_service &getNonPinnedIOService();
+  boost::asio::io_service &getPinnedIOService();
+  boost::asio::io_service &getIOService();
+  boost::asio::io_service &getDedicatedIOService();
 
-	void startServices();
+  void startServices();
 
-	static const size_t MAX_CPU_IO_THREADS;
+  static const size_t MAX_CPU_IO_THREADS;
 };
-
 
 #endif /* IO_SERVICE_POOL_H_ */

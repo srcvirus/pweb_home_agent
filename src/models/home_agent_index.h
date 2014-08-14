@@ -13,84 +13,62 @@
 
 using namespace std;
 
-class HomeAgentIndex
-{
-	string name;
-	string ip;
-	string description;
-	int port;
+class HomeAgentIndex {
+  string name;
+  string ip;
+  string description;
+  int port;
 
 public:
 
-	static const string COL_NAME;
-	static const string COL_IP;
-	static const string COL_PORT;
-	static const string COL_DESCRIPTION;
+  static const string COL_NAME;
+  static const string COL_IP;
+  static const string COL_PORT;
+  static const string COL_DESCRIPTION;
 
-	static string TABLE_NAME;
+  static string TABLE_NAME;
 
-	HomeAgentIndex(){;}
-	HomeAgentIndex(const string& name, const string& description, const string& ip, int port):name(name), description(description), ip(ip), port(port){;}
+  HomeAgentIndex() { ; }
+  HomeAgentIndex(const string &name, const string &description,
+                 const string &ip, int port)
+      : name(name), description(description), ip(ip), port(port) {
+    ;
+  }
 
-	const string& getIp() const
-	{
-		return ip;
-	}
+  const string &getIp() const { return ip; }
 
-	void setIp(const string& ip)
-	{
-		this->ip = ip;
-	}
+  void setIp(const string &ip) { this->ip = ip; }
 
-	const string& getName() const
-	{
-		return name;
-	}
+  const string &getName() const { return name; }
 
-	void setName(const string& name)
-	{
-		this->name = name;
-	}
+  void setName(const string &name) { this->name = name; }
 
-	int getPort() const
-	{
-		return port;
-	}
+  int getPort() const { return port; }
 
-	void setPort(int port)
-	{
-		this->port = port;
-	}
+  void setPort(int port) { this->port = port; }
 
-	const string& getDescription()
-	{
-		return description;
-	}
+  const string &getDescription() { return description; }
 
-	void setDescription(const string& description)
-	{
-		this->description = description;
-	}
+  void setDescription(const string &description) {
+    this->description = description;
+  }
 
-	void print()
-	{
-		printf("{\n");
-		printf("\t%s : %s\n", HomeAgentIndex::COL_NAME.c_str(), this->name.c_str());
-		printf("\t%s : %s\n", HomeAgentIndex::COL_IP.c_str(), this->ip.c_str());
-		printf("\t%s : %d\n", HomeAgentIndex::COL_PORT.c_str(), this->port);
-		printf("\t%s : %d\n", HomeAgentIndex::COL_DESCRIPTION.c_str(), this->port);
-		printf("}\n");
-	}
+  void print() {
+    printf("{\n");
+    printf("\t%s : %s\n", HomeAgentIndex::COL_NAME.c_str(), this->name.c_str());
+    printf("\t%s : %s\n", HomeAgentIndex::COL_IP.c_str(), this->ip.c_str());
+    printf("\t%s : %d\n", HomeAgentIndex::COL_PORT.c_str(), this->port);
+    printf("\t%s : %d\n", HomeAgentIndex::COL_DESCRIPTION.c_str(), this->port);
+    printf("}\n");
+  }
 
-	void printShort()
-	{
-		printf("{%s : %s, %s : %s, %s : %d, %s : %s}\n", HomeAgentIndex::COL_NAME.c_str(), this->name.c_str(),
-												HomeAgentIndex::COL_IP.c_str(), this->ip.c_str(),
-												HomeAgentIndex::COL_PORT.c_str(), this->port,
-												HomeAgentIndex::COL_DESCRIPTION.c_str(), this->description.c_str());
-	}
-
-
+  void printShort() {
+    printf("{%s : %s, %s : %s, %s : %d, %s : %s}\n",
+           HomeAgentIndex::COL_NAME.c_str(), this->name.c_str(),
+           HomeAgentIndex::COL_IP.c_str(), this->ip.c_str(),
+           HomeAgentIndex::COL_PORT.c_str(), this->port,
+           HomeAgentIndex::COL_DESCRIPTION.c_str(), this->description.c_str());
+  }
 };
 
 #endif /* HOME_AGENT_INDEX_H_ */

@@ -12,99 +12,55 @@
 
 using namespace std;
 
-class Configuration
-{
-	string alias;
-	string hostname;
-	string ip;
-	string suffix;
-	string description;
+class Configuration {
+  string alias;
+  string hostname;
+  string ip;
+  string suffix;
+  string description;
 
-	unsigned short listenPort;
-	unsigned short httpListenPort;
-	unsigned short nThreads;
+  unsigned short listenPort;
+  unsigned short httpListenPort;
+  unsigned short nThreads;
 
 public:
-	string& getAlias()
-	{
-		return alias;
-	}
+  string &getAlias() { return alias; }
 
-	void setAlias(const string& alias)
-	{
-		this->alias = alias;
-	}
+  void setAlias(const string &alias) { this->alias = alias; }
 
-	string& getHostName()
-	{
-		return hostname;
-	}
+  string &getHostName() { return hostname; }
 
-	void setHostName(const string& hostName)
-	{
-		this->hostname = hostName;
-	}
-	
-	string& getIp()
-	{
-		return ip;
-	}
-	
-	void setIp(const string& ip)
-	{
-		this->ip = ip;
-	}
-	
-	unsigned short& getListenPort()
-	{
-		return listenPort;
-	}
+  void setHostName(const string &hostName) { this->hostname = hostName; }
 
-	void setListenPort(unsigned short& listenPort)
-	{
-		this->listenPort = listenPort;
-	}
+  string &getIp() { return ip; }
 
-	void setHttpListenPort(unsigned short& httpListenPort)
-	{
-		this->httpListenPort = httpListenPort;
-	}
+  void setIp(const string &ip) { this->ip = ip; }
 
-	unsigned short& getHttpListenPort()
-	{
-		return this->httpListenPort;
-	}
+  unsigned short &getListenPort() { return listenPort; }
 
-	unsigned short& getThreads()
-	{
-		return nThreads;
-	}
+  void setListenPort(unsigned short &listenPort) {
+    this->listenPort = listenPort;
+  }
 
-	void setThreads(unsigned short& threads)
-	{
-		nThreads = threads;
-	}
+  void setHttpListenPort(unsigned short &httpListenPort) {
+    this->httpListenPort = httpListenPort;
+  }
 
-	string& getSuffix()
-	{
-		return suffix;
-	}
+  unsigned short &getHttpListenPort() { return this->httpListenPort; }
 
-	void setSuffix(const string& suffix)
-	{
-		this->suffix = suffix;
-	}
+  unsigned short &getThreads() { return nThreads; }
 
-	string& getDescription()
-	{
-		return description;
-	}
+  void setThreads(unsigned short &threads) { nThreads = threads; }
 
-	void setDescription(const string& description)
-	{
-		this->description = description;
-	}
+  string &getSuffix() { return suffix; }
+
+  void setSuffix(const string &suffix) { this->suffix = suffix; }
+
+  string &getDescription() { return description; }
+
+  void setDescription(const string &description) {
+    this->description = description;
+  }
 };
-
 
 #endif /* CONFIGURATION_H_ */

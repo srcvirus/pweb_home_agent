@@ -14,198 +14,132 @@
 
 using namespace std;
 
-class Device
-{
-	string username, devicename;
-	string type;
-	string ip, dirIp;
-	unsigned short port,dirPort;
-	string publicFolder, privateFolder;
-	unsigned long lastSeen, contentTimestamp;
-	string os;
-	string description;
-	string contentMeta;
-	bool searchable;
+class Device {
+  string username, devicename;
+  string type;
+  string ip, dirIp;
+  unsigned short port, dirPort;
+  string publicFolder, privateFolder;
+  unsigned long lastSeen, contentTimestamp;
+  string os;
+  string description;
+  string contentMeta;
+  bool searchable;
 
 public:
 
-	static const string COL_USER_NAME, COL_DEVICE_NAME, COL_TYPE, COL_IP, COL_DIR_IP, COL_PUBLIC_FOLDER, COL_PRIVATE_FOLDER, COL_OS, COL_DESCRIPTION, COL_CONTENT_META;
-	static const string COL_PORT, COL_DIR_PORT, COL_LAST_SEEN, COL_CONTENT_TIME_STAMP, COL_SEARCHABLE;
-	static string TABLE_NAME;
+  static const string COL_USER_NAME, COL_DEVICE_NAME, COL_TYPE, COL_IP,
+      COL_DIR_IP, COL_PUBLIC_FOLDER, COL_PRIVATE_FOLDER, COL_OS,
+      COL_DESCRIPTION, COL_CONTENT_META;
+  static const string COL_PORT, COL_DIR_PORT, COL_LAST_SEEN,
+      COL_CONTENT_TIME_STAMP, COL_SEARCHABLE;
+  static string TABLE_NAME;
 
-	Device(const string& username, const string& devicename, const string& type, const string& ip, unsigned short port,
-			const string& dirIp, unsigned short dirPort, const string& publicFolder, const string& privateFolder,
-			unsigned long lastSeen, const string& os, const string& description, const string& contentMeta,
-			bool searchable, unsigned long contentTimestamp):
-				username(username), devicename(devicename), type(type), ip(ip), port(port),
-				dirIp(dirIp), dirPort(dirPort), publicFolder(publicFolder), privateFolder(privateFolder),
-				lastSeen(lastSeen), os(os), description(description), contentMeta(contentMeta),
-				searchable(searchable), contentTimestamp(contentTimestamp)
-	{
-		;
-	}
+  Device(const string &username, const string &devicename, const string &type,
+         const string &ip, unsigned short port, const string &dirIp,
+         unsigned short dirPort, const string &publicFolder,
+         const string &privateFolder, unsigned long lastSeen, const string &os,
+         const string &description, const string &contentMeta, bool searchable,
+         unsigned long contentTimestamp)
+      : username(username), devicename(devicename), type(type), ip(ip),
+        port(port), dirIp(dirIp), dirPort(dirPort), publicFolder(publicFolder),
+        privateFolder(privateFolder), lastSeen(lastSeen), os(os),
+        description(description), contentMeta(contentMeta),
+        searchable(searchable), contentTimestamp(contentTimestamp) {
+    ;
+  }
 
-	Device(const string& username, const string& devicename, const string& ip, unsigned short port, bool is_indexed, 
-			unsigned long timeStamp, boost::unordered_map<string, string> params):
-				username(username), devicename(devicename), type((params.count("type"))?params["type"]:""), ip(ip), port(port),
-				dirIp((params.count("dir_ip"))?params["dir_ip"]:""), dirPort((params.count("dir_port"))?boost::lexical_cast<unsigned short>(params["dir_port"]):-1), 
-				publicFolder((params.count("public_folder"))?params["public_folder"]:""), privateFolder((params.count("private_folder"))?params["private_folder"]:""),
-				lastSeen(timeStamp), os((params.count("os"))?params["os"]:""), description((params.count("description"))?params["description"]:""), contentMeta(""),
-				searchable(searchable), contentTimestamp(timeStamp)
-	{
-		;
-	}
+  Device(const string &username, const string &devicename, const string &ip,
+         unsigned short port, bool is_indexed, unsigned long timeStamp,
+         boost::unordered_map<string, string> params)
+      : username(username), devicename(devicename),
+        type((params.count("type")) ? params["type"] : ""), ip(ip), port(port),
+        dirIp((params.count("dir_ip")) ? params["dir_ip"] : ""),
+        dirPort((params.count("dir_port"))
+                    ? boost::lexical_cast<unsigned short>(params["dir_port"])
+                    : -1),
+        publicFolder((params.count("public_folder")) ? params["public_folder"]
+                                                     : ""),
+        privateFolder((params.count("private_folder"))
+                          ? params["private_folder"]
+                          : ""),
+        lastSeen(timeStamp), os((params.count("os")) ? params["os"] : ""),
+        description((params.count("description")) ? params["description"] : ""),
+        contentMeta(""), searchable(searchable), contentTimestamp(timeStamp) {
+    ;
+  }
 
-	string& getContentMeta()
-	{
-		return contentMeta;
-	}
+  string &getContentMeta() { return contentMeta; }
 
-	void setContentMeta(const string& contentMeta)
-	{
-		this->contentMeta = contentMeta;
-	}
+  void setContentMeta(const string &contentMeta) {
+    this->contentMeta = contentMeta;
+  }
 
-	unsigned long getContentTimestamp()
-	{
-		return contentTimestamp;
-	}
+  unsigned long getContentTimestamp() { return contentTimestamp; }
 
-	void setContentTimestamp(unsigned long contentTimestamp)
-	{
-		this->contentTimestamp = contentTimestamp;
-	}
+  void setContentTimestamp(unsigned long contentTimestamp) {
+    this->contentTimestamp = contentTimestamp;
+  }
 
-	string& getDescription()
-	{
-		return description;
-	}
+  string &getDescription() { return description; }
 
-	void setDescription(const string& description)
-	{
-		this->description = description;
-	}
+  void setDescription(const string &description) {
+    this->description = description;
+  }
 
-	string& getDevicename()
-	{
-		return devicename;
-	}
+  string &getDevicename() { return devicename; }
 
-	void setDevicename(const string& devicename)
-	{
-		this->devicename = devicename;
-	}
+  void setDevicename(const string &devicename) {
+    this->devicename = devicename;
+  }
 
-	string& getDirIp()
-	{
-		return dirIp;
-	}
+  string &getDirIp() { return dirIp; }
 
-	void setDirIp(const string& dirIp)
-	{
-		this->dirIp = dirIp;
-	}
+  void setDirIp(const string &dirIp) { this->dirIp = dirIp; }
 
-	unsigned short getDirPort()
-	{
-		return dirPort;
-	}
+  unsigned short getDirPort() { return dirPort; }
 
-	void setDirPort(unsigned short dirPort)
-	{
-		this->dirPort = dirPort;
-	}
+  void setDirPort(unsigned short dirPort) { this->dirPort = dirPort; }
 
-	string& getIp()
-	{
-		return ip;
-	}
+  string &getIp() { return ip; }
 
-	void setIp(const string& ip)
-	{
-		this->ip = ip;
-	}
+  void setIp(const string &ip) { this->ip = ip; }
 
-	unsigned long getLastSeen()
-	{
-		return lastSeen;
-	}
+  unsigned long getLastSeen() { return lastSeen; }
 
-	void setLastSeen(unsigned long lastSeen)
-	{
-		this->lastSeen = lastSeen;
-	}
+  void setLastSeen(unsigned long lastSeen) { this->lastSeen = lastSeen; }
 
-	string& getOs()
-	{
-		return os;
-	}
+  string &getOs() { return os; }
 
-	void setOs(const string& os)
-	{
-		this->os = os;
-	}
+  void setOs(const string &os) { this->os = os; }
 
-	unsigned short getPort()
-	{
-		return port;
-	}
+  unsigned short getPort() { return port; }
 
-	void setPort(unsigned short port)
-	{
-		this->port = port;
-	}
+  void setPort(unsigned short port) { this->port = port; }
 
-	string& getPrivateFolder()
-	{
-		return privateFolder;
-	}
+  string &getPrivateFolder() { return privateFolder; }
 
-	void setPrivateFolder(const string& privateFolder)
-	{
-		this->privateFolder = privateFolder;
-	}
+  void setPrivateFolder(const string &privateFolder) {
+    this->privateFolder = privateFolder;
+  }
 
-	string& getPublicFolder()
-	{
-		return publicFolder;
-	}
+  string &getPublicFolder() { return publicFolder; }
 
-	void setPublicFolder(const string& publicFolder)
-	{
-		this->publicFolder = publicFolder;
-	}
+  void setPublicFolder(const string &publicFolder) {
+    this->publicFolder = publicFolder;
+  }
 
-	bool isSearchable()
-	{
-		return searchable;
-	}
+  bool isSearchable() { return searchable; }
 
-	void setSearchable(bool searchable)
-	{
-		this->searchable = searchable;
-	}
+  void setSearchable(bool searchable) { this->searchable = searchable; }
 
-	string& getType()
-	{
-		return type;
-	}
+  string &getType() { return type; }
 
-	void setType(const string& type)
-	{
-		this->type = type;
-	}
+  void setType(const string &type) { this->type = type; }
 
-	string& getUsername()
-	{
-		return username;
-	}
+  string &getUsername() { return username; }
 
-	void setUsername(const string& username)
-	{
-		this->username = username;
-	}
+  void setUsername(const string &username) { this->username = username; }
 };
-
 
 #endif /* DEVICE_H_ */

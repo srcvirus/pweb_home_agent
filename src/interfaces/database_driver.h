@@ -13,66 +13,50 @@
 
 using namespace std;
 
-template <class QueryResultSetType>
-class IDatabaseDriver
-{
+template <class QueryResultSetType> class IDatabaseDriver {
 protected:
 
-	pthread_mutex_t dbLock;
+  pthread_mutex_t dbLock;
 
-	string dbServerHostName;
-	unsigned short int dbServerPort;
-	bool connected;
+  string dbServerHostName;
+  unsigned short int dbServerPort;
+  bool connected;
 
-	IDatabaseDriver(){pthread_mutex_init(&dbLock, NULL);}
-	IDatabaseDriver(const string& dbServerHostName,	unsigned short int dbServerPort) :
-			dbServerHostName(dbServerHostName),
-			dbServerPort(dbServerPort),
-			connected(false)
-	{
-		pthread_mutex_init(&dbLock, NULL);
-	}
+  IDatabaseDriver() { pthread_mutex_init(&dbLock, NULL); }
+  IDatabaseDriver(const string &dbServerHostName,
+                  unsigned short int dbServerPort)
+      : dbServerHostName(dbServerHostName), dbServerPort(dbServerPort),
+        connected(false) {
+    pthread_mutex_init(&dbLock, NULL);
+  }
 
-	IDatabaseDriver(const char* dbServerHostName, unsigned short int dbServerPort) :
-			dbServerHostName(dbServerHostName),
-			dbServerPort(dbServerPort),
-			connected(false)
-	{
-		pthread_mutex_init(&dbLock, NULL);
-	}
+  IDatabaseDriver(const char *dbServerHostName, unsigned short int dbServerPort)
+      : dbServerHostName(dbServerHostName), dbServerPort(dbServerPort),
+        connected(false) {
+    pthread_mutex_init(&dbLock, NULL);
+  }
 
 public:
 
-	virtual int openConnection() = 0;
-	virtual QueryResultSetType executeQuery(const string& queryString = "") = 0;
-	virtual void closeConnection() = 0;
+  virtual int openConnection() = 0;
+  virtual QueryResultSetType executeQuery(const string &queryString = "") = 0;
+  virtual void closeConnection() = 0;
 
-	virtual ~IDatabaseDriver(){;}
+  virtual ~IDatabaseDriver() { ; }
 
-	/* Getters and setters */
-	const string& getDbServerHostName() const
-	{
-		return dbServerHostName;
-	}
+  /* Getters and setters */
+  const string &getDbServerHostName() const { return dbServerHostName; }
 
-	void setDbServerHostName(const string& dbServerHostName)
-	{
-		this->dbServerHostName = dbServerHostName;
-	}
+  void setDbServerHostName(const string &dbServerHostName) {
+    this->dbServerHostName = dbServerHostName;
+  }
 
-	unsigned short int getDbServerPort() const
-	{
-		return dbServerPort;
-	}
+  unsigned short int getDbServerPort() const { return dbServerPort; }
 
-	void setDbServerPort(unsigned short int dbServerPort)
-	{
-		this->dbServerPort = dbServerPort;
-	}
+  void setDbServerPort(unsigned short int dbServerPort) {
+    this->dbServerPort = dbServerPort;
+  }
 
-	bool isConnected() const
-	{
-		return connected;
-	}
+  bool isConnected() const { return connected; }
 };
 #endif /* DATABASE_DRIVER_H_ */
