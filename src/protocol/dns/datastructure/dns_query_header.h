@@ -129,420 +129,370 @@ ARCOUNT         an unsigned 16 bit integer specifying the number of
 
 */
 
-class DNSQueryHeader
-{
-	char *buf;
-	unsigned char flag[2];
+class DNSQueryHeader {
+  char *buf;
+  unsigned char flag[2];
 
-	unsigned short id;
+  unsigned short id;
 
-	bool qr;
-	OpCode opcode;
-	bool aa, tc, rd, ra;
-	unsigned char z;
-	ReturnCode retcode;
+  bool qr;
+  OpCode opcode;
+  bool aa, tc, rd, ra;
+  unsigned char z;
+  ReturnCode retcode;
 
-	unsigned short qdCount, anCount, nsCount, arCount;
+  unsigned short qdCount, anCount, nsCount, arCount;
 
 public:
 
-	DNSQueryHeader()
-	{
-		this->buf = NULL;
-	}
-	DNSQueryHeader(char* _buf)
-	{
-		clear();
-		buf = _buf;
-	}
+  DNSQueryHeader() { this->buf = NULL; }
+  DNSQueryHeader(char *_buf) {
+    clear();
+    buf = _buf;
+  }
 
-	DNSQueryHeader& operator=(const DNSQueryHeader& header)
-	{
-		this->flag[0] = header.flag[0];
-		this->flag[1] = header.flag[1];
+  DNSQueryHeader &operator=(const DNSQueryHeader &header) {
+    this->flag[0] = header.flag[0];
+    this->flag[1] = header.flag[1];
 
-		this->id = header.id;
-		this->qr = header.qr;
-		this->opcode = header.opcode;
-		this->aa = header.aa;
-		this->tc = header.tc;
-		this->rd = header.rd;
-		this->ra = header.ra;
-		this->z = header.z;
-		this->retcode = header.retcode;
-		this->qdCount = header.qdCount;
-		this->anCount = header.anCount;
-		this->nsCount = header.nsCount;
-		this->arCount = header.arCount;
-		return *this;
-	}
+    this->id = header.id;
+    this->qr = header.qr;
+    this->opcode = header.opcode;
+    this->aa = header.aa;
+    this->tc = header.tc;
+    this->rd = header.rd;
+    this->ra = header.ra;
+    this->z = header.z;
+    this->retcode = header.retcode;
+    this->qdCount = header.qdCount;
+    this->anCount = header.anCount;
+    this->nsCount = header.nsCount;
+    this->arCount = header.arCount;
+    return *this;
+  }
 
-	void setBuffer(char* buffer)
-	{
-		clear();
-		this->buf = buffer;
-	}
+  void setBuffer(char *buffer) {
+    clear();
+    this->buf = buffer;
+  }
 
-	void readFlags()
-	{
-		long byteOffset = 2;
-		this->flag[0] = buf[byteOffset++];
-		this->flag[1] = buf[byteOffset++];
+  void readFlags() {
+    long byteOffset = 2;
+    this->flag[0] = buf[byteOffset++];
+    this->flag[1] = buf[byteOffset++];
 
-		readQR();
-		readOpcode();
-		readTC();
-		readAA();
-		readRD();
-		readRA();
-		readZ();
-		readRetCode();
-	}
+    readQR();
+    readOpcode();
+    readTC();
+    readAA();
+    readRD();
+    readRA();
+    readZ();
+    readRetCode();
+  }
 
-	void writeFlag()
-	{
-		long byteOffset = 2;
+  void writeFlag() {
+    long byteOffset = 2;
+    writeQR();
+    writeOpcode();
+    writeTC();
+    writeAA();
+    writeRD();
+    writeRA();
+    writeRetCode();
+    byteOffset =
+        ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, flag[0]);
+    byteOffset =
+        ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, flag[1]);
+  }
 
-		printf("Flushing data to flag, previous contents: %hx %hx\n", flag[0], flag[1]);
+  void clear() { buf = NULL; }
 
-		writeQR();
-		writeOpcode();
-		writeTC();
-		writeAA();
-		writeRD();
-		writeRA();
-		writeRetCode();
+  unsigned short getId() { return this->id; }
 
-		printf("Data flushed to flag, contents: %hx %hx\n", flag[0], flag[1]);
+  void setId(unsigned short &id) { this->id = id; }
 
-		byteOffset = ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, flag[0]);
-		byteOffset = ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, flag[1]);
-	}
+  void readId() {
+    const long byteOffset = 0;
+    ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &id);
+    this->id = ntohs(this->id);
+  }
 
-	void clear(){ buf = NULL; }
+  void writeId() {
+    const long byteOffset = 0;
+    ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset,
+                                                  htons(this->id));
+  }
 
-	unsigned short getId()
-	{
-		return this->id;
-	}
+  bool getQR() { return this->qr; }
+  void setQR(bool &qr) { this->qr = qr; }
 
-	void setId(unsigned short& id)
-	{
-		this->id = id;
-	}
+  // 0x80
+  void readQR() {
+    long byteOffset = 0;
+    int bitOffset = 7;
+    unsigned char *ptr = flag;
+    this->qr = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+  }
 
-	void readId()
-	{
-		const long byteOffset = 0;
-		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &id);
-		this->id = ntohs(this->id);
-	}
+  void writeQR() {
+    long byteOffset = 0;
+    int bitOffset = 7;
+    unsigned char *ptr = flag;
+    if (this->qr)
+      ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
+    else
+      ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
+  }
 
-	void writeId()
-	{
-		const long byteOffset = 0;
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons(this->id));
-	}
+  OpCode getOpcode() { return this->opcode; }
+  void setOpcode(OpCode &code) { this->opcode = code; }
 
-	bool getQR(){ return this->qr; }
-	void setQR(bool& qr){ this->qr = qr; }
-
-	//0x80
-	void readQR()
-	{
-		long byteOffset = 0;
-		int bitOffset = 7;
-		unsigned char* ptr = flag;
-		this->qr = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
-	}
-
-	void writeQR()
-	{
-		long byteOffset = 0;
-		int bitOffset = 7;
-		unsigned char* ptr = flag;
-
-		printf("Writing value of qr: %d\n", this->qr);
-
-		if(this->qr)
-			ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
-		else
-			ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
-		printf("\tFlags: 0x%hx %hx\n", this->getFlags()[0], this->getFlags()[1]);
-	}
-
-	OpCode getOpcode() { return this->opcode; }
-	void setOpcode(OpCode& code){ this->opcode = code; }
-
-	void readOpcode()
-	{
-		unsigned char val = (flag[0] & 0x78) >> 3;  //0x78
-
-		switch(val)
-		{
-		case 0:
-			this->opcode = O_QUERY;
-			break;
-		case 1:
-			this->opcode = O_IQUERY;
-			break;
-		case 2:
-			this->opcode = O_STATUS;
-			break;
-		case 3:
-			this->opcode = O_RESERVED;
-			break;
-		}
-	}
-
-	void writeOpcode()
-	{
-		flag[0] |= (unsigned short)(opcode << 3);
-	}
-
-	bool getAA(){ return this->aa; }
-	void setAA(bool& aa){ this->aa = aa; }
-
-	//0x04
-	void readAA()
-	{
-		long byteOffset = 0;
-		int bitOffset = 2;
-		unsigned char* ptr = flag;
-		this->aa = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
-	}
-
-	void writeAA()
-	{
-		long byteOffset = 0;
-		int bitOffset = 2;
-		unsigned char* ptr = flag;
-		if(this->aa) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
-		else ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
-	}
-
-	bool getTC(){ return this->tc; }
-	void setTC(bool& tc){ this->tc = tc; }
-
-	//0x02
-	void readTC()
-	{
-		long byteOffset = 0;
-		int bitOffset = 1;
-		unsigned char* ptr = flag;
-		this->tc = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
-	}
-
-	void writeTC()
-	{
-		long byteOffset = 0;
-		int bitOffset = 1;
-		unsigned char* ptr = flag;
-		if(this->tc) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
-		else ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
-	}
-
-	bool getRD(){ return this->rd; }
-	void setRD(bool& rd){ this->rd = rd; }
-
-	//0x01
-	bool readRD()
-	{
-		long byteOffset = 0;
-		int bitOffset = 0;
-		unsigned char* ptr = flag;
-		this->rd = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
-	}
-
-	void writeRD()
-	{
-		long byteOffset = 0;
-		int bitOffset = 0;
-		unsigned char* ptr = flag;
-		if(this->rd) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
-		else ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
-	}
-
-	bool getRA(){ return this->ra; }
-	void setRA(bool& ra){ this->ra = ra; }
-
-	//0x80
-	void readRA()
-	{
-		long byteOffset = 1;
-		int bitOffset = 7;
-		unsigned char* ptr = flag;
-		this->ra = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
-	}
-
-	void writeRA()
-	{
-		const long byteOffset = 1;
-		const int bitOffset = 7;
-		unsigned char* ptr = flag;
-		if(this->ra) ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
-		else ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
-	}
-
-	unsigned char getZ(){ return this->z; }
-	void setZ(unsigned char& z){ this->z = z; }
-
-	void readZ()
-	{
-		const unsigned short mask = 0x70;
-		this->z = (unsigned char)((flag[1] & mask) >> 4);
-	}
-
-	ReturnCode getRetCode(){ return this->retcode; }
-	void setRetCode(ReturnCode& retcode){ this->retcode = retcode; }
-
-	void readRetCode()
-	{
-		const unsigned short mask = 0xF0;
-		unsigned char val = (flag[1] & mask) >> 4;
-
-		switch ( val )
-		{
-		case 0:
-			this->retcode = R_SUCCESS;
-			break;
-	    case 1:
-	    	this->retcode = R_FORMAT_ERROR;
-	    	break;
-	    case 2:
-	    	this->retcode = R_SERVER_FAILURE;
-	    	break;
-	    case 3:
-	    	this->retcode = R_NAME_ERROR;
-	    	break;
-	    case 4:
-	    	this->retcode = R_NOT_IMPLEMENTED;
-	    	break;
-	    case 5:
-	    	this->retcode = R_REFUSED;
-	    	break;
-	    default:
-	    	this->retcode = R_RESERVED;
-	    	break;
-	    }
+  void readOpcode() {
+    unsigned char val = (flag[0] & 0x78) >> 3; // 0x78
+    switch (val) {
+    case 0:
+      this->opcode = O_QUERY;
+      break;
+    case 1:
+      this->opcode = O_IQUERY;
+      break;
+    case 2:
+      this->opcode = O_STATUS;
+      break;
+    case 3:
+      this->opcode = O_RESERVED;
+      break;
     }
+  }
 
-	void writeRetCode()
-	{
-		flag[1] |= (unsigned char)(this->retcode << 4);
-	}
+  void writeOpcode() { flag[0] |= (unsigned short)(opcode << 3); }
 
-	unsigned short getQDCount(){ return this->qdCount; }
-	void setQDCount(unsigned short& qdCount){ this->qdCount = qdCount; }
+  bool getAA() { return this->aa; }
+  void setAA(bool &aa) { this->aa = aa; }
 
-	void readQDCount()
-	{
-		const long byteOffset = 4;
-		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &this->qdCount);
-		this->qdCount = ntohs(this->qdCount);
-	}
+  // 0x04
+  void readAA() {
+    long byteOffset = 0;
+    int bitOffset = 2;
+    unsigned char *ptr = flag;
+    this->aa = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+  }
 
-	void writeQDCount()
-	{
-		const long byteOffset = 4;
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)this->qdCount));
-	}
+  void writeAA() {
+    long byteOffset = 0;
+    int bitOffset = 2;
+    unsigned char *ptr = flag;
+    if (this->aa)
+      ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
+    else
+      ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
+  }
 
-	unsigned short getANCount(){ return this->anCount; }
-	void setANCount(unsigned short& anCount){ this->anCount = anCount; }
+  bool getTC() { return this->tc; }
+  void setTC(bool &tc) { this->tc = tc; }
 
-	void readANCount()
-	{
-		const long byteOffset = 6;
-		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &this->anCount);
-		this->anCount = ntohs(this->anCount);
-	}
+  // 0x02
+  void readTC() {
+    long byteOffset = 0;
+    int bitOffset = 1;
+    unsigned char *ptr = flag;
+    this->tc = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+  }
 
-	void writeANCount()
-	{
-		const long byteOffset = 6;
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)this->anCount));
-	}
+  void writeTC() {
+    long byteOffset = 0;
+    int bitOffset = 1;
+    unsigned char *ptr = flag;
+    if (this->tc)
+      ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
+    else
+      ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
+  }
 
-	unsigned short getNSCount(){ return this->nsCount; }
-	void setNSCount(unsigned short& nsCount){ this->nsCount = nsCount; }
+  bool getRD() { return this->rd; }
+  void setRD(bool &rd) { this->rd = rd; }
 
-	void readNSCount()
-	{
-		const long byteOffset = 8;
-		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &this->nsCount);
-		this->nsCount = ntohs(this->nsCount);
-	}
+  // 0x01
+  bool readRD() {
+    long byteOffset = 0;
+    int bitOffset = 0;
+    unsigned char *ptr = flag;
+    this->rd = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+  }
 
-	void writeNSCount()
-	{
-		const long byteOffset = 8;
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)this->nsCount));
-	}
+  void writeRD() {
+    long byteOffset = 0;
+    int bitOffset = 0;
+    unsigned char *ptr = flag;
+    if (this->rd)
+      ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
+    else
+      ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
+  }
 
-	unsigned short getARCount(){ return this->arCount; }
-	void setARCount(unsigned short& arCount){ this->arCount = arCount; }
+  bool getRA() { return this->ra; }
+  void setRA(bool &ra) { this->ra = ra; }
 
-	void readARCount()
-	{
-		const long byteOffset = 10;
-		ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset, &this->arCount);
-		this->arCount = htons(this->arCount);
-	}
+  // 0x80
+  void readRA() {
+    long byteOffset = 1;
+    int bitOffset = 7;
+    unsigned char *ptr = flag;
+    this->ra = ProtocolHelper::getBit(ptr, byteOffset, bitOffset);
+  }
 
-	void writeARCount()
-	{
-		const long byteOffset = 10;
-		ProtocolHelper::placeAtomicDataIntoByteBuffer(buf, byteOffset, htons((unsigned short)this->arCount));
-	}
+  void writeRA() {
+    const long byteOffset = 1;
+    const int bitOffset = 7;
+    unsigned char *ptr = flag;
+    if (this->ra)
+      ProtocolHelper::setBit(ptr, byteOffset, bitOffset);
+    else
+      ProtocolHelper::resetBit(ptr, byteOffset, bitOffset);
+  }
 
-	unsigned char* getFlags()
-	{
-		return this->flag;
-	}
+  unsigned char getZ() { return this->z; }
+  void setZ(unsigned char &z) { this->z = z; }
 
-	static size_t getDNSHeaderLength()
-	{
-		return DNS_HEADER_LENGTH;
-	}
+  void readZ() {
+    const unsigned short mask = 0x70;
+    this->z = (unsigned char)((flag[1] & mask) >> 4);
+  }
 
-	long parseFromBuffer()
-	{
-		readId();
-		readFlags();
-		readQDCount();
-		readANCount();
-		readNSCount();
-		readARCount();
-		return DNS_HEADER_LENGTH;
-	}
+  ReturnCode getRetCode() { return this->retcode; }
+  void setRetCode(ReturnCode &retcode) { this->retcode = retcode; }
 
-	long writeToBuffer()
-	{
-		writeId();
-		writeFlag();
-		writeQDCount();
-		writeANCount();
-		writeNSCount();
-		writeARCount();
-	}
+  void readRetCode() {
+    const unsigned short mask = 0xF0;
+    unsigned char val = (flag[1] & mask) >> 4;
 
-	void print()
-	{
-		printf("{\n");
-		{
-			this->readFlags();
-			printf("\tID: 0x%hx\n", this->getId());
-			printf("\tFlags: 0x%2hx%2hx\n", this->getFlags()[0], this->getFlags()[1]);
-			printf("\tOpcode: 0x%x\n", this->getOpcode());
-			printf("\tMessage type: 0x%x\n", this->getQR());
-			printf("\tQuery count: 0x%x\n", this->getQDCount());
-		}
-		printf("}\n");
-	}
+    switch (val) {
+    case 0:
+      this->retcode = R_SUCCESS;
+      break;
+    case 1:
+      this->retcode = R_FORMAT_ERROR;
+      break;
+    case 2:
+      this->retcode = R_SERVER_FAILURE;
+      break;
+    case 3:
+      this->retcode = R_NAME_ERROR;
+      break;
+    case 4:
+      this->retcode = R_NOT_IMPLEMENTED;
+      break;
+    case 5:
+      this->retcode = R_REFUSED;
+      break;
+    default:
+      this->retcode = R_RESERVED;
+      break;
+    }
+  }
 
+  void writeRetCode() { flag[1] |= (unsigned char)(this->retcode << 4); }
+
+  unsigned short getQDCount() { return this->qdCount; }
+  void setQDCount(unsigned short &qdCount) { this->qdCount = qdCount; }
+
+  void readQDCount() {
+    const long byteOffset = 4;
+    ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset,
+                                                    &this->qdCount);
+    this->qdCount = ntohs(this->qdCount);
+  }
+
+  void writeQDCount() {
+    const long byteOffset = 4;
+    ProtocolHelper::placeAtomicDataIntoByteBuffer(
+        buf, byteOffset, htons((unsigned short)this->qdCount));
+  }
+
+  unsigned short getANCount() { return this->anCount; }
+  void setANCount(unsigned short &anCount) { this->anCount = anCount; }
+
+  void readANCount() {
+    const long byteOffset = 6;
+    ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset,
+                                                    &this->anCount);
+    this->anCount = ntohs(this->anCount);
+  }
+
+  void writeANCount() {
+    const long byteOffset = 6;
+    ProtocolHelper::placeAtomicDataIntoByteBuffer(
+        buf, byteOffset, htons((unsigned short)this->anCount));
+  }
+
+  unsigned short getNSCount() { return this->nsCount; }
+  void setNSCount(unsigned short &nsCount) { this->nsCount = nsCount; }
+
+  void readNSCount() {
+    const long byteOffset = 8;
+    ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset,
+                                                    &this->nsCount);
+    this->nsCount = ntohs(this->nsCount);
+  }
+
+  void writeNSCount() {
+    const long byteOffset = 8;
+    ProtocolHelper::placeAtomicDataIntoByteBuffer(
+        buf, byteOffset, htons((unsigned short)this->nsCount));
+  }
+
+  unsigned short getARCount() { return this->arCount; }
+  void setARCount(unsigned short &arCount) { this->arCount = arCount; }
+
+  void readARCount() {
+    const long byteOffset = 10;
+    ProtocolHelper::extractAtomicDataFromByteBuffer(buf, byteOffset,
+                                                    &this->arCount);
+    this->arCount = htons(this->arCount);
+  }
+
+  void writeARCount() {
+    const long byteOffset = 10;
+    ProtocolHelper::placeAtomicDataIntoByteBuffer(
+        buf, byteOffset, htons((unsigned short)this->arCount));
+  }
+
+  unsigned char *getFlags() { return this->flag; }
+
+  static size_t getDNSHeaderLength() { return DNS_HEADER_LENGTH; }
+
+  long parseFromBuffer() {
+    readId();
+    readFlags();
+    readQDCount();
+    readANCount();
+    readNSCount();
+    readARCount();
+    return DNS_HEADER_LENGTH;
+  }
+
+  long writeToBuffer() {
+    writeId();
+    writeFlag();
+    writeQDCount();
+    writeANCount();
+    writeNSCount();
+    writeARCount();
+  }
+
+  void print() {
+    printf("{\n");
+    {
+      this->readFlags();
+      printf("\tID: 0x%hx\n", this->getId());
+      printf("\tFlags: 0x%2hx%2hx\n", this->getFlags()[0], this->getFlags()[1]);
+      printf("\tOpcode: 0x%x\n", this->getOpcode());
+      printf("\tMessage type: 0x%x\n", this->getQR());
+      printf("\tQuery count: 0x%x\n", this->getQDCount());
+    }
+    printf("}\n");
+  }
 };
-
-
 
 #endif /* DNS_HEADER_H_ */

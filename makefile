@@ -1,8 +1,8 @@
 CPP = g++
 WARNING = -Wall
 DEBUGON = -g
-CFLAGS = -c $(DEBUGON)
-LDFLAGS = -lpthread -lboost_system -lboost_thread -lssl -lcrypto -lcql -lboost_program_options -ltcmalloc
+CFLAGS = -c $(DEBUGON) -o2
+LDFLAGS = -lpthread -lboost_system -lboost_thread -lssl -lcrypto -lcql -lboost_program_options -ltcmalloc -llog4cpp
 LIBDIR = -L/usr/local/lib
 
 SRCDIR = src

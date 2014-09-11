@@ -30,29 +30,29 @@ struct reply;
 struct request;
 
 /// The common handler for all incoming requests.
-class request_handler: private boost::noncopyable
-{
+class request_handler : private boost::noncopyable {
 public:
-	/// Construct with a directory containing files to be served.
-	explicit request_handler(const string& homeAgentAlias);
-	string homeAgentAlias;
+  /// Construct with a directory containing files to be served.
+  explicit request_handler(const string &homeAgentAlias);
+  string homeAgentAlias;
 
-	/// Handle a request and produce a reply.
-	void handle_request(const request& req, reply& rep);
+  /// Handle a request and produce a reply.
+  void handle_request(const request &req, reply &rep);
 
-	/// Perform URL-decoding on a string. Returns false if the encoding was
-	/// invalid.
-	static bool url_decode(const std::string& in, std::string& out);
+  /// Perform URL-decoding on a string. Returns false if the encoding was
+  /// invalid.
+  static bool url_decode(const std::string &in, std::string &out);
 
-	static std::string& strtolower(std::string& str);
-	static bool isNumber(const string& input);
-	boost::shared_ptr <RESTAPIHelper> restapi;
-	static bool isValidName(const string& input);
-	bool isValidIP(const string& input);
+  static std::string &strtolower(std::string &str);
+  static bool isNumber(const string &input);
+  boost::shared_ptr<RESTAPIHelper> restapi;
+  static bool isValidName(const string &input);
+  bool isValidIP(const string &input);
+
 private:
-	/// Build the response string
-	void build_response(QueryStringParser& qsp, string& http_payload, reply::status_type& http_response);
-
+  /// Build the response string
+  void build_response(QueryStringParser &qsp, string &http_payload,
+                      reply::status_type &http_response);
 };
 
 #endif /* HTTP_REQUEST_HANDLER_H_ */

@@ -11,7 +11,21 @@
 #include <unistd.h>
 #include <string>
 
+#include <log4cpp/Category.hh>
+#include <log4cpp/Appender.hh>
+#include <log4cpp/OstreamAppender.hh>
+#include <log4cpp/Layout.hh>
+#include <log4cpp/PatternLayout.hh>
+#include <log4cpp/Priority.hh>
+#include <log4cpp/PropertyConfigurator.hh>
+
+#include <boost/shared_ptr.hpp>
+
 using namespace std;
+
+#define DO_LOG(__stream, __log_level__) __stream << log4cpp::Priority::__log_level__\
+                                        << __FILE__ << ":" << __LINE__ << " "
+#define LOG(__log_level__) DO_LOG(*logs::log.get(), __log_level__)
 
 #define MAX_UDP_BUFFER_SIZE 65536
 #define DNS_HEADER_LENGTH	12
@@ -32,4 +46,10 @@ namespace global
 	const std::string LOCAL_NAMESPACE_PREFIX = "pweb_";
 	const std::string IP_SOURCE_URL = "ifconfig.me";
 };
+
+namespace logs {
+  extern boost::shared_ptr<log4cpp::Appender> consoleAppender;
+  extern boost::shared_ptr<log4cpp::PatternLayout> logLayout;
+  extern boost::shared_ptr<log4cpp::Category> log;
+}
 #endif /* GLOBAL_H_ */

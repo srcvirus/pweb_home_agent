@@ -6,6 +6,7 @@
  */
 
 #include "user_cassandra_controller.h"
+#include "../global.h"
 
 /**
  * Get user by username.
@@ -14,45 +15,36 @@
  */
 boost::shared_ptr<User>
 UserCassandraController::getUser(const string &username) {
-  unsigned long tid = (unsigned long)pthread_self();
-
+  unsigned long tid = static_cast<unsigned long>(pthread_self());
   string queryString = "select * from " + User::TABLE_NAME + " where " +
                        User::COL_USER_NAME + " = '" + username + "';";
-
-  printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   boost::shared_ptr<User> retObject;
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] %s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     return retObject;
   }
-
   cql::cql_result_t &rows = *(results.get().result);
-
   if (rows.row_count() <= 0) {
-    printf("[DEBUG] Zero rows returned\n");
+    LOG(WARN) << "Zero rows returned.";
     return retObject;
   }
-
-  printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << rows.row_count() << " rows returned.";
 
   string uname, password, email, fullname, location, affiliation;
-
   rows.next();
-
   rows.get_string(User::COL_USER_NAME, uname);
   rows.get_string(User::COL_PASSWORD, password);
   rows.get_string(User::COL_EMAIL, email);
   rows.get_string(User::COL_FULL_NAME, fullname);
   rows.get_string(User::COL_LOCATION, location);
   rows.get_string(User::COL_AFFILIATION, affiliation);
-
   retObject = boost::shared_ptr<User>(
       new User(uname, password, email, fullname, location, affiliation));
-  printf("[DEBUG] [Thread 0x%lx] ", tid);
   retObject->printShort();
   return retObject;
 }
@@ -63,6 +55,7 @@ UserCassandraController::getUser(const string &username) {
  * @return 0 on success, otherwise the database error code
  */
 int UserCassandraController::addUser(boost::shared_ptr<User> &user) {
+  unsigned long tid = static_cast<unsigned long>(pthread_self());
   string queryString =
       "insert into " + User::TABLE_NAME + " (" + User::COL_USER_NAME + ", " +
       User::COL_PASSWORD + ", " + User::COL_EMAIL + ", " + User::COL_FULL_NAME +
@@ -70,12 +63,12 @@ int UserCassandraController::addUser(boost::shared_ptr<User> &user) {
       user->getUsername() + "', '" + user->getPassword() + "', '" +
       user->getEmail() + "', '" + user->getFullname() + "', '" +
       user->getLocation() + "', '" + user->getAffiliation() + "');";
-  printf("[DEBUG] %s\n", queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
   if (results.get().error.is_err()) {
-    printf("[ERROR]\t%s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     return results.get().error.code;
   }
   return 0;
@@ -83,31 +76,25 @@ int UserCassandraController::addUser(boost::shared_ptr<User> &user) {
 
 vector<boost::shared_ptr<User> > UserCassandraController::getAllUser() {
   unsigned long tid = (unsigned long)pthread_self();
-
   string queryString = "select * from " + User::TABLE_NAME + ";";
-
-  printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   vector<boost::shared_ptr<User> > userVector;
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] %s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     return userVector;
   }
-
   cql::cql_result_t &rows = *(results.get().result);
-
   if (rows.row_count() <= 0) {
-    printf("[DEBUG] Zero rows returned\n");
+    LOG(WARN) << "Zero rows returned.";
     return userVector;
   }
-
-  printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << rows.row_count() << " rows returned.";
 
   string uname, password, email, fullname, location, affiliation;
-
   while (rows.next()) {
     rows.get_string(User::COL_USER_NAME, uname);
     rows.get_string(User::COL_PASSWORD, password);
@@ -133,19 +120,16 @@ bool UserCassandraController::isUsernameAvailable(const string &username,
   unsigned long tid = (unsigned long)pthread_self();
   string queryString = "select * from " + User::TABLE_NAME + " where " +
                        User::COL_USER_NAME + " = '" + username + "';";
-  printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] %s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     errorCode = boost::lexical_cast<string>(results.get().error.code);
     return false;
   }
-
   cql::cql_result_t &rows = *(results.get().result);
-
   if (rows.row_count() <= 0) {
     return true;
   }
@@ -160,24 +144,22 @@ bool UserCassandraController::authenticateUser(const string &username,
   string queryString = "select * from " + User::TABLE_NAME + " where " +
                        User::COL_USER_NAME + " = '" + username + "' and " +
                        User::COL_PASSWORD + " ='" + password + "';";
-  printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] %s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     errorCode = boost::lexical_cast<string>(results.get().error.code);
     return false;
   }
-
   cql::cql_result_t &rows = *(results.get().result);
-
   if (rows.row_count() <= 0) {
-    printf("[DEBUG] Zero rows returned\n");
+    LOG(WARN) << "Zero rows returned.";
     return false;
   }
-  printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << rows.row_count() << " rows returned.";
   return true;
 }
 
@@ -185,17 +167,16 @@ int UserCassandraController::updateUser(
     const string &username, boost::unordered_map<string, string> &params) {
   if (params.size() <= 0)
     return 0;
-
   string errorCode = "";
   int result;
 
-  // get the current user
+  // Get the current user.
   boost::shared_ptr<User> user = getUser(username);
   if (!errorCode.empty()) {
     return boost::lexical_cast<int>(errorCode);
   }
 
-  // update data in the current user
+  // Update data in the current user.
   if (params.count("new_password")) {
     user->setPassword(params["new_password"]);
   }
@@ -211,7 +192,9 @@ int UserCassandraController::updateUser(
   if (params.count("affiliation")) {
     user->setAffiliation(params["affiliation"]);
   }
-  // add the new user
+
+  // Add the new user.
   result = addUser(user);
+
   return result;
 }

@@ -12,10 +12,9 @@
 
 using namespace std;
 
-struct header
-{
-	std::string name;
-	std::string value;
+struct header {
+  std::string name;
+  std::string value;
 };
 
 #endif /* HTTP_HEADER_H_ */

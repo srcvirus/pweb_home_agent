@@ -43,12 +43,12 @@ public:
 
   static int placeStringIntoByteBuffer(char *buf, int offset,
                                        const std::string &value) {
-    // copy the length of the string
+    // Copy the length of the string.
     unsigned char strLength = (unsigned char)value.length();
     memcpy(buf + offset, &strLength, sizeof(strLength));
     offset += sizeof(strLength);
 
-    // now copy the string data
+    // Now copy the string data.
     memcpy(buf + offset, value.c_str(), strLength * sizeof(char));
     offset += sizeof(char) * strLength;
     return offset;
@@ -74,12 +74,12 @@ public:
 
   static long extractStringFromByteBuffer(char *buf, long offset,
                                           std::string &strData) {
-    // read the length of the string first;
+    // Read the length of the string first.
     unsigned char strLength;
     memcpy(&strLength, buf + offset, sizeof(strLength));
     offset += sizeof(strLength);
 
-    // read the string data
+    // Read the string data.
     strData = std::string(buf + offset, 0, strLength);
     return offset + sizeof(char) * strLength;
   }
@@ -99,16 +99,12 @@ public:
   static bool isSuffix(const string &str, const string &suffix) {
     int strSize = (int)str.size();
     int sufSize = (int)suffix.size();
-
     if (sufSize > strSize)
       return false;
-
     int i, j;
-
     for (i = strSize - 1, j = sufSize - 1; j >= 0; i--, j--)
       if (str[i] != suffix[j])
         return false;
-
     return true;
   }
 

@@ -27,9 +27,6 @@ UDPConnection::UDPConnection(boost::shared_ptr<IOServicePool> &ioServicePool,
 
 void UDPConnection::listen() {
   unsigned long tid = (unsigned long)pthread_self();
-  printf("[DEBUG] [Thread 0x%lx] Listening on %s:%u\n", tid,
-         this->localEndpoint.address().to_string().c_str(),
-         this->localEndpoint.port());
   this->socket.async_receive_from(
       boost::asio::buffer(this->buffer), this->remoteEndpoint,
       boost::bind(&UDPConnection::handleDataReceived, this,
@@ -40,9 +37,6 @@ void UDPConnection::handleDataSent() { ; }
 
 void UDPConnection::handleDataReceived(size_t bytesReceived) {
   unsigned long tid = (unsigned long)pthread_self();
-  printf("[DEBUG] [Thread 0x%lx] Received %lu bytes from %s:%u\n", tid,
-         bytesReceived, this->remoteEndpoint.address().to_string().c_str(),
-         this->remoteEndpoint.port());
   this->ioServicePool->getIOService().post(
       boost::bind(&DNSMessageHandler::handleDNSQueryRecive, (this->handler),
                   this->buffer, bytesReceived, thisConnection));

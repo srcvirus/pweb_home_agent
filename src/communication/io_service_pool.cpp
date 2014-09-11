@@ -6,6 +6,7 @@
  */
 
 #include "io_service_pool.h"
+#include "../global.h"
 #include <stdio.h>
 #include <sched.h>
 #include <algorithm>
@@ -67,13 +68,12 @@ void IOServicePool::startServices() {
   for (i = 0; i < nIOServicePoolSize; ++i)
     pthread_join(threadPool[i], NULL);
 
-  printf("All threads joined. Exiting..!\n");
+  LOG(INFO) "All threads joined. Exiting..!\n";
 }
 
 void *IOServicePool::ioServiceThreadMethod(void *args) {
   boost::asio::io_service *ioService = *((boost::asio::io_service **)args);
-  printf("Starting i/o thread 0x%lx, with io_service pointer %p\n",
-         pthread_self(), ioService);
+  LOG(INFO) << "Starting I/O thread " << std::hex << pthread_self();
   ioService->run();
 }
 

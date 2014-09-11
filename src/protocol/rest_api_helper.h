@@ -81,32 +81,8 @@ public:
   }
 
   ////////////////////////////////////////////
-  //  USER 				  //
+  //  USER 				                          //
   ////////////////////////////////////////////
-
-  /*
-  string registerUser(const string& username, const string& password, const
-  string& email,
-      const string& fullname, const string& location, const string& affiliation)
-  {
-   UserCassandraController userController(database);
-
-   if(!userController.isUsernameAvailable(username))
-   {
-    return "{\"status\":\"error\", \"error\":\"APP:7501\"}";
-   }
-
-   boost::shared_ptr <User> user = boost::shared_ptr <User> (new User(username,
-  password, email, fullname, location, affiliation));
-   int result = userController.addUser(user);
-   if(result == 0)
-   {
-    return "{\"status\":\"success\"}";
-   }
-   string resultStr = boost::lexical_cast<string>(result);
-   return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
-  }
-  */
 
   string registerUser(const string &username, const string &password,
                       const string &email,
@@ -211,55 +187,8 @@ public:
   }
 
   ////////////////////////////////////////////
-  //  DEVICE 				  //
+  //  DEVICE 				                        //
   ////////////////////////////////////////////
-
-  /*
-  string registerDevice(const string& devicename, const string& username, const
-  string& type, const string& ip,
-      const string& port, const string& os, const string& description, const
-  string& isIndexed)
-  {
-   UserCassandraController userController(database);
-
-   string errorCode = "";
-   bool isAvailable = userController.isUsernameAvailable(username, errorCode);
-   if(isAvailable)
-   {
-    return "{\"status\":\"error\", \"error\":\"APP:7502\"}";
-   }
-
-   DeviceCassandraController deviceController(database);
-
-   errorCode = "";
-   isAvailable = deviceController.isDevicenameAvailable(devicename, username,
-  errorCode);
-   if(!errorCode.empty())
-   {
-    return "{\"status\":\"error\", \"error\":\"CDB:" + errorCode + "\"}";
-   }
-   if(!isAvailable)
-   {
-    return "{\"status\":\"error\", \"error\":\"APP:6401\"}";
-   }
-
-   time_t timestamp = time(NULL);
-
-   boost::shared_ptr <Device> device = boost::shared_ptr <Device> (new
-  Device(username, devicename, type, ip, boost::lexical_cast<unsigned
-  short>(port),
-    "", 0, "", "",
-    timestamp, os, description, "", (boost::iequals(isIndexed,
-  "true"))?true:false, timestamp));
-   int result = deviceController.addDevice(device);
-   if(result == 0)
-   {
-    return "{\"status\":\"success\"}";
-   }
-   string resultStr = boost::lexical_cast<string>(result);
-   return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
-  }
-  */
 
   string registerDevice(const string &devicename, const string &username,
                         const string &password, const string &ip,
@@ -404,65 +333,6 @@ public:
     return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
   }
 
-  /*
-  string updateDevice(const string& currentDevicename, const string&
-  newDevicename, const string& username, const string& ip, const string& port,
-  const string& 					publicFolder, const string& privateFolder)
-  {
-   DeviceCassandraController deviceController(database);
-   int result = deviceController.updateDevice(currentDevicename, newDevicename,
-  username, ip, port, publicFolder, privateFolder);
-   if(result == 0)
-   {
-    return "{\"status\":\"success\"}";
-   }
-   if(result == -1)
-   {
-    return "{\"status\":\"error\", \"error\":\"APP:6402\"}";
-   }
-   string resultStr = boost::lexical_cast<string>(result);
-   return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
-  }
-  */
-
-  /*
-  string updateDeviceMetadata(const string& devicename, const string& username,
-  const string& metadata)
-  {
-   DeviceCassandraController deviceController(database);
-   int result = deviceController.updateDeviceMetadata(devicename, username,
-  metadata);
-   if(result == 0)
-   {
-    return "{\"status\":\"success\"}";
-   }
-   if(result == -1)
-   {
-    return "{\"status\":\"error\", \"error\":\"APP:6402\"}";
-   }
-   string resultStr = boost::lexical_cast<string>(result);
-   return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
-  }
-
-  string updateDeviceIPPort(const string& devicename, const string& username,
-  const string& ip, const string& port)
-  {
-   DeviceCassandraController deviceController(database);
-   int result = deviceController.updateDeviceIPPort(devicename, username, ip,
-  port);
-   if(result == 0)
-   {
-    return "{\"status\":\"success\"}";
-   }
-   if(result == -1)
-   {
-    return "{\"status\":\"error\", \"error\":\"APP:6402\"}";
-   }
-   string resultStr = boost::lexical_cast<string>(result);
-   return "{\"status\":\"error\", \"error\":\"CDB:" + resultStr + "\"}";
-  }
-  */
-
   string getUserDevices(const string &username) {
     DeviceCassandraController deviceController(database);
 
@@ -508,7 +378,7 @@ public:
   }
 
   ////////////////////////////////////////////
-  //  CRAWLER 				  //
+  //  CRAWLER 				                      //
   ////////////////////////////////////////////
 
   string getHomeAgentList() {

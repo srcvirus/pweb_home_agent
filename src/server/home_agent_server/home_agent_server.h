@@ -67,30 +67,25 @@ public:
         listenPort(serverListenPort), ioServicePool(ioPool),
         udpConnection(new UDPConnection(ioServicePool, serverListenPort,
                                         handler, homeAgentAlias, suffix)) {
-    printf("[INFO] Initializing home agent server\n");
-
-    /* Initialize the database driver */
+    // Initialize the database driver.
     database = boost::dynamic_pointer_cast<CassandraDBDriver>(
         CassandraDBDriver::getDatabaseDriverObject());
     database->openConnection();
 
     this->initModelNames();
 
-    /* Add the home agent alias to Cassandra database */
+    // Add the home agent alias to Cassandra database.
     HomeAgentIndexCassandraController haIndexController(database);
-    // this->ip = this->udpConnection.getLocalEndpoint().address().to_string();
-    // this->ip = this->getMyIp();
     boost::shared_ptr<HomeAgentIndex> haIndex(
         new HomeAgentIndex(this->homeAgentAlias, this->homeAgentDescription,
                            this->ip, serverListenPort));
     haIndexController.addHomeAgentIndex(haIndex);
 
-    /* Add home agent alias to the connection end point */
+    // Add home agent alias to the connection end point.
     this->udpConnection->setAlias(this->homeAgentAlias);
   }
 
   void start() {
-    /* Start the io_services */
     this->udpConnection->listen();
   }
 
@@ -105,4 +100,4 @@ public:
   }
 };
 
-#endif /* HOMEAGENTSERVER_H_ */
+#endif  // HOMEAGENTSERVER_H_

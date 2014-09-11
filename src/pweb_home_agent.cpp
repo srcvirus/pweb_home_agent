@@ -5,6 +5,8 @@
  *      Author: sr2chowd
  */
 
+#include "global.h"
+
 #include <string>
 #include <iostream>
 
@@ -14,18 +16,24 @@
 #include "datastructure/configuration.h"
 #include "server/home_agent_server/home_agent_server.h"
 #include "server/http_server/http_server.h"
-#include "global.h"
 
 using namespace std;
 
 boost::program_options::options_description config(USAGE_STRING);
 boost::program_options::variables_map programOptionMap;
-
 Configuration programConfig;
+
 boost::shared_ptr<IOServicePool> ioServicePool;
 boost::shared_ptr<HomeAgentServer> haServer;
 boost::shared_ptr<http_server> httpServer;
 
+namespace logs {
+boost::shared_ptr<log4cpp::Appender> consoleAppender;
+boost::shared_ptr<log4cpp::PatternLayout> logLayout;
+boost::shared_ptr<log4cpp::Category> log;
+}
+
+void configureLog();
 void populateConfigOptions(int, char * []);
 
 int main(int argc, char *argv[]) {
@@ -37,16 +45,16 @@ int main(int argc, char *argv[]) {
       cout << config;
       return 0;
     }
+    configureLog();
     boost::program_options::notify(programOptionMap);
     ioServicePool = boost::shared_ptr<IOServicePool>(
         new IOServicePool(programConfig.getThreads(), 0x03));
 
-    cout << "[DEBUG]"
-         << " alias: " << programConfig.getAlias()
-         << ", ip: " << programConfig.getIp()
-         << ", host name: " << programConfig.getHostName()
-         << ", description: " << programConfig.getDescription()
-         << ", listen-port: " << programConfig.getListenPort();
+    LOG(DEBUG) << " alias: " << programConfig.getAlias()
+               << ", ip: " << programConfig.getIp()
+               << ", host name: " << programConfig.getHostName()
+               << ", description: " << programConfig.getDescription()
+               << ", listen-port: " << programConfig.getListenPort();
     haServer = boost::shared_ptr<HomeAgentServer>(new HomeAgentServer(
         programConfig.getAlias(), programConfig.getIp(),
         programConfig.getSuffix(), programConfig.getHostName(),
@@ -61,11 +69,25 @@ int main(int argc, char *argv[]) {
     ioServicePool->startServices();
   }
   catch (std::exception & ex) {
-    cout << ex.what() << endl;
-    cout << config;
+    LOG(ERROR) << ex.what() << "\n" 
+               << config;
   }
 
   return 0;
+}
+
+void configureLog() {
+  using logs::log;
+  using logs::consoleAppender;
+  using logs::logLayout;
+  log = boost::shared_ptr<log4cpp::Category>(&log4cpp::Category::getRoot());
+  consoleAppender = boost::shared_ptr<log4cpp::Appender>(
+      new log4cpp::OstreamAppender("console", &std::cout));
+  logLayout =
+      boost::shared_ptr<log4cpp::PatternLayout>(new log4cpp::PatternLayout());
+  logLayout->setConversionPattern("[%-5p] %18r: %m%n");
+  consoleAppender->setLayout(logLayout.get());
+  log->addAppender(consoleAppender.get());
 }
 
 void populateConfigOptions(int argc, char *argv[]) {

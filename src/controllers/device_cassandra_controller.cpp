@@ -6,6 +6,7 @@
  */
 
 #include "device_cassandra_controller.h"
+#include "../global.h"
 
 string DeviceCassandraController::buildInsertStatement(
     boost::shared_ptr<Device> &device) {
@@ -81,33 +82,21 @@ string DeviceCassandraController::getDeviceIp(const string &deviceName,
       "select " + Device::COL_IP + "," + Device::COL_SEARCHABLE + " from " +
       Device::TABLE_NAME + " where " + Device::COL_DEVICE_NAME + "='" +
       deviceName + "' and " + Device::COL_USER_NAME + "='" + userName + "';";
-
-  // printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] [Thread 0x%lx] %s\n", tid,
-           results.get().error.message.c_str());
+    LOG(ERROR) << "[Thread " << std::hex << tid << "] "
+               << results.get().error.message.c_str();
     return retIp;
   }
-
   cql::cql_result_t &rows = *(results.get().result);
-
   if (rows.row_count() <= 0) {
-    // printf("[DEBUG] [Thread 0x%lx] Zero rows returned\n", tid);
     return retIp;
   }
-
-  // printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid,
-  // rows.row_count());
-
   rows.next();
   rows.get_bool(Device::COL_SEARCHABLE, searchable);
   if (searchable)
     rows.get_string(Device::COL_IP, retIp);
-
   return retIp;
 }
 
@@ -118,12 +107,11 @@ string DeviceCassandraController::getDeviceIp(const string &deviceName,
  */
 int DeviceCassandraController::addDevice(boost::shared_ptr<Device> &device) {
   string queryString = buildInsertStatement(device);
-  printf("[DEBUG] %s\n", queryString.c_str());
-
+  LOG(DEBUG) << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
   if (results.get().error.is_err()) {
-    printf("[ERROR]\t%s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     return results.get().error.code;
   }
   return 0;
@@ -136,64 +124,53 @@ boost::shared_ptr<Device> DeviceCassandraController::getDevice(
   string queryString = "select * from " + Device::TABLE_NAME + " where " +
                        Device::COL_USER_NAME + " = '" + username + "' and " +
                        Device::COL_DEVICE_NAME + " = '" + devicename + "';";
-
-  printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   boost::shared_ptr<Device> device;
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] %s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     errorCode = boost::lexical_cast<string>(results.get().error.code);
     return device;
   }
-
   cql::cql_result_t &rows = *(results.get().result);
-
   if (rows.row_count() <= 0) {
-    printf("[DEBUG] Zero rows returned\n");
+    LOG(WARN) << "Zero rows returned";
     errorCode = "-1";
     return device;
   }
-
-  printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << rows.row_count() << "rows returned.";
   rows.next();
-
   buildDeviceObjectFromQueryResult(rows, device);
   return device;
 }
 
-vector<boost::shared_ptr<Device> >
+vector< boost::shared_ptr<Device> >
 DeviceCassandraController::getUserDevices(const string &username,
                                           string &errorCode) {
   unsigned long tid = (unsigned long)pthread_self();
-
   string queryString = "select * from " + Device::TABLE_NAME + " where " +
                        Device::COL_USER_NAME + " = '" + username + "';";
 
-  printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   vector<boost::shared_ptr<Device> > deviceVector;
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] %s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     errorCode = boost::lexical_cast<string>(results.get().error.code);
     return deviceVector;
   }
-
   cql::cql_result_t &rows = *(results.get().result);
-
   if (rows.row_count() <= 0) {
-    printf("[DEBUG] Zero rows returned\n");
+    LOG(DEBUG) << "Zero rows returned";
     return deviceVector;
   }
-
-  printf("[DEBUG] [Thread 0x%lx] %lu rows returned\n", tid, rows.row_count());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << rows.row_count() << "rows returned.";
   while (rows.next()) {
     boost::shared_ptr<Device> device;
     buildDeviceObjectFromQueryResult(rows, device);
@@ -210,19 +187,16 @@ bool DeviceCassandraController::isDevicenameAvailable(const string &devicename,
   string queryString = "select * from " + Device::TABLE_NAME + " where " +
                        Device::COL_USER_NAME + " = '" + username + "' and " +
                        Device::COL_DEVICE_NAME + " = '" + devicename + "';";
-  printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] %s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     errorCode = boost::lexical_cast<string>(results.get().error.code);
     return false;
   }
-
   cql::cql_result_t &rows = *(results.get().result);
-
   if (rows.row_count() <= 0) {
     return true;
   }
@@ -239,21 +213,18 @@ int DeviceCassandraController::deleteDevice(const string &devicename,
   if (isAvailable) {
     return -1;
   }
-
   unsigned long tid = (unsigned long)pthread_self();
   string queryString = "delete from " + Device::TABLE_NAME + " where " +
                        Device::COL_USER_NAME + " = '" + username + "' and " +
                        Device::COL_DEVICE_NAME + " = '" + devicename + "';";
-  printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] %s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     return results.get().error.code;
   }
-
   return 0;
 }
 
@@ -269,20 +240,18 @@ int DeviceCassandraController::updateDeviceIPPort(const string &devicename,
   if (isAvailable) {
     return -1;
   }
-
   unsigned long tid = (unsigned long)pthread_self();
   string queryString =
       "update " + Device::TABLE_NAME + " set " + Device::COL_IP + " = '" + ip +
       "', " + Device::COL_PORT + " = '" + port + "' where " +
       Device::COL_USER_NAME + " = '" + username + "' and " +
       Device::COL_DEVICE_NAME + " = '" + devicename + "';";
-  printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] %s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     return results.get().error.code;
   }
 
@@ -307,16 +276,14 @@ int DeviceCassandraController::updateDeviceMetadata(const string &devicename,
       " = '" + metadata + "' where " + Device::COL_USER_NAME + " = '" +
       username + "' and " + Device::COL_DEVICE_NAME + " = '" + devicename +
       "';";
-  printf("[DEBUG] [Thread 0x%lx] %s\n", tid, queryString.c_str());
-
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
+             << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
-
   if (results.get().error.is_err()) {
-    printf("[ERROR] %s\n", results.get().error.message.c_str());
+    LOG(ERROR) << results.get().error.message.c_str();
     return results.get().error.code;
   }
-
   return 0;
 }
 
@@ -338,21 +305,20 @@ int DeviceCassandraController::updateDevice(
     const string &publicFolder, const string &privateFolder) {
   string errorCode = "";
   int result;
-
-  // get the current device
+  // Get the current device.
   boost::shared_ptr<Device> device =
       getDevice(currentDevicename, username, errorCode);
   if (!errorCode.empty()) {
     return boost::lexical_cast<int>(errorCode);
   }
 
-  // delete the current device from db
+  // Delete the current device from db.
   result = deleteDevice(currentDevicename, username);
   if (result != 0) {
     return result;
   }
 
-  // update data in the current device
+  // Update data in the current device.
   device->setDevicename(newDevicename);
   device->setIp(ip);
   unsigned short portValue = -1;
@@ -361,7 +327,8 @@ int DeviceCassandraController::updateDevice(
   device->setPort(portValue);
   device->setPublicFolder(publicFolder);
   device->setPrivateFolder(privateFolder);
-  // add the new device
+
+  // Add the new device.
   result = addDevice(device);
   return result;
 }
@@ -375,22 +342,22 @@ int DeviceCassandraController::updateDevice(
   string errorCode = "";
   int result;
 
-  // get the current device
+  // Get the current device.
   boost::shared_ptr<Device> device = getDevice(devicename, username, errorCode);
   if (!errorCode.empty()) {
     return boost::lexical_cast<int>(errorCode);
   }
 
-  // check if devicename needs to be changed
+  // Check if devicename needs to be changed.
   if (params.count("new_devicename")) {
-    // delete the current device from db
+    // Delete the current device from db.
     result = deleteDevice(devicename, username);
     if (result != 0) {
       return result;
     }
   }
 
-  // update data in the current device
+  // Update data in the current device.
   if (params.count("new_devicename")) {
     device->setDevicename(params["new_devicename"]);
   }
@@ -437,9 +404,11 @@ int DeviceCassandraController::updateDevice(
       is_indexed = true;
     device->setSearchable(is_indexed);
   }
-  // update lastseen
+
+  // Update lastseen.
   device->setLastSeen(time(NULL));
-  // add the new device
+
+  // Add the new device.
   result = addDevice(device);
   return result;
 }
