@@ -16,8 +16,7 @@ HomeAgentIndexCassandraController::getHomeAgentIndex(const string &name) {
   unsigned long tid = (unsigned long)pthread_self();
   string queryString = "select * from " + HomeAgentIndex::TABLE_NAME +
                        " where name = '" + name + "';";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_ptr<HomeAgentIndex> retObject;
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
@@ -30,8 +29,8 @@ HomeAgentIndexCassandraController::getHomeAgentIndex(const string &name) {
     LOG(DEBUG) << "Zero rows returned";
     return retObject;
   }
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << rows.row_count() << " rows returned";
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << rows.row_count()
+             << " rows returned";
 
   string haName, haIp, haDescription;
   int haPort;
@@ -59,8 +58,7 @@ int HomeAgentIndexCassandraController::addHomeAgentIndex(
       HomeAgentIndex::COL_PORT + "," + HomeAgentIndex::COL_DESCRIPTION +
       ") values " + "('" + haIndex->getName() + "', '" + haIndex->getIp() +
       "'," + strPort + ",'" + haIndex->getDescription() + "');";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
   if (results.get().error.is_err()) {
@@ -74,8 +72,7 @@ vector<boost::shared_ptr<HomeAgentIndex> >
 HomeAgentIndexCassandraController::getAllHomeAgentIndex() {
   unsigned long tid = (unsigned long)pthread_self();
   string queryString = "select * from " + HomeAgentIndex::TABLE_NAME + ";";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   vector<boost::shared_ptr<HomeAgentIndex> > homeAgents;
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
@@ -88,8 +85,8 @@ HomeAgentIndexCassandraController::getAllHomeAgentIndex() {
     LOG(DEBUG) << "Zero rows returned";
     return homeAgents;
   }
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << rows.row_count() << " rows returned";
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << rows.row_count()
+             << " rows returned";
 
   string haName, haIp, haDescription;
   int haPort;

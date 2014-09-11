@@ -18,8 +18,7 @@ UserCassandraController::getUser(const string &username) {
   unsigned long tid = static_cast<unsigned long>(pthread_self());
   string queryString = "select * from " + User::TABLE_NAME + " where " +
                        User::COL_USER_NAME + " = '" + username + "';";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_ptr<User> retObject;
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
@@ -32,8 +31,8 @@ UserCassandraController::getUser(const string &username) {
     LOG(WARN) << "Zero rows returned.";
     return retObject;
   }
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << rows.row_count() << " rows returned.";
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << rows.row_count()
+             << " rows returned.";
 
   string uname, password, email, fullname, location, affiliation;
   rows.next();
@@ -63,8 +62,7 @@ int UserCassandraController::addUser(boost::shared_ptr<User> &user) {
       user->getUsername() + "', '" + user->getPassword() + "', '" +
       user->getEmail() + "', '" + user->getFullname() + "', '" +
       user->getLocation() + "', '" + user->getAffiliation() + "');";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
   if (results.get().error.is_err()) {
@@ -77,8 +75,7 @@ int UserCassandraController::addUser(boost::shared_ptr<User> &user) {
 vector<boost::shared_ptr<User> > UserCassandraController::getAllUser() {
   unsigned long tid = (unsigned long)pthread_self();
   string queryString = "select * from " + User::TABLE_NAME + ";";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   vector<boost::shared_ptr<User> > userVector;
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
@@ -91,8 +88,8 @@ vector<boost::shared_ptr<User> > UserCassandraController::getAllUser() {
     LOG(WARN) << "Zero rows returned.";
     return userVector;
   }
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << rows.row_count() << " rows returned.";
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << rows.row_count()
+             << " rows returned.";
 
   string uname, password, email, fullname, location, affiliation;
   while (rows.next()) {
@@ -120,8 +117,7 @@ bool UserCassandraController::isUsernameAvailable(const string &username,
   unsigned long tid = (unsigned long)pthread_self();
   string queryString = "select * from " + User::TABLE_NAME + " where " +
                        User::COL_USER_NAME + " = '" + username + "';";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
   if (results.get().error.is_err()) {
@@ -144,8 +140,7 @@ bool UserCassandraController::authenticateUser(const string &username,
   string queryString = "select * from " + User::TABLE_NAME + " where " +
                        User::COL_USER_NAME + " = '" + username + "' and " +
                        User::COL_PASSWORD + " ='" + password + "';";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
   if (results.get().error.is_err()) {
@@ -158,8 +153,8 @@ bool UserCassandraController::authenticateUser(const string &username,
     LOG(WARN) << "Zero rows returned.";
     return false;
   }
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << rows.row_count() << " rows returned.";
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << rows.row_count()
+             << " rows returned.";
   return true;
 }
 

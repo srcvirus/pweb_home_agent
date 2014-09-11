@@ -10,17 +10,17 @@ boost::shared_ptr<
 
 CassandraDBDriver::CassandraDBDriver()
     : IDatabaseDriver(CassandraDBDriver::DEFAULT_DB_SERVER,
-                      CassandraDBDriver::DEFAULT_DB_PORT) { }
+                      CassandraDBDriver::DEFAULT_DB_PORT) {}
 
 CassandraDBDriver::CassandraDBDriver(const string &dbServerHost,
                                      unsigned short int dbServerPort =
                                          CassandraDBDriver::DEFAULT_DB_PORT)
-    : IDatabaseDriver(dbServerHost, dbServerPort) { }
+    : IDatabaseDriver(dbServerHost, dbServerPort) {}
 
 CassandraDBDriver::CassandraDBDriver(const char *dbServerHost,
                                      unsigned short int dbServerPort =
                                          CassandraDBDriver::DEFAULT_DB_PORT)
-    : IDatabaseDriver(dbServerHost, dbServerPort) { }
+    : IDatabaseDriver(dbServerHost, dbServerPort) {}
 
 int CassandraDBDriver::openConnection() {
   cqlBuilder = cql::cql_cluster_t::builder();

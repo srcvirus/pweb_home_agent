@@ -124,8 +124,7 @@ boost::shared_ptr<Device> DeviceCassandraController::getDevice(
   string queryString = "select * from " + Device::TABLE_NAME + " where " +
                        Device::COL_USER_NAME + " = '" + username + "' and " +
                        Device::COL_DEVICE_NAME + " = '" + devicename + "';";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_ptr<Device> device;
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
@@ -140,22 +139,21 @@ boost::shared_ptr<Device> DeviceCassandraController::getDevice(
     errorCode = "-1";
     return device;
   }
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << rows.row_count() << "rows returned.";
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << rows.row_count()
+             << "rows returned.";
   rows.next();
   buildDeviceObjectFromQueryResult(rows, device);
   return device;
 }
 
-vector< boost::shared_ptr<Device> >
+vector<boost::shared_ptr<Device> >
 DeviceCassandraController::getUserDevices(const string &username,
                                           string &errorCode) {
   unsigned long tid = (unsigned long)pthread_self();
   string queryString = "select * from " + Device::TABLE_NAME + " where " +
                        Device::COL_USER_NAME + " = '" + username + "';";
 
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   vector<boost::shared_ptr<Device> > deviceVector;
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
@@ -169,8 +167,8 @@ DeviceCassandraController::getUserDevices(const string &username,
     LOG(DEBUG) << "Zero rows returned";
     return deviceVector;
   }
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << rows.row_count() << "rows returned.";
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << rows.row_count()
+             << "rows returned.";
   while (rows.next()) {
     boost::shared_ptr<Device> device;
     buildDeviceObjectFromQueryResult(rows, device);
@@ -187,8 +185,7 @@ bool DeviceCassandraController::isDevicenameAvailable(const string &devicename,
   string queryString = "select * from " + Device::TABLE_NAME + " where " +
                        Device::COL_USER_NAME + " = '" + username + "' and " +
                        Device::COL_DEVICE_NAME + " = '" + devicename + "';";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
   if (results.get().error.is_err()) {
@@ -217,8 +214,7 @@ int DeviceCassandraController::deleteDevice(const string &devicename,
   string queryString = "delete from " + Device::TABLE_NAME + " where " +
                        Device::COL_USER_NAME + " = '" + username + "' and " +
                        Device::COL_DEVICE_NAME + " = '" + devicename + "';";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
   if (results.get().error.is_err()) {
@@ -246,8 +242,7 @@ int DeviceCassandraController::updateDeviceIPPort(const string &devicename,
       "', " + Device::COL_PORT + " = '" + port + "' where " +
       Device::COL_USER_NAME + " = '" + username + "' and " +
       Device::COL_DEVICE_NAME + " = '" + devicename + "';";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
   if (results.get().error.is_err()) {
@@ -276,8 +271,7 @@ int DeviceCassandraController::updateDeviceMetadata(const string &devicename,
       " = '" + metadata + "' where " + Device::COL_USER_NAME + " = '" +
       username + "' and " + Device::COL_DEVICE_NAME + " = '" + devicename +
       "';";
-  LOG(DEBUG) << "[Thread " << std::hex << tid << "] "
-             << queryString.c_str();
+  LOG(DEBUG) << "[Thread " << std::hex << tid << "] " << queryString.c_str();
   boost::shared_future<cql::cql_future_result_t> results =
       databaseDriver->executeQuery(queryString);
   if (results.get().error.is_err()) {
