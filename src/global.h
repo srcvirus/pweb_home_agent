@@ -49,7 +49,8 @@ namespace global
 };
 
 namespace logs {
-  extern boost::shared_ptr<log4cpp::Appender> logAppender;
+  extern boost::shared_ptr<log4cpp::Appender> fileAppender;
+  extern boost::shared_ptr<log4cpp::Appender> consoleAppender;
   extern boost::shared_ptr<log4cpp::PatternLayout> logLayout;
   extern boost::shared_ptr<log4cpp::Category> log;
 }

@@ -28,7 +28,8 @@ boost::shared_ptr<HomeAgentServer> haServer;
 boost::shared_ptr<http_server> httpServer;
 
 namespace logs {
-boost::shared_ptr<log4cpp::Appender> logAppender;
+boost::shared_ptr<log4cpp::Appender> fileAppender;
+boost::shared_ptr<log4cpp::Appender> consoleAppender;
 boost::shared_ptr<log4cpp::PatternLayout> logLayout;
 boost::shared_ptr<log4cpp::Category> log;
 }
@@ -78,19 +79,22 @@ int main(int argc, char *argv[]) {
 
 void configureLog() {
   using logs::log;
-  using logs::logAppender;
+  using logs::fileAppender;
+  using logs::consoleAppender;
   using logs::logLayout;
   log = boost::shared_ptr<log4cpp::Category>(&log4cpp::Category::getRoot());
-  logAppender = boost::shared_ptr<log4cpp::Appender>(
+  fileAppender = boost::shared_ptr<log4cpp::Appender>(
       new log4cpp::FileAppender(
         "pweb_logger", "/var/log/home-agent-log", false));
-  // logAppender = boost::shared_ptr<log4cpp::Appender>(
-  //    new log4cpp::OstreamAppender("console", &std::cout));
+  consoleAppender = boost::shared_ptr<log4cpp::Appender>(
+      new log4cpp::OstreamAppender("console", &std::cout));
   logLayout =
       boost::shared_ptr<log4cpp::PatternLayout>(new log4cpp::PatternLayout());
   logLayout->setConversionPattern("%-5p [%18.3r]: %m%n");
-  logAppender->setLayout(logLayout.get());
-  log->addAppender(logAppender.get());
+  fileAppender->setLayout(logLayout.get());
+  consoleAppender->setLayout(logLayout.get());
+  log->addAppender(fileAppender.get());
+  log->addAppender(consoleAppender.get());
 }
 
 void populateConfigOptions(int argc, char *argv[]) {
