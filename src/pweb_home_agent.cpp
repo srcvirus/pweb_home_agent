@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     ioServicePool = boost::shared_ptr<IOServicePool>(
         new IOServicePool(programConfig.getThreads(), 0x03));
 
-    LOG(DEBUG) << " alias: " << programConfig.getAlias()
+    LOG(INFO) << " alias: " << programConfig.getAlias()
                << ", ip: " << programConfig.getIp()
                << ", host name: " << programConfig.getHostName()
                << ", description: " << programConfig.getDescription()
