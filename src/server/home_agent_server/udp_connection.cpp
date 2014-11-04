@@ -18,7 +18,7 @@ UDPConnection::UDPConnection(boost::shared_ptr<IOServicePool> &ioServicePool,
                              const string &suffix)
     : ioServicePool(ioServicePool),
       localEndpoint(boost::asio::ip::udp::v4(), localListenPort),
-      socket(ioServicePool->getDedicatedIOService(), this->localEndpoint),
+      socket(ioServicePool->getIOService(), this->localEndpoint),
       handler(handler), thisConnection(this), alias(alias), suffix(suffix) {
   memset(this->buffer.elems, 0, sizeof(this->buffer.elems));
   this->socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));

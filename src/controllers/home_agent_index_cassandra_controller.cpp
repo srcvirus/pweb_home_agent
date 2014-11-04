@@ -65,6 +65,7 @@ int HomeAgentIndexCassandraController::addHomeAgentIndex(
     LOG(ERROR) << results.get().error.message.c_str();
     return results.get().error.code;
   }
+  LOG(INFO) << "Successfully added " << haIndex->getName() << " to cassandra";
   return 0;
 }
 
