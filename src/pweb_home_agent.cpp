@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     configureLog();
     boost::program_options::notify(programOptionMap);
     ioServicePool = boost::shared_ptr<IOServicePool>(
-        new IOServicePool(programConfig.getThreads(), 0x03));
+        new IOServicePool(programConfig.getThreads(), 0x00));
 
     LOG(INFO) << " alias: " << programConfig.getAlias()
                << ", ip: " << programConfig.getIp()
@@ -90,11 +90,12 @@ void configureLog() {
       new log4cpp::OstreamAppender("console", &std::cout));
   logLayout =
       boost::shared_ptr<log4cpp::PatternLayout>(new log4cpp::PatternLayout());
-  logLayout->setConversionPattern("%-5p [%18.3r]: %m%n");
+  logLayout->setConversionPattern("[%-5p %d{%a %b-%d-%Y %H:%M:%S.%l}: %m%n");
   fileAppender->setLayout(logLayout.get());
   consoleAppender->setLayout(logLayout.get());
   log->addAppender(fileAppender.get());
   log->addAppender(consoleAppender.get());
+  log->setPriority(log4cpp::Priority::DEBUG);
 }
 
 void populateConfigOptions(int argc, char *argv[]) {

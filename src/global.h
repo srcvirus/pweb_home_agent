@@ -1,6 +1,7 @@
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
+#include <pthread.h>
 #include <unistd.h>
 #include <string>
 
@@ -20,7 +21,7 @@ using namespace std;
 #define TOSTRING(x) #x
 #define AT __FILE__ ":" TOSTRING(__LINE__) " "
 #define DO_LOG(__stream, __log_level__) __stream << log4cpp::Priority::__log_level__\
-                                        << __FILE__ << ":" << __LINE__ << " "
+                                        << __FILE__ << ":" << __LINE__ << " Thread:" << std::hex << pthread_self() << "] "
 #define LOG(__log_level__) DO_LOG(*logs::log.get(), __log_level__)
 
 #define MAX_UDP_BUFFER_SIZE 65536

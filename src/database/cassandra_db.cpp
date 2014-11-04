@@ -49,16 +49,28 @@ int CassandraDBDriver::selectKeySpace(const string &keyspace) {
 boost::shared_future<cql::cql_future_result_t>
 CassandraDBDriver::executeQuery(const string &queryString) {
   pthread_mutex_lock(&this->dbLock);
-
-  if (!connected)
-    this->openConnection();
+  // LOG(DEBUG) << "lock aquired";
+  if (!connected) {
+    if (this->openConnection()) {
+      LOG(ERROR) << "Failed to open a connection to "
+                 << this->dbServerHostName << ":"
+                 << this->dbServerPort;
+    } else {
+      LOG(INFO) << "Opened a connection to "
+                << this->dbServerHostName << ":"
+                << this->dbServerPort;
+    }
+  }
 
   boost::shared_ptr<cql::cql_query_t> cqlQuery(
       new cql::cql_query_t(queryString, cql::CQL_CONSISTENCY_ONE));
+  // LOG(DEBUG) << "Waiting ...";
   boost::shared_future<cql::cql_future_result_t> cqlResult =
       this->cqlSession->query(cqlQuery);
   cqlResult.wait();
+  // LOG(DEBUG) << "The wait is over ...";
   pthread_mutex_unlock(&this->dbLock);
+  // LOG(DEBUG) << "Lock released";
   return cqlResult;
 }
 

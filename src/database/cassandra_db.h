@@ -1,6 +1,7 @@
 #ifndef _CASSANDRA_DB_H_
 #define _CASSANDRA_DB_H_
 
+#include "../global.h"
 #include <string>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
@@ -13,6 +14,7 @@
 #include <boost/program_options/option.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
+
 
 #include <cql/cql.hpp>
 #include <cql/cql_error.hpp>
@@ -31,9 +33,9 @@ using namespace std;
 
 class CassandraDBDriver
     : public IDatabaseDriver<boost::shared_future<cql::cql_future_result_t> > {
-  boost::shared_ptr<cql::cql_builder_t> cqlBuilder;
-  boost::shared_ptr<cql::cql_cluster_t> cqlCluster;
-  boost::shared_ptr<cql::cql_session_t> cqlSession;
+   boost::shared_ptr<cql::cql_builder_t> cqlBuilder;
+   boost::shared_ptr<cql::cql_cluster_t> cqlCluster;
+   boost::shared_ptr<cql::cql_session_t> cqlSession;
 
 protected:
 
