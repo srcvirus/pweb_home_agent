@@ -93,7 +93,7 @@ void configureLog() {
   log_file_name += str_time;
   fileAppender = boost::shared_ptr<log4cpp::Appender>(
       new log4cpp::FileAppender(
-        "pweb_logger", "/var/log/home-agent-log", false));
+        "pweb_logger", log_file_name.c_str(), false));
   consoleAppender = boost::shared_ptr<log4cpp::Appender>(
       new log4cpp::OstreamAppender("console", &std::cout));
   logLayout =
