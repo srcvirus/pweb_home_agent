@@ -8,6 +8,7 @@
 #include "global.h"
 
 #include <string>
+#include <time.h>
 #include <iostream>
 
 #include <boost/program_options.hpp>
@@ -83,6 +84,13 @@ void configureLog() {
   using logs::consoleAppender;
   using logs::logLayout;
   log = boost::shared_ptr<log4cpp::Category>(&log4cpp::Category::getRoot());
+  string log_file_name = "/var/log/home-agent-log.";
+  time_t current_time;
+  time(&current_time);
+  tm* time_info = localtime(&current_time);
+  char str_time[128];
+  strftime(str_time, 128, "%Y%m%d%H%M%S", time_info);
+  log_file_name += str_time;
   fileAppender = boost::shared_ptr<log4cpp::Appender>(
       new log4cpp::FileAppender(
         "pweb_logger", "/var/log/home-agent-log", false));
