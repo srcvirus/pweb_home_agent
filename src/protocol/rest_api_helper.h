@@ -143,7 +143,7 @@ public:
     if (isAvailable) {
       return "{\"status\":\"success\", \"availability\":\"yes\"}";
     }
-
+    /*
     string suggestions = "";
     for (int i = 0; i < REST_API_SUGGESION_COUNT; i++) {
       ostringstream availableUsername;
@@ -167,6 +167,8 @@ public:
     return "{\"status\":\"success\", \"availability\":\"no\", "
            "\"suggestion\":[" +
            suggestions + "]}";
+    */
+    return "{\"status\":\"success\", \"availability\":\"no\"}";
   }
 
   string authenticateUser(const string &username, const string &password) {
@@ -253,6 +255,7 @@ public:
       return "{\"status\":\"success\", \"availability\":\"yes\"}";
     }
 
+    /*
     string suggestions = "";
     for (int i = 0; i < REST_API_SUGGESION_COUNT; i++) {
       ostringstream availableDevicename;
@@ -277,6 +280,8 @@ public:
     return "{\"status\":\"success\", \"availability\":\"no\", "
            "\"suggestion\":[" +
            suggestions + "]}";
+    */
+    return "{\"status\":\"success\", \"availability\":\"no\"}";
   }
 
   string deleteDevice(const string &devicename, const string &username,
